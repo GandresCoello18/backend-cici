@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
-import { Users } from '../../models/users';
-import {dataBase} from '../../utils';
+import { format } from 'date-fns'
+import { User } from '../../models/users';
+import jwt from "jsonwebtoken";
+import {config, createUserUtil, dataBase, getUserUtil} from '../../utils';
 import bcryptjs from "bcryptjs";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -9,14 +11,9 @@ export const getUser = async (req: Request, res: Response) => {
     req.logger.info({ status: 'start' });
   
     try {
-      const users: Users = await new Promise((resolve, reject) => {
-        dataBase.query(
-          `SELECT * FROM users;`,
-          (err, data) => err ? reject(err) : resolve(data)
-        );
-      });
+      const user = await getUserUtil({userName: 'gandrescoello'});
 
-      return res.status(200).json({ users });
+      return res.status(200).json({ user });
     } catch (error) {
       req.logger.error({ status: 'error', code: 500 });
       return res.status(404).json();
@@ -25,39 +22,118 @@ export const getUser = async (req: Request, res: Response) => {
 
 export const crerateUser = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'users', serviceHandler: 'crerateUser' });
-    req.logger.info({ status: 'start', servicePayload: req.body });
-  
-    try {
-      const {userName, email, password, isAdmin, avatar} = req.body;
+    req.logger.info({ status: 'start' });
 
-      if(!userName || !email  || !password || !avatar){
+    try {
+      const {userName, email, password, isAdmin, avatar, provider} = req.body;
+
+      if(!userName || !email || !provider){
         const response = { status: 'No data user provided' };
         req.logger.warn(response);
         return res.status(400).json(response);
       }
 
-      const passwordEncrip = await bcryptjs.hash(password, 10);
+      const userExist = await getUserUtil({email_and_username: {userName, email}});
 
-      const user: Users = {
-        idUser: uuidv4(),
-        userName,
-        email,
-        password: passwordEncrip,
-        created_at: new Date(),
-        isAdmin: isAdmin ? true : false,
-        avatar
+      if(userExist.length){
+        return res.status(400).json({status: 'Estos datos ya pertenecen a otra cuenta, utilize otro Nombre de usuario o Email'});
+      }else{
+        let passwordEncrip: string | null = null;
+
+        if (provider === 'cici' && password) {
+          passwordEncrip = await bcryptjs.hash(password, 10);
+        }
+
+        const user: User = {
+          idUser: uuidv4(),
+          userName,
+          email,
+          password: passwordEncrip ? passwordEncrip : null,
+          created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+          isAdmin: isAdmin ? true : false,
+          avatar: avatar ? avatar : null,
+          provider: provider ? provider : 'cici',
+        }
+
+        await createUserUtil(user);
+
+        return res.status(200).json();
       }
-
-      await new Promise((resolve, reject) => {
-        dataBase.query(
-          `INSERT INTO users (idUser, userName, email, password, created_at, isAdmin, avatar) VALUES ('${user.idUser}', '${user.userName}', '${user.email}', '${user.password}', ${user.created_at}, ${user.isAdmin}, '${user.avatar}');`,
-          (err, data) => err ? reject(err) : resolve(data)
-        );
-      });
-
-      return res.status(200).json();
     } catch (error) {
-      req.logger.error({ status: 'error', code: 500 });
+      req.logger.error({ status: 'error', code: 500, error: error.message });
       return res.status(404).json();
     }
+}
+
+export const login = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'login' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const {email, password, provider, userName, avatar} = req.body;
+
+    if(!email || !provider){
+      const response = { status: 'No data user provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    let user: User[] | null = null;
+
+    if(provider === 'cici'){
+      const userExist = await getUserUtil({email});
+
+      if(userExist.length){
+        const passwordDB = userExist[0].password as string;
+        const ValidatePassword = await bcryptjs.compare(password, passwordDB);
+        
+        ValidatePassword ? user = userExist : [];
+      }else{
+        return res.status(400).json({status: 'Datos incorrectos, revise e intentelo de nuevo'});
+      }
+    }else{
+      const userExist = await getUserUtil({email});
+
+      if(userExist.length){
+        user = await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT * FROM users WHERE email = '${email}' AND provider = '${provider}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+      }else{
+        const saveUser: User = {
+          idUser: uuidv4(),
+          userName,
+          email,
+          password: null,
+          created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+          isAdmin: false,
+          avatar,
+          provider: provider ? provider : 'cici',
+        }
+
+        await createUserUtil(saveUser);
+        user = [saveUser]
+      }
+    }
+
+    let me;
+
+    if(user?.length){
+      user[0].password = ''
+
+      me = {
+        user: user[0],
+        token: jwt.sign({idUser: user[0].idUser}, config.JWT_SECRET),
+      }
+
+      return res.status(200).json({me})
+    }else{
+      return res.status(400).json({status: 'Datos incorrectos, revise e intentelo de nuevo'});
+    }
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500, error: error.message });
+    return res.status(404).json();
+  }
 }

@@ -1,5 +1,4 @@
 import express from 'express';
-import { config } from './utils';
 import cors from 'cors';
 import { logger } from './middlewares';
 
@@ -8,19 +7,16 @@ import User from './services/user';
 export function init() {
   const app = express();
 
-  const origin: (string | RegExp)[] = [
-    'http://localhost:3000',
-    'http://localhost:8080'
-  ]
-
-  if (config.X_DEBBUGER_ENV === 'development') {
-    origin.push(/\.amplifyapp\.com$/);
-  }
-
-  app.use(cors({ origin }));
+  app.use(cors({
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:8080'
+    ]
+  }));
 
   // app.use(express.json());
   // Use JSON parser for all non-webhook routes
+
   app.use((req, res, next) => {
     if (
       req.originalUrl === '/api/webhooks/stripe' ||
@@ -32,7 +28,6 @@ export function init() {
     }
   });
 
-  // API version 2
   app.use('/api', logger, [
     User,
   ]);

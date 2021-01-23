@@ -1,9 +1,10 @@
-export interface Users {
+export interface User {
     idUser: string;
     userName: string;
     email: string;
-    password: string;
-    created_at: Date;
+    password: string | null;
+    created_at: Date| string;
     isAdmin: boolean;
-    avatar: string;
+    avatar: string | null;
+    provider: string;
 }

@@ -12,6 +12,7 @@ export const config = envalid.cleanEnv(
     DB_PASSWORD: str(),
     DB_NAME: str(),
     DB_PORT: str(),
+    JWT_SECRET: str(),
   },
   { strict: true, dotEnvPath: path.resolve(__dirname, '../../.env') },
 );
