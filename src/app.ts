@@ -3,6 +3,7 @@ import cors from 'cors';
 import { logger } from './middlewares';
 
 import User from './services/user';
+import Product from './services/product';
 
 export function init() {
   const app = express();
@@ -28,8 +29,11 @@ export function init() {
     }
   });
 
+  app.use("/static", express.static("public"));
+
   app.use('/api', logger, [
     User,
+    Product,
   ]);
 
   return { app };
