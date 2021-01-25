@@ -1,11 +1,13 @@
 import express from 'express';
 
-import { getProducts, getProduct, createProduct } from './controller';
+import { getProducts, getProductsOffers, getProductsBestRated, getProduct, createProduct } from './controller';
 
 const router = express.Router();
 const baseURL = '/products';
 
 router.get(`${baseURL}/`, getProducts);
+router.get(`${baseURL}/offers/:limit`, getProductsOffers);
+router.get(`${baseURL}/best-rated/:limit`, getProductsBestRated);
 router.get(`${baseURL}/:idProduct`, getProduct);
 router.post(`${baseURL}/`, createProduct);
 

@@ -1,9 +1,9 @@
 import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { Product } from '../../models/products';
+import { Product, SourcesProduct } from '../../models/products';
 import { dataBase } from '../../utils';
-import { createProductUtil } from '../../utils/products';
+import { createProductSourcesUtil, createProductUtil, getProductSourcesUtil } from '../../utils/products';
 
 export const createProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'product', serviceHandler: 'createProduct' });
@@ -43,11 +43,25 @@ export const createProduct = async (req: Request, res: Response) => {
             brand,
             size,
             model,
-            related_sources: related_sources ? related_sources : null,
-            discount: 0
+            related_sources: [],
+            discount: 0,
+            starsPeople: 0,
           }
 
           await createProductUtil(product);
+
+          if(related_sources.length){
+            related_sources.foreach(async (item: SourcesProduct) => {
+              const sourcesProduct: SourcesProduct = {
+                idSourceProduct: uuidv4(),
+                source: item.source,
+                kind: item.kind,
+                idProduct: product.idProducts
+              }
+
+              await createProductSourcesUtil(sourcesProduct);
+            })
+          }
 
           return res.status(200).json();
         }
@@ -64,7 +78,7 @@ export const getProducts = async (req: Request, res: Response) => {
     try {
         const Products: Product[] = await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT * FROM products;`,
+              `SELECT * FROM products WHERE status = 'Disponible' ORDER BY idProducts LIMIT 12;`,
               (err, data) => err ? reject(err) : resolve(data)
             );
         });
@@ -91,12 +105,76 @@ export const getProduct = async (req: Request, res: Response) => {
 
         const Product: Product[] = await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT * FROM products WHERE idProducts = '${idProduct}';`,
+              `SELECT * FROM products WHERE status = 'Disponible' AND idProducts = '${idProduct}';`,
               (err, data) => err ? reject(err) : resolve(data)
             );
         });
 
+        Product[0].related_sources = await getProductSourcesUtil(Product[0].idProducts);
+        Product[0].related_sources.push({
+          idSourceProduct: 'generado',
+          source: Product[0].source,
+          kind: 'IMAGEN',
+          idProduct: Product[0].idProducts
+        })
+
         return res.status(200).json({ product: Product[0] });
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(404).json();
+    }
+}
+
+export const getProductsOffers = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'product', serviceHandler: 'getProductsOffers' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const {limit} = req.params;
+        let sql: string;
+
+        if(limit){
+          sql = `SELECT * FROM products WHERE status = 'Disponible' AND discount <> 0 LIMIT ${Number(limit)};`
+        }else{
+          sql = `SELECT * FROM products WHERE status = 'Disponible' AND discount <> 0;`
+        }
+
+        const Products: Product[] = await new Promise((resolve, reject) => {
+            dataBase.query(
+              sql,
+              (err, data) => err ? reject(err) : resolve(data)
+            );
+        });
+
+        return res.status(200).json({ products: Products });
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(404).json();
+    }
+}
+
+export const getProductsBestRated = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'product', serviceHandler: 'getProductsBestRated' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const {limit} = req.params;
+        let sql: string;
+
+        if(limit){
+          sql = `SELECT * FROM products WHERE status = 'Disponible' AND stars > 4 LIMIT ${Number(limit)};`
+        }else{
+          sql = `SELECT * FROM products WHERE status = 'Disponible' AND stars > 4;`
+        }
+
+        const Products: Product[] = await new Promise((resolve, reject) => {
+            dataBase.query(
+              sql,
+              (err, data) => err ? reject(err) : resolve(data)
+            );
+        });
+
+        return res.status(200).json({ products: Products });
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(404).json();

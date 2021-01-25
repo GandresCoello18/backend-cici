@@ -11,7 +11,15 @@ export interface Product {
     brand: string;
     size: string;
     model: string;
-    related_sources: string;
+    related_sources: SourcesProduct[];
     created_at: Date | string;
     discount: number;
+    starsPeople: number;
+}
+
+export interface SourcesProduct {
+    idSourceProduct: string;
+    source: string;
+    kind: string,
+    idProduct: string;
 }
