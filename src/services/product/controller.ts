@@ -43,7 +43,8 @@ export const createProduct = async (req: Request, res: Response) => {
             brand,
             size,
             model,
-            related_sources: related_sources ? related_sources : null
+            related_sources: related_sources ? related_sources : null,
+            discount: 0
           }
 
           await createProductUtil(product);

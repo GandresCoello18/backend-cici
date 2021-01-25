@@ -13,4 +13,5 @@ export interface Product {
     model: string;
     related_sources: string;
     created_at: Date | string;
+    discount: number;
 }
