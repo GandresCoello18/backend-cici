@@ -76,9 +76,13 @@ export const getProducts = async (req: Request, res: Response) => {
     req.logger.info({ status: 'start' });
 
     try {
+      let start: number;
+      console.log(req.query)
+
+        start = 1;
         const Products: Product[] = await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT * FROM products WHERE status = 'Disponible' ORDER BY idProducts LIMIT 12;`,
+              `SELECT * FROM products WHERE status = 'Disponible' ORDER BY idProducts LIMIT ${start}, 12;`,
               (err, data) => err ? reject(err) : resolve(data)
             );
         });
