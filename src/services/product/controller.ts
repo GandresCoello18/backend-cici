@@ -77,15 +77,34 @@ export const getProducts = async (req: Request, res: Response) => {
 
     try {
       let start: number;
-      console.log(req.query)
+      let Products: Product[] = [];
+      const { priceMin, priceMax, isPromo, order, orderPrice, orderStar } = req.query
 
+      const valueQuery = (query: any): boolean => {
+        if(query === 'false' || query === 'undefined' || query === '0' || query === undefined){
+          return false
+        }
+        return true
+      }
+
+      if(valueQuery(priceMin) || valueQuery(priceMax) || valueQuery(isPromo) || valueQuery(order) || valueQuery(orderPrice) || valueQuery(orderStar)){
+        let sql: string = `SELECT * FROM products WHERE price > ${valueQuery(priceMin) ? Number(priceMin) : 0} ${valueQuery(priceMax) ? `AND price < ${Number(priceMax)}` : ''} ${valueQuery(orderPrice) || valueQuery(orderStar) ? `ORDER BY ${valueQuery(orderPrice) ? 'price' : 'stars'} ${valueQuery(order) ? order : 'ASC'}` : ''}`;
+
+        Products = await new Promise((resolve, reject) => {
+          dataBase.query(
+            `${sql} LIMIT ${1}, 12;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+      }else{
         start = 1;
-        const Products: Product[] = await new Promise((resolve, reject) => {
+        Products = await new Promise((resolve, reject) => {
             dataBase.query(
               `SELECT * FROM products WHERE status = 'Disponible' ORDER BY idProducts LIMIT ${start}, 12;`,
               (err, data) => err ? reject(err) : resolve(data)
             );
         });
+      }
 
         return res.status(200).json({ products: Products });
     } catch (error) {
@@ -159,7 +178,7 @@ export const getProductsOffers = async (req: Request, res: Response) => {
 
 export const getProductsBestRated = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'product', serviceHandler: 'getProductsBestRated' });
-    req.logger.info({ status: 'start' });
+  req.logger.info({ status: 'start' });
 
     try {
         const {limit} = req.params;
@@ -182,5 +201,26 @@ export const getProductsBestRated = async (req: Request, res: Response) => {
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(404).json();
+    }
+}
+
+export const getProductsCategory = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'product', serviceHandler: 'getProductsCategory' });
+  req.logger.info({ status: 'start' });
+
+    try {
+        const { idCategory } = req.params;
+
+        const Products: Product[] = await new Promise((resolve, reject) => {
+            dataBase.query(
+              `SELECT products.* FROM product_category INNER JOIN products ON products.idProducts = product_category.idProduct INNER JOIN category ON category.idCategory = product_category.idCategory  WHERE category.titleCategory = '${idCategory}';`,
+              (err, data) => err ? reject(err) : resolve(data)
+            );
+        });
+
+        return res.status(200).json({ products: Products });
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
     }
 }
