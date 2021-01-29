@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { Cart, CartProduct } from '../../models/cart';
 import { v4 as uuidv4 } from 'uuid';
-import { createCartProductUtil, createCartUtil, ExistCartUserUtil, ExistProductCart, getProductCartUserUtil, UpdateProductCart } from '../../utils/cart';
+import { createCartProductUtil, createCartUtil, DeleteProductCart, ExistCartUserUtil, ExistProductCart, getProductCartUserUtil, UpdateProductCart } from '../../utils/cart';
 // import { dataBase } from '../../utils';
 
 export const newProductCart = async (req: Request, res: Response) => {
@@ -64,6 +64,37 @@ export const getProductCart = async (req: Request, res: Response) => {
         const products = await getProductCartUserUtil(user.idUser)
 
         return res.status(200).json({ products });
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const deleteProductCart = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'cart', serviceHandler: 'deleteProductCart' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const { idProduct } = req.params
+        const user = req.user
+
+        if(!idProduct){
+            const response = { status: 'No product id for cart provided' };
+            req.logger.warn(response);
+            return res.status(400).send(response);
+        }
+
+        const ExistCart = await ExistCartUserUtil(user.idUser)
+
+        if(ExistCart.length){
+            await DeleteProductCart(ExistCart[0].idCart, idProduct)
+            return res.status(200).json();
+        }else{
+            const response = { status: 'Error delete product in cart' };
+            req.logger.warn(response);
+            return res.status(400).send(response);
+        }
+
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();

@@ -85,3 +85,17 @@ export const UpdateProductCart = async (idCart: string, idProduct: string, quant
         return [];
     }
 }
+
+export const DeleteProductCart = async (idCart: string, idProduct: string) => {
+    try {
+        return await new Promise((resolve, reject) => {
+            dataBase.query(
+              `DELETE FROM cart_product WHERE idProduct = '${idProduct}' AND idCart = '${idCart}';`,
+              (err, data) => err ? reject(err) : resolve(data)
+            );
+          });
+    } catch (error) {
+        console.log(error.message);
+        return [];
+    }
+}
