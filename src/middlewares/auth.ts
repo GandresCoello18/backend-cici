@@ -11,7 +11,7 @@ declare module 'express-serve-static-core' {
 }
 
 interface TokenInterface {
-    idUser: string;
+  idUser: string;
 }
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {

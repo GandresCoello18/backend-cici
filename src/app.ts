@@ -5,6 +5,7 @@ import { logger } from './middlewares';
 import User from './services/user';
 import Product from './services/product';
 import Contact from './services/contact'
+import Cart from './services/cart'
 
 export function init() {
   const app = express();
@@ -36,6 +37,7 @@ export function init() {
     User,
     Product,
     Contact,
+    Cart,
   ]);
 
   return { app };
