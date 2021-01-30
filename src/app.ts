@@ -6,6 +6,7 @@ import User from './services/user';
 import Product from './services/product';
 import Contact from './services/contact'
 import Cart from './services/cart'
+import Favorite from './services/favorite'
 
 export function init() {
   const app = express();
@@ -38,6 +39,7 @@ export function init() {
     Product,
     Contact,
     Cart,
+    Favorite,
   ]);
 
   return { app };
