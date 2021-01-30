@@ -32,6 +32,36 @@ export const getFavoriteProduct = async (req: Request, res: Response) => {
     }
 }
 
+export const getFavoriteProductCount = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'favorite', serviceHandler: 'getFavoriteProductCount' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const {idProduct} = req.params
+
+        if(!idProduct){
+            const response = { status: 'No product id provided' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        interface Count {
+            COUNT: number
+        }
+
+        const CountFav: Count[]  = await new Promise((resolve, reject) => {
+            dataBase.query(
+                `SELECT COUNT(*) as COUNT FROM favorite_product WHERE idProduct = '${idProduct}';`,
+                (err, data) => err ? reject(err) : resolve(data)
+            );
+        });
+
+        return res.status(200).json({ count: CountFav[0].COUNT });
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
 
 export const createFavorite = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'favorite', serviceHandler: 'createFavorite' });
