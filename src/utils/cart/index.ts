@@ -34,7 +34,7 @@ export const ExistCartUserUtil = async (idUser: string) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT * FROM cart WHERE idUser = '${idUser}';`,
+              `SELECT * FROM cart WHERE idUser = '${idUser}' AND status = 'Pendiente';`,
               (err, data) => err ? reject(err) : resolve(data)
             );
           }) as Cart[];

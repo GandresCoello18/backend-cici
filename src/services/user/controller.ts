@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { format } from 'date-fns'
+import Locale from 'date-fns/locale/es'
 import { User } from '../../models/users';
 import jwt from "jsonwebtoken";
 import {config, createUserUtil, dataBase, getUserUtil} from '../../utils';
@@ -9,11 +10,12 @@ import { v4 as uuidv4 } from 'uuid';
 export const getUser = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'users', serviceHandler: 'getUser' });
     req.logger.info({ status: 'start' });
-  
-    try {
-      const user = await getUserUtil({userName: 'gandrescoello'});
 
-      return res.status(200).json({ user });
+    try {
+      const user = req.user
+      user.password = ''
+      user.created_at = format(new Date(user.created_at), 'PPPP', {locale: Locale})
+      return res.status(200).json({ me: user });
     } catch (error) {
       req.logger.error({ status: 'error', code: 500 });
       return res.status(404).json();

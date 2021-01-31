@@ -7,4 +7,5 @@ export interface Addresses {
     address: string
     idUser: string | null
     created_at: Date | string
+    selected: boolean
 }

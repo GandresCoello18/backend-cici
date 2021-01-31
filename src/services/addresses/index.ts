@@ -4,7 +4,7 @@ import { auth } from '../../middlewares/auth';
 import { getMyAddress, newAddress } from './controller';
 
 const router = express.Router();
-const baseURL = '/favorite';
+const baseURL = '/addresses';
 
 router.get(`${baseURL}/`, auth, getMyAddress);
 router.post(`${baseURL}/`, newAddress);

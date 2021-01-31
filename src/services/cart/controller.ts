@@ -11,6 +11,7 @@ export const newProductCart = async (req: Request, res: Response) => {
 
     try {
         const {idProduct, quantity} = req.body
+        console.log(req.body)
         const user = req.user
 
         if(!idProduct && !quantity){
@@ -29,14 +30,21 @@ export const newProductCart = async (req: Request, res: Response) => {
                 idCart: idCart || existCart[0].idCart,
             }
 
+            console.log(cartProduct)
+
             await createCartProductUtil(cartProduct)
         }
 
         if(existCart.length){
             const existProduct = await ExistProductCart(existCart[0].idCart, idProduct)
-            const SumQuantity: number = existProduct[0].quantity + Number(quantity)
 
-            existProduct.length ? UpdateProductCart(existCart[0].idCart, idProduct, SumQuantity) : AddProductCart()
+            if (existProduct.length) {
+                const SumQuantity: number = existProduct[0].quantity + Number(quantity)
+                UpdateProductCart(existCart[0].idCart, idProduct, SumQuantity)
+            } else {
+                AddProductCart()
+            }
+
         }else{
             const cart: Cart = {
                 idCart: uuidv4(),
@@ -50,6 +58,7 @@ export const newProductCart = async (req: Request, res: Response) => {
 
         return res.status(200).json();
     } catch (error) {
+        console.log(error.message)
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
     }
