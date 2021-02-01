@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import Locale from 'date-fns/locale/es'
 import { User } from '../../models/users';
 import jwt from "jsonwebtoken";
-import {config, createUserUtil, dataBase, getUserUtil} from '../../utils';
+import {config, createUserUtil, dataBase, getUserUtil, updatePasswordUserUtil, updateUserUtil} from '../../utils';
 import bcryptjs from "bcryptjs";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -136,6 +136,68 @@ export const login = async (req: Request, res: Response) => {
     }
   } catch (error) {
     req.logger.error({ status: 'error', code: 500, error: error.message });
+    return res.status(404).json();
+  }
+}
+
+export const updateUser = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'updateUser' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const {userName, email} = req.body
+    const user = req.user
+  
+    if(!email || !userName){
+      const response = { status: 'No data user provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await updateUserUtil(userName, email, user.idUser)
+
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
+}
+
+export const updatePasswordUser = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'updatePasswordUser' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const {newKey, currentKey} = req.body
+    const user = req.user
+  
+    if(!currentKey || !newKey){
+      const response = { status: 'No data password user provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    if(user.password && user.provider === 'cici'){
+      const ValidatePassword = await bcryptjs.compare(currentKey, user.password);
+      
+      if(!ValidatePassword){
+        const response = { status: 'La clave actual es incorrecta, revise y veulva a intentarl' };
+        req.logger.warn(response);
+        return res.status(400).json(response);
+      }
+
+      const newPassword: string = await bcryptjs.hash(newKey, 10);
+      await updatePasswordUserUtil(newPassword, user.idUser)
+      return res.status(200).json();
+
+    }
+
+    const response = { status: 'No user provided cici' };
+    req.logger.warn(response);
+    return res.status(400).json(response);
+
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
     return res.status(404).json();
   }
 }

@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import Locale from 'date-fns/locale/es'
 import { v4 as uuidv4 } from 'uuid';
 import { Addresses } from '../../models/addresses';
-import { createAddressUtil, ExistAddressUtil, getMyAddressUtil } from '../../utils/addresses';
+import { createAddressUtil, deleteMyAddressUtil, ExistAddressUtil, getMyAddressUtil, getSelectAddressUtil, updateSelectAddressUtil } from '../../utils/addresses';
 
 export const newAddress = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'addresses', serviceHandler: 'newAddress' });
@@ -60,6 +60,55 @@ export const getMyAddress = async (req: Request, res: Response) => {
 
         return res.status(200).json({ address });
     } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const deleteMyAddress = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'addresses', serviceHandler: 'deleteMyAddress' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const { title } = req.params
+        const user = req.user
+
+        if(!title){
+            const response = { status: 'No data provided for delete Address' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        await deleteMyAddressUtil(user.idUser, title)
+
+        return res.status(200).json();
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const selectedAddress = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'addresses', serviceHandler: 'selectedAddress' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const { title } = req.params
+        const user = req.user
+
+        if(!title){
+            const response = { status: 'No data provided for selectd Address' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        const selectdAddress = await getSelectAddressUtil(user.idUser, title)
+        const isSelected: boolean = selectdAddress[0].selected ? false : true
+        await updateSelectAddressUtil(user.idUser, title, isSelected)
+
+        return res.status(200).json();
+    } catch (error) {
+        console.log(error.message)
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
     }

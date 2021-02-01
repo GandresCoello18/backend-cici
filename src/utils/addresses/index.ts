@@ -42,3 +42,45 @@ export const getMyAddressUtil = async (idUser: string) => {
         return [];
     }
 }
+
+export const deleteMyAddressUtil = async (idUser: string, title: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `DELETE FROM addresses WHERE idUser = '${idUser}' AND title = '${title}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
+
+export const getSelectAddressUtil = async (idUser: string, title: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT selected FROM addresses WHERE idUser = '${idUser}' AND title = '${title}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Addresses[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const updateSelectAddressUtil = async (idUser: string, title: string, isSelected: boolean) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE addresses SET selected = ${isSelected} WHERE idUser = '${idUser}' AND title = '${title}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Addresses[];
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}

@@ -30,8 +30,6 @@ export const newProductCart = async (req: Request, res: Response) => {
                 idCart: idCart || existCart[0].idCart,
             }
 
-            console.log(cartProduct)
-
             await createCartProductUtil(cartProduct)
         }
 

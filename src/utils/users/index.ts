@@ -60,3 +60,31 @@ export const createUserUtil = async (user: User) => {
         return false;
     }
 }
+
+export const updateUserUtil = async (userName: string, email: string, idUser: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE users SET userName = '${userName}', email = '${email}' WHERE idUser = '${idUser}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
+
+export const updatePasswordUserUtil = async (password: string, idUser: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE users SET password = '${password}' WHERE idUser = '${idUser}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
