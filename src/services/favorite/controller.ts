@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Favorite } from '../../models/favorite';
+import { Product } from '../../models/products';
 import { dataBase } from '../../utils';
 
 export const getFavoriteProduct = async (req: Request, res: Response) => {
@@ -26,6 +27,27 @@ export const getFavoriteProduct = async (req: Request, res: Response) => {
         });
 
         return res.status(200).json({ isFav: favorites.length ? true : false});
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const getMyFavoritesProducts = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'favorite', serviceHandler: 'getMyFavoritesProducts' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const user = req.user
+
+        const favorites: Product[] = await new Promise((resolve, reject) => {
+            dataBase.query(
+                `SELECT products.* FROM favorite_product INNER JOIN products ON products.idProducts = favorite_product.idProduct WHERE favorite_product.idUser = '${user.idUser}';`,
+                (err, data) => err ? reject(err) : resolve(data)
+            );
+        });
+
+        return res.status(200).json({ favorites });
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
@@ -124,6 +146,27 @@ export const deleteFavorite = async (req: Request, res: Response) => {
         await new Promise((resolve, reject) => {
             dataBase.query(
                 `DELETE FROM favorite_product WHERE idProduct = '${idProduct}' AND idUser = '${user.idUser}';`,
+                (err, data) => err ? reject(err) : resolve(data)
+            );
+        });
+
+        return res.status(200).json();
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const deleteAllMyFavorites = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'favorite', serviceHandler: 'deleteAllMyFavorites' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const user = req.user
+
+        await new Promise((resolve, reject) => {
+            dataBase.query(
+                `DELETE FROM favorite_product WHERE idUser = '${user.idUser}';`,
                 (err, data) => err ? reject(err) : resolve(data)
             );
         });
