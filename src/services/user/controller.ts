@@ -22,6 +22,28 @@ export const getUser = async (req: Request, res: Response) => {
     }
 };
 
+export const getUserName = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'getUserName' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const {username} = req.params
+    const user = await getUserUtil({userName: username})
+    
+    if (user.length) {
+      user[0].password = ''
+      user[0].email= ''
+      return res.status(200).json({ user: user[0] });
+    }
+
+    return res.status(200).json({ user: undefined });
+  } catch (error) {
+    console.log(error.message)
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
+};
+
 export const crerateUser = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'users', serviceHandler: 'crerateUser' });
     req.logger.info({ status: 'start' });
