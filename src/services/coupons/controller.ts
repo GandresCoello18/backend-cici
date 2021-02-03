@@ -23,7 +23,8 @@ export const createUserCoupons = async (req: Request, res: Response) => {
     req.logger.info({ status: 'start' });
 
     try {
-        const {idUser, idCoupon, expiration_date} = req.body
+        const {idUser, idCoupon, expiration_date, idGuestUser} = req.body
+        const user = req.user
 
         let date: Date = expiration_date ? new Date(expiration_date) : new Date
 
@@ -32,7 +33,9 @@ export const createUserCoupons = async (req: Request, res: Response) => {
             idUser: idUser || null,
             idCoupon: idCoupon || null,
             expiration_date: format(date, 'yyyy-MM-dd HH:mm:ss'),
-            created_at: format(date, 'yyyy-MM-dd HH:mm:ss')
+            created_at: format(date, 'yyyy-MM-dd HH:mm:ss'),
+            idGuestUser: idGuestUser || user.idUser,
+            status: 'Pendiente'
         }
 
         await createUserCouponsUtil(userCoupon)

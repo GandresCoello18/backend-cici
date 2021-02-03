@@ -11,4 +11,6 @@ export interface CouponsUser {
     idCoupon: string | null
     expiration_date: string | Date
     created_at: string | Date
+    idGuestUser: string
+    status: string
 }
