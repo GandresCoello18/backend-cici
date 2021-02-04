@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
-import { format } from 'date-fns'
+import { addMonths, format } from 'date-fns'
 import Locale from 'date-fns/locale/es'
 import { User } from '../../models/users';
 import jwt from "jsonwebtoken";
 import {config, createUserUtil, dataBase, getUserUtil, updatePasswordUserUtil, updateUserUtil} from '../../utils';
 import bcryptjs from "bcryptjs";
 import { v4 as uuidv4 } from 'uuid';
+import { createUserCouponsUtil, getCouponsUserFreetUtil } from '../../utils/coupons';
+import { CouponsUser } from '../../models/coupons';
 
 export const getUser = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'users', serviceHandler: 'getUser' });
@@ -102,7 +104,7 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    let user: User[] | null = null;
+    let user: User[];
 
     if(provider === 'cici'){
       const userExist = await getUserUtil({email});
@@ -111,7 +113,7 @@ export const login = async (req: Request, res: Response) => {
         const passwordDB = userExist[0].password as string;
         const ValidatePassword = await bcryptjs.compare(password, passwordDB);
         
-        ValidatePassword ? user = userExist : [];
+        ValidatePassword ? user = userExist : user = [];
       }else{
         return res.status(400).json({status: 'Datos incorrectos, revise e intentelo de nuevo'});
       }
@@ -124,7 +126,7 @@ export const login = async (req: Request, res: Response) => {
             `SELECT * FROM users WHERE email = '${email}' AND provider = '${provider}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
-        });
+        }) as User[];
       }else{
         const saveUser: User = {
           idUser: uuidv4(),
@@ -142,12 +144,25 @@ export const login = async (req: Request, res: Response) => {
       }
     }
 
-    let me;
+    const couponFree = await getCouponsUserFreetUtil(user[0].idUser)
+
+    if(couponFree.length === 0){
+      const userCoupon: CouponsUser = {
+        id_user_coupons: uuidv4(),
+        idUser: user[0].idUser,
+        idCoupon: null,
+        expiration_date: format(addMonths(new Date(), 1), 'yyyy-MM-dd HH:mm:ss'),
+        created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+        idGuestUser: null,
+        status: 'Pendiente'
+      }
+      await createUserCouponsUtil(userCoupon)
+    }
 
     if(user?.length){
       user[0].password = ''
 
-      me = {
+      const me = {
         user: user[0],
         token: jwt.sign({idUser: user[0].idUser}, config.JWT_SECRET),
       }
