@@ -55,11 +55,14 @@ export const getMyAddress = async (req: Request, res: Response) => {
         const user = req.user
         const address = await getMyAddressUtil(user.idUser)
 
-        address[0].created_at = format(new Date(user.created_at), 'PPPP', {locale: Locale})
-        address[0].idUser = ''
+        if(address.length){
+            address[0].created_at = format(new Date(user.created_at), 'PPPP', {locale: Locale})
+            address[0].idUser = ''
+        }
 
         return res.status(200).json({ address });
     } catch (error) {
+        console.log(error.message)
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
     }
