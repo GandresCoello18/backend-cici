@@ -9,6 +9,7 @@ import Cart from './services/cart'
 import Favorite from './services/favorite'
 import Address from './services/addresses'
 import Coupons from './services/coupons'
+import Orden from './services/orden'
 
 export function init() {
   const app = express();
@@ -44,6 +45,7 @@ export function init() {
     Favorite,
     Address,
     Coupons,
+    Orden,
   ]);
 
   return { app };
