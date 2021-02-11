@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { Cart, CartProduct } from '../../models/cart';
 import { v4 as uuidv4 } from 'uuid';
-import { createCartProductUtil, createCartUtil, DeleteProductCart, ExistCartUserUtil, ExistProductCart, getProductCartUserUtil, UpdateProductCart } from '../../utils/cart';
+import { createCartProductUtil, createCartUtil, DeleteProductCart, getStatusCartUserUtil, ExistProductCart, getProductCartUserUtil, UpdateProductCart } from '../../utils/cart';
 // import { dataBase } from '../../utils';
 
 export const newProductCart = async (req: Request, res: Response) => {
@@ -20,7 +20,7 @@ export const newProductCart = async (req: Request, res: Response) => {
             return res.status(400).send(response);
         }
 
-        const existCart = await ExistCartUserUtil(user.idUser)
+        const existCart = await getStatusCartUserUtil(user.idUser, 'Pending')
 
         const AddProductCart = async (idCart?: string) => {
             const cartProduct: CartProduct = {
@@ -91,7 +91,7 @@ export const deleteProductCart = async (req: Request, res: Response) => {
             return res.status(400).send(response);
         }
 
-        const ExistCart = await ExistCartUserUtil(user.idUser)
+        const ExistCart = await getStatusCartUserUtil(user.idUser, 'Pending')
 
         if(ExistCart.length){
             await DeleteProductCart(ExistCart[0].idCart, idProduct)
