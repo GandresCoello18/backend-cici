@@ -15,7 +15,7 @@ export function getLogger() {
     return cachedLogger;
   }
 
-  const logger = pino({ base: null }).child({ env: process.env.ENV, version: '2' });
+  const logger = pino({ base: null }).child({ env: process.env.ENV, version: '1' });
   cachedLogger = logger;
   // console.log('new logger created');
   return logger;

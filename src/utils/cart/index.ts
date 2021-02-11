@@ -44,11 +44,11 @@ export const ExistCartUserUtil = async (idUser: string) => {
     }
 }
 
-export const getProductCartUserUtil = async (idUser: string) => {
+export const getProductCartUserUtil = async (idUser: string, status: string) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT products.*, cart_product.quantity as quantity FROM cart INNER JOIN cart_product ON cart_product.idCart = cart.idCart INNER JOIN products ON products.idProducts = cart_product.idProduct WHERE cart.idUser = '${idUser}';`,
+              `SELECT products.*, cart_product.quantity as quantity FROM cart INNER JOIN cart_product ON cart_product.idCart = cart.idCart INNER JOIN products ON products.idProducts = cart_product.idProduct WHERE cart.idUser = '${idUser}' AND cart.status = '${status}';`,
               (err, data) => err ? reject(err) : resolve(data)
             );
           }) as Product[];
@@ -96,8 +96,22 @@ export const UpdateProductCart = async (idCart: string, idProduct: string, quant
           });
     } catch (error) {
         console.log(error.message);
-        return [];
+        return false;
     }
+}
+
+export const UpdateStatusCart = async (idCart: string, status: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE cart SET status = '${status}' WHERE idCart = '${idCart}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
 }
 
 export const DeleteProductCart = async (idCart: string, idProduct: string) => {
@@ -110,6 +124,6 @@ export const DeleteProductCart = async (idCart: string, idProduct: string) => {
           });
     } catch (error) {
         console.log(error.message);
-        return [];
+        return false;
     }
 }

@@ -47,7 +47,7 @@ export const newProductCart = async (req: Request, res: Response) => {
             const cart: Cart = {
                 idCart: uuidv4(),
                 created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-                status: 'Pendiente',
+                status: 'Pending',
                 idUser: user.idUser
             }
 
@@ -68,7 +68,7 @@ export const getProductCart = async (req: Request, res: Response) => {
 
     try {
         const user = req.user
-        const products = await getProductCartUserUtil(user.idUser)
+        const products = await getProductCartUserUtil(user.idUser, 'Pending')
 
         return res.status(200).json({ products });
     } catch (error) {

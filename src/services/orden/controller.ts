@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Orden } from '../../models/orden';
-import { getStatusCartUserUtil } from '../../utils/cart';
+import { getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
 import { createOrdenUtil } from '../../utils/orden';
 
 export const newOrden = async (req: Request, res: Response) => {
@@ -33,7 +33,7 @@ export const newOrden = async (req: Request, res: Response) => {
             idUser: user.idUser,
             created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
             update_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-            status: paymentId ? 'Paid': 'Pending',
+            status: paymentMethod === 'Bank' ? 'Pending': 'Paid',
             paymentMethod: paymentMethod || null,
             shipping,
             discount,
@@ -43,6 +43,7 @@ export const newOrden = async (req: Request, res: Response) => {
         }
 
         await createOrdenUtil(Orden)
+        await UpdateStatusCart(Orden.idCart, 'Complete')
 
         return res.status(200).json();
     } catch (error) {
