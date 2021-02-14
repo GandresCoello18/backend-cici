@@ -11,7 +11,6 @@ export const newProductCart = async (req: Request, res: Response) => {
 
     try {
         const {idProduct, quantity} = req.body
-        console.log(req.body)
         const user = req.user
 
         if(!idProduct && !quantity){

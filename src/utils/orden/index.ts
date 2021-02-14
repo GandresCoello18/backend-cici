@@ -14,3 +14,17 @@ export const createOrdenUtil = async (orden: Orden) => {
         return false;
     }
 }
+
+export const geteOrdenStatusUtil = async (idUser: string, status: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT idOrder, created_at, paymentMethod, paymentId, idCart FROM orden WHERE idUser = '${idUser}' AND status = '${status}' ORDER BY created_at DESC LIMIT 10;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Orden[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
