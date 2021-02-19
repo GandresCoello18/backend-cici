@@ -1,4 +1,4 @@
-import { Product, SourcesProduct } from "../../models/products";
+import { Product, ProductReviewByUser, ProductReviews, SourcesProduct } from "../../models/products";
 import { dataBase } from "../database";
 
 export const createProductUtil = async (product: Product) => {
@@ -42,5 +42,33 @@ export const getProductSourcesUtil = async (idProduct: string) => {
   } catch (error) {
       console.log(error.message);
       return [];
+  }
+}
+
+export const getProductReviewUtil = async (idProduct: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT users.userName, users.avatar, productReviews.idProductReviews, productReviews.commentary, productReviews.stars, productReviews.created_at FROM productReviews INNER JOIN users ON users.idUser = productReviews.idUser WHERE productReviews.idProduct = '${idProduct}' ORDER BY productReviews.created_at DESC LIMIT 12;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as ProductReviewByUser[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const createProductReviewUtil = async (productReview: ProductReviews) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `INSERT INTO productReviews (idProductReviews, commentary, stars, created_at, idUser, idProduct) VALUES ('${productReview.idProductReviews}', '${productReview.commentary}', ${productReview.stars ? `${productReview.stars}` : null}, '${productReview.created_at}', '${productReview.idUser}', '${productReview.idProduct}');`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
   }
 }

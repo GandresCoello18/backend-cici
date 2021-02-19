@@ -23,3 +23,21 @@ export interface SourcesProduct {
     kind: string,
     idProduct: string;
 }
+
+export interface ProductReviews {
+    idProductReviews: string
+    commentary: string
+    stars: number
+    created_at: Date | string
+    idUser: string
+    idProduct: string
+}
+
+export interface ProductReviewByUser {
+    idProductReviews: string
+    commentary: string
+    stars: number
+    created_at: Date | string
+    userName: string
+    avatar: string
+}

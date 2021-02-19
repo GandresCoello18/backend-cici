@@ -1,9 +1,10 @@
 import { format } from 'date-fns';
+import Locale from 'date-fns/locale/es'
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { Product, SourcesProduct } from '../../models/products';
+import { Product, ProductReviews, SourcesProduct } from '../../models/products';
 import { dataBase } from '../../utils';
-import { createProductSourcesUtil, createProductUtil, getProductSourcesUtil } from '../../utils/products';
+import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, getProductReviewUtil, getProductSourcesUtil } from '../../utils/products';
 
 export const createProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'product', serviceHandler: 'createProduct' });
@@ -27,44 +28,43 @@ export const createProduct = async (req: Request, res: Response) => {
 
         if(ProductExist.length){
           return res.status(400).json({status: 'Estos datos ya pertenecen a otro producto, utilize otro titulo o precio'});
-        }else{
-
-          const product: Product = {
-            idProducts: uuidv4(),
-            title,
-            source,
-            created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-            price,
-            status,
-            description,
-            available,
-            sold: 0,
-            stars: 0,
-            brand,
-            size,
-            model,
-            related_sources: [],
-            discount: 0,
-            starsPeople: 0,
-          }
-
-          await createProductUtil(product);
-
-          if(related_sources.length){
-            related_sources.foreach(async (item: SourcesProduct) => {
-              const sourcesProduct: SourcesProduct = {
-                idSourceProduct: uuidv4(),
-                source: item.source,
-                kind: item.kind,
-                idProduct: product.idProducts
-              }
-
-              await createProductSourcesUtil(sourcesProduct);
-            })
-          }
-
-          return res.status(200).json();
         }
+
+        const product: Product = {
+          idProducts: uuidv4(),
+          title,
+          source,
+          created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+          price,
+          status,
+          description,
+          available,
+          sold: 0,
+          stars: 0,
+          brand,
+          size,
+          model,
+          related_sources: [],
+          discount: 0,
+          starsPeople: 0,
+        }
+
+        await createProductUtil(product);
+
+        if(related_sources.length){
+          related_sources.foreach(async (item: SourcesProduct) => {
+            const sourcesProduct: SourcesProduct = {
+              idSourceProduct: uuidv4(),
+              source: item.source,
+              kind: item.kind,
+              idProduct: product.idProducts
+            }
+
+            await createProductSourcesUtil(sourcesProduct);
+          })
+        }
+
+        return res.status(200).json();
     } catch (error) {
       req.logger.error({ status: 'error', code: 500 });
       return res.status(404).json();
@@ -223,4 +223,60 @@ export const getProductsCategory = async (req: Request, res: Response) => {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
     }
+}
+
+export const createReviewProduct = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'product', serviceHandler: 'createReviewProduct' });
+  req.logger.info({ status: 'start' });
+
+  try {
+      const {idProduct, commentary, stars} = req.body;
+      const user = req.user
+
+      if(!idProduct || !commentary || !stars){
+        const response = { status: 'No data product review provided' };
+        req.logger.warn(response);
+        return res.status(400).json(response);
+      }
+
+      const productReview: ProductReviews = {
+        idProductReviews: uuidv4(),
+        idProduct,
+        created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+        stars: stars || null,
+        idUser: user.idUser,
+        commentary,
+      }
+
+      await createProductReviewUtil(productReview);
+
+      return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const getReviewProduct = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'product', serviceHandler: 'getReviewProduct' });
+  req.logger.info({ status: 'start' });
+
+  try {
+      const {idProduct} = req.params;
+
+      if(!idProduct){
+          const response = { status: 'No product id provided' };
+          req.logger.warn(response);
+          return res.status(400).json(response);
+      }
+
+      const reviews = await getProductReviewUtil(idProduct)
+
+      reviews.map(review => review.created_at = format(new Date(review.created_at), 'PPPP', {locale: Locale}))
+
+      return res.status(200).json({ reviews });
+  } catch (error) {
+      req.logger.error({ status: 'error', code: 500 });
+      return res.status(404).json();
+  }
 }
