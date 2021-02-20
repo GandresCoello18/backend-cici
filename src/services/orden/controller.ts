@@ -22,7 +22,7 @@ export const newOrden = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        const cartPenndig = await getStatusCartUserUtil(user.idUser, 'Pendiente')
+        const cartPenndig = await getStatusCartUserUtil(user.idUser, 'Pending')
 
         if(cartPenndig.length > 1){
             const response = { status: 'Error en escoger el carrito de compras' };
@@ -50,6 +50,7 @@ export const newOrden = async (req: Request, res: Response) => {
 
         return res.status(200).json();
     } catch (error) {
+        console.log(error.message)
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
     }

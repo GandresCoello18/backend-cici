@@ -49,7 +49,7 @@ export const getProductReviewUtil = async (idProduct: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT users.userName, users.avatar, productReviews.idProductReviews, productReviews.commentary, productReviews.stars, productReviews.created_at FROM productReviews INNER JOIN users ON users.idUser = productReviews.idUser WHERE productReviews.idProduct = '${idProduct}' ORDER BY productReviews.created_at DESC LIMIT 12;`,
+            `SELECT users.userName, users.avatar, productReviews.idProductReviews, productReviews.commentary, productReviews.stars, productReviews.created_at FROM productReviews INNER JOIN users ON users.idUser = productReviews.idUser WHERE productReviews.idProduct = '${idProduct}' ORDER BY productReviews.created_at DESC LIMIT 5;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as ProductReviewByUser[];
