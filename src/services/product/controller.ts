@@ -119,6 +119,7 @@ export const getProduct = async (req: Request, res: Response) => {
 
     try {
         const {idProduct} = req.params;
+        console.log(idProduct)
 
         if(!idProduct){
             const response = { status: 'No product id provided' };
@@ -155,9 +156,10 @@ export const getProductsOffers = async (req: Request, res: Response) => {
     try {
         const {limit} = req.params;
         let sql: string;
+        const QueryLimit = Number(limit)
 
-        if(limit){
-          sql = `SELECT * FROM products WHERE status = 'Disponible' AND discount <> 0 LIMIT ${Number(limit)};`
+        if(QueryLimit){
+          sql = `SELECT * FROM products WHERE status = 'Disponible' AND discount <> 0 LIMIT ${QueryLimit};`
         }else{
           sql = `SELECT * FROM products WHERE status = 'Disponible' AND discount <> 0;`
         }
