@@ -7,6 +7,7 @@ import { getProductCartUtil, getStatusCartUserUtil, UpdateStatusCart } from '../
 import { createOrdenUtil, geteOrdenStatusUtil } from '../../utils/orden';
 import { Shipping } from '../../models/shipping';
 import { geteShippingByOrdenUtil } from '../../utils/shipping';
+import { updateStatusCouponsUtil } from '../../utils/coupons';
 
 export const newOrden = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -28,6 +29,10 @@ export const newOrden = async (req: Request, res: Response) => {
             const response = { status: 'Error en escoger el carrito de compras' };
             req.logger.warn(response);
             return res.status(400).json(response);
+        }
+
+        if(id_user_coupons){
+            await updateStatusCouponsUtil(id_user_coupons, 'Usado');
         }
 
         const Orden: Orden = {

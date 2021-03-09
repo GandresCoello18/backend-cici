@@ -84,3 +84,17 @@ export const updateUserCouponsUtil = async (idCoupon: string, id_user_coupons: s
       return false;
   }
 }
+
+export const updateStatusCouponsUtil = async (id_user_coupons: string, status: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE user_coupons SET status = '${status}' WHERE id_user_coupons = '${id_user_coupons}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}

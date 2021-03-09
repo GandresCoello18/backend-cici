@@ -31,6 +31,7 @@ export const getUserCoupons = async (req: Request, res: Response) => {
 
         const returnMyCoupons = await Promise.all(
             myCoupons.map(async cupon => {
+
                 let user;
                 if(cupon.idGuestUser){
                     user = await getUserUtil({idUser: cupon.idGuestUser})
@@ -46,6 +47,7 @@ export const getUserCoupons = async (req: Request, res: Response) => {
                     expiration_date: cupon.expiration_date,
                     created_at: cupon.created_at,
                     type: cupo ? cupo[0].type : null,
+                    descripcion: cupo ? cupo[0].descripcion : null,
                     status: cupon.status,
                     userName: user ? user[0].userName : null,
                     avatar: user ? user[0].avatar : null,
