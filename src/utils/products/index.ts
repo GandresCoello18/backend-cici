@@ -19,7 +19,7 @@ export const getProductUtil = async (idProduct: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT * FROM products WHERE idProduct = '${idProduct}';`,
+            `SELECT * FROM products WHERE idProducts = '${idProduct}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as Product[];
