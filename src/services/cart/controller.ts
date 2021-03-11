@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { Cart, CartProduct } from '../../models/cart';
 import { v4 as uuidv4 } from 'uuid';
 import { createCartProductUtil, createCartUtil, DeleteProductCart, getStatusCartUserUtil, ExistProductCart, getProductCartUserUtil, UpdateProductCart } from '../../utils/cart';
+import { getProductUtil } from '../../utils/products';
 // import { dataBase } from '../../utils';
 
 export const newProductCart = async (req: Request, res: Response) => {
@@ -15,6 +16,14 @@ export const newProductCart = async (req: Request, res: Response) => {
 
         if(!idProduct && !quantity){
             const response = { status: 'No product for cart provided' };
+            req.logger.warn(response);
+            return res.status(400).send(response);
+        }
+
+        const product = await getProductUtil(idProduct);
+
+        if(product[0].available < 4){
+            const response = { status: 'Producto no disponible' };
             req.logger.warn(response);
             return res.status(400).send(response);
         }

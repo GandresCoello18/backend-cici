@@ -119,7 +119,6 @@ export const getProduct = async (req: Request, res: Response) => {
 
     try {
         const {idProduct} = req.params;
-        console.log(idProduct)
 
         if(!idProduct){
             const response = { status: 'No product id provided' };

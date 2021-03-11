@@ -15,6 +15,20 @@ export const createProductUtil = async (product: Product) => {
     }
 }
 
+export const getProductUtil = async (idProduct: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT * FROM products WHERE idProduct = '${idProduct}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Product[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
 export const createProductSourcesUtil = async (sourceProduct: SourcesProduct) => {
   try {
       return await new Promise((resolve, reject) => {
@@ -31,14 +45,12 @@ export const createProductSourcesUtil = async (sourceProduct: SourcesProduct) =>
 
 export const getProductSourcesUtil = async (idProduct: string) => {
   try {
-      const SP: SourcesProduct[] = await new Promise((resolve, reject) => {
+      return await new Promise((resolve, reject) => {
           dataBase.query(
             `SELECT * FROM product_sources WHERE idProduct = '${idProduct}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
-        });
-
-      return SP;
+        }) as SourcesProduct[];
   } catch (error) {
       console.log(error.message);
       return [];
