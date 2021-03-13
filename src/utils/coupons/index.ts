@@ -47,7 +47,7 @@ export const getCouponsUserFreetUtil = async (IdUser: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT * FROM user_coupons WHERE idUser = '${IdUser}' AND idGuestUser = Null;`,
+            `SELECT * FROM user_coupons WHERE idUser = '${IdUser}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as MyCouponsUser[];
