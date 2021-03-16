@@ -3,7 +3,7 @@ import { addMonths, format } from 'date-fns'
 import Locale from 'date-fns/locale/es'
 import { User } from '../../models/users';
 import jwt from "jsonwebtoken";
-import {config, createUserUtil, dataBase, getUserUtil, updatePasswordUserUtil, updateUserUtil} from '../../utils';
+import {config, createUserUtil, dataBase, getUsersUtil, getUserUtil, updatePasswordUserUtil, updateUserUtil} from '../../utils';
 import bcryptjs from "bcryptjs";
 import { v4 as uuidv4 } from 'uuid';
 import { createUserCouponsUtil, getCouponsUserFreetUtil } from '../../utils/coupons';
@@ -22,6 +22,28 @@ export const getUser = async (req: Request, res: Response) => {
       req.logger.error({ status: 'error', code: 500 });
       return res.status(404).json();
     }
+};
+
+export const getUsers = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'getUsers' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    /* const user = req.user
+
+    if(!user.isAdmin){
+      const response = { status: 'No eres admin' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    } */
+
+    const users = await getUsersUtil();
+
+    return res.status(200).json({ users });
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
 };
 
 export const getUserName = async (req: Request, res: Response) => {

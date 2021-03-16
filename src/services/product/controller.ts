@@ -77,7 +77,7 @@ export const getProducts = async (req: Request, res: Response) => {
 
     try {
       let start: number;
-      let Products: Product[] = [];
+      let products: Product[] = [];
       const { priceMin, priceMax, isPromo, order, orderPrice, orderStar } = req.query
 
       const valueQuery = (query: any): boolean => {
@@ -88,9 +88,9 @@ export const getProducts = async (req: Request, res: Response) => {
       }
 
       if(valueQuery(priceMin) || valueQuery(priceMax) || valueQuery(isPromo) || valueQuery(order) || valueQuery(orderPrice) || valueQuery(orderStar)){
-        let sql: string = `SELECT * FROM products WHERE price > ${valueQuery(priceMin) ? Number(priceMin) : 0} ${valueQuery(priceMax) ? `AND price < ${Number(priceMax)}` : ''} ${valueQuery(orderPrice) || valueQuery(orderStar) ? `ORDER BY ${valueQuery(orderPrice) ? 'price' : 'stars'} ${valueQuery(order) ? order : 'ASC'}` : ''}`;
+        let sql: string = `SELECT * FROM products WHERE status = 'Disponible' AND price > ${valueQuery(priceMin) ? Number(priceMin) : 0} ${valueQuery(priceMax) ? `AND price < ${Number(priceMax)}` : ''} ${valueQuery(orderPrice) || valueQuery(orderStar) ? `ORDER BY ${valueQuery(orderPrice) ? 'price' : 'stars'} ${valueQuery(order) ? order : 'ASC'}` : ''}`;
 
-        Products = await new Promise((resolve, reject) => {
+        products = await new Promise((resolve, reject) => {
           dataBase.query(
             `${sql} LIMIT ${1}, 12;`,
             (err, data) => err ? reject(err) : resolve(data)
@@ -98,16 +98,19 @@ export const getProducts = async (req: Request, res: Response) => {
         });
       }else{
         start = 1;
-        Products = await new Promise((resolve, reject) => {
+        products = await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT * FROM products WHERE status = 'Disponible' ORDER BY idProducts LIMIT ${start}, 12;`,
+              `SELECT * FROM products WHERE status = 'Disponible' ORDER BY created_at DESC LIMIT ${start}, 12;`,
               (err, data) => err ? reject(err) : resolve(data)
             );
         });
       }
 
-        return res.status(200).json({ products: Products });
+      products.map(item => item.created_at = format(new Date(item.created_at), 'yyyy-MM-dd'))
+
+        return res.status(200).json({ products });
     } catch (error) {
+        console.log(error.message);
         req.logger.error({ status: 'error', code: 500 });
         return res.status(404).json();
     }

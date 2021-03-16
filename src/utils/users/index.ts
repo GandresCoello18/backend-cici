@@ -1,6 +1,8 @@
 import { User } from "../../models/users";
 import { dataBase } from "../database";
 
+let response_campo: string = 'idUser, userName, email, password, created_at, isAdmin, avatar, provider';
+
 export const getUserUtil = async (option: {
     idUser?: string,
     email?: string,
@@ -18,7 +20,6 @@ export const getUserUtil = async (option: {
 
       let user: User[] = [];
       let sql: string;
-      let response_campo: string = 'idUser, userName, email, password, created_at, isAdmin, avatar, provider';
 
       if(option.idUser) {
         sql = `SELECT ${response_campo} FROM users WHERE idUser = '${option.idUser}';`;
@@ -45,6 +46,20 @@ export const getUserUtil = async (option: {
       console.log(error.message);
       return [];
     }
+}
+
+export const getUsersUtil = async () => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT ${response_campo} FROM users ORDER BY created_at DESC;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
 }
 
 export const createUserUtil = async (user: User) => {
