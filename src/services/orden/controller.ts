@@ -8,6 +8,8 @@ import { createOrdenUtil, geteOrdenStatusUtil, geteOrdensUtil } from '../../util
 import { Shipping } from '../../models/shipping';
 import { geteShippingByOrdenUtil } from '../../utils/shipping';
 import { updateStatusCouponsUtil } from '../../utils/coupons';
+import { User } from '../../models/users';
+import { getUserUtil } from '../../utils';
 
 export const newOrden = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -150,6 +152,7 @@ export const getOrders = async (req: Request, res: Response) => {
             ordenes.map(async orden => {
 
                 const product: productOrden[] = await getProductCartUtil(orden.idCart)
+                const user: User[] = await getUserUtil({ idUser: orden.idUser });
 
                 return {
                     idOrder: orden.idOrder,
@@ -161,7 +164,13 @@ export const getOrders = async (req: Request, res: Response) => {
                     paymentMethod: orden.paymentMethod,
                     paymentId: orden.paymentId,
                     totalAmount: orden.totalAmount,
+                    id_user_coupons: orden.id_user_coupons,
                     product,
+                    user: {
+                        avatar: user[0].avatar,
+                        userName: user[0].userName,
+                        email: user[0].email,
+                    }
                 }
             })
         )

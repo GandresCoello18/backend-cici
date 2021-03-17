@@ -62,7 +62,7 @@ export const getProductCartUtil = async (idCart: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT products.source, products.title FROM cart_product INNER JOIN products ON products.idProducts = cart_product.idProduct WHERE cart_product.idCart = '${idCart}';`,
+            `SELECT products.source, products.title, products.price, cart_product.quantity FROM cart_product INNER JOIN products ON products.idProducts = cart_product.idProduct WHERE cart_product.idCart = '${idCart}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as Product[];
