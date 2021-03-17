@@ -4,7 +4,7 @@ import Locale from 'date-fns/locale/es'
 import { v4 as uuidv4 } from 'uuid';
 import { Orden, productOrden } from '../../models/orden';
 import { getProductCartUtil, getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
-import { createOrdenUtil, geteOrdenStatusUtil } from '../../utils/orden';
+import { createOrdenUtil, geteOrdenStatusUtil, geteOrdensUtil } from '../../utils/orden';
 import { Shipping } from '../../models/shipping';
 import { geteShippingByOrdenUtil } from '../../utils/shipping';
 import { updateStatusCouponsUtil } from '../../utils/coupons';
@@ -132,6 +132,43 @@ export const getOrdenStatus = async (req: Request, res: Response) => {
 
         return res.status(200).json({ ordenes: responseOrden || [] });
     } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+
+export const getOrders = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'orden', serviceHandler: 'getOrders' });
+    req.logger.info({ status: 'start' });
+
+    try {
+
+        const ordenes = await geteOrdensUtil();
+
+        const responseOrden = await Promise.all(
+            ordenes.map(async orden => {
+
+                const product: productOrden[] = await getProductCartUtil(orden.idCart)
+
+                return {
+                    idOrder: orden.idOrder,
+                    created_at: format(new Date(orden.created_at), 'PPPP', {locale: Locale}),
+                    update_at: format(new Date(orden.update_at), 'PPPP', {locale: Locale}),
+                    shipping: orden.shipping,
+                    discount: orden.discount,
+                    status: orden.status,
+                    paymentMethod: orden.paymentMethod,
+                    paymentId: orden.paymentId,
+                    totalAmount: orden.totalAmount,
+                    product,
+                }
+            })
+        )
+
+        return res.status(200).json({ ordenes: responseOrden });
+    } catch (error) {
+        console.log(error.message);
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
     }

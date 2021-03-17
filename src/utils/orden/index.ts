@@ -28,3 +28,17 @@ export const geteOrdenStatusUtil = async (idUser: string, status: string) => {
       return [];
   }
 }
+
+export const geteOrdensUtil = async () => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT idOrder, idCart, created_at, update_at, paymentMethod, paymentId, shipping, discount, status, totalAmount FROM orden ORDER BY created_at DESC LIMIT 30;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Orden[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
