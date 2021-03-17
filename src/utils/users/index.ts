@@ -66,7 +66,7 @@ export const createUserUtil = async (user: User) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `INSERT INTO users (idUser, userName, email, password, created_at, isAdmin, avatar, provider) VALUES ('${user.idUser}', '${user.userName}', '${user.email}', '${user.password}', '${user.created_at}', ${user.isAdmin}, '${user.avatar}', '${user.provider}');`,
+              `INSERT INTO users (idUser, userName, email, password, created_at, isAdmin, avatar, provider, phone, isBanner) VALUES ('${user.idUser}', '${user.userName}', '${user.email}', ${user.password ? `'${user.password}'` : null}, '${user.created_at}', ${user.isAdmin}, ${user.avatar ? `'${user.avatar}'` : null}, '${user.provider}', ${user.phone ? `${user.phone}` : null}, ${user.isBanner});`,
               (err, data) => err ? reject(err) : resolve(data)
             );
           });

@@ -33,6 +33,35 @@ export const getFavoriteProduct = async (req: Request, res: Response) => {
     }
 }
 
+export const getFavoriteByUser = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'favorite', serviceHandler: 'getFavoriteByUser' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const { idUser } = req.params
+
+        if(!idUser){
+            const response = { status: 'No id User provided' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+       const products: Product[] = await new Promise((resolve, reject) => {
+            dataBase.query(
+                `SELECT products.* FROM favorite_product INNER JOIN products ON products.idProducts = favorite_product.idProduct WHERE favorite_product.idUser = '${idUser}';`,
+                (err, data) => err ? reject(err) : resolve(data)
+            );
+        });
+
+        products.map(product => product.created_at = format(new Date(product.created_at), 'yyyy-MM-dd'))
+
+        return res.status(200).json({ products });
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
 export const getMyFavoritesProducts = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'favorite', serviceHandler: 'getMyFavoritesProducts' });
     req.logger.info({ status: 'start' });

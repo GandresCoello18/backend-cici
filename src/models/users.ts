@@ -7,4 +7,6 @@ export interface User {
     isAdmin: boolean;
     avatar: string | null;
     provider: string;
+    phone: number | null
+    isBanner: boolean
 }

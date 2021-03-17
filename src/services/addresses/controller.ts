@@ -56,8 +56,34 @@ export const getMyAddress = async (req: Request, res: Response) => {
         const address = await getMyAddressUtil(user.idUser)
 
         if(address.length){
-            address[0].created_at = format(new Date(user.created_at), 'PPPP', {locale: Locale})
-            address[0].idUser = ''
+            address.map(item => item.created_at = format(new Date(item.created_at), 'PPPP', {locale: Locale}))
+        }
+
+        return res.status(200).json({ address });
+    } catch (error) {
+        console.log(error.message)
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const getAddressByUser = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'addresses', serviceHandler: 'getAddressByUser' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const { idUser } = req.params
+
+        if(!idUser){
+            const response = { status: 'No data provided id User for Address' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        const address = await getMyAddressUtil(idUser)
+
+        if(address.length){
+            address.map(item => item.created_at = format(new Date(item.created_at), 'PPPP', {locale: Locale}))
         }
 
         return res.status(200).json({ address });

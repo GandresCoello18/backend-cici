@@ -9,8 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { createUserCouponsUtil, getCouponsUserFreetUtil } from '../../utils/coupons';
 import { CouponsUser } from '../../models/coupons';
 
-export const getUser = async (req: Request, res: Response) => {
-    req.logger = req.logger.child({ service: 'users', serviceHandler: 'getUser' });
+export const getMe = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'users', serviceHandler: 'getMe' });
     req.logger.info({ status: 'start' });
 
     try {
@@ -46,6 +46,30 @@ export const getUsers = async (req: Request, res: Response) => {
   }
 };
 
+export const getUser = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'getUser' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { idUser } = req.params
+    /* const user = req.user
+
+    if(!user.isAdmin){
+      const response = { status: 'No eres admin' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    } */
+
+    const user = await getUserUtil({ idUser });
+    user[0].created_at = format(new Date(user[0].created_at), 'PPPP', {locale: Locale})
+
+    return res.status(200).json({ user: user[0] });
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
+};
+
 export const getUserName = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'users', serviceHandler: 'getUserName' });
   req.logger.info({ status: 'start' });
@@ -73,7 +97,7 @@ export const crerateUser = async (req: Request, res: Response) => {
     req.logger.info({ status: 'start' });
 
     try {
-      const {userName, email, password, isAdmin, avatar, provider} = req.body;
+      const {userName, email, password, isAdmin, avatar, provider, phone} = req.body;
 
       if(!userName || !email || !provider){
         const response = { status: 'No data user provided' };
@@ -101,6 +125,8 @@ export const crerateUser = async (req: Request, res: Response) => {
           isAdmin: isAdmin ? true : false,
           avatar: avatar ? avatar : null,
           provider: provider ? provider : 'cici',
+          phone: phone || null,
+          isBanner: false,
         }
 
         await createUserUtil(user);
@@ -159,6 +185,8 @@ export const login = async (req: Request, res: Response) => {
           isAdmin: false,
           avatar,
           provider: provider ? provider : 'cici',
+          phone: null,
+          isBanner: false,
         }
 
         await createUserUtil(saveUser);
