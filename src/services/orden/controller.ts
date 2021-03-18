@@ -139,12 +139,18 @@ export const getOrdenStatus = async (req: Request, res: Response) => {
     }
 }
 
-
 export const getOrders = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'orden', serviceHandler: 'getOrders' });
     req.logger.info({ status: 'start' });
 
     try {
+        const me = req.user;
+
+        if(!me.isAdmin || me.isBanner){
+        const response = { status: 'No eres admin o estas bloqueado' };
+        req.logger.warn(response);
+        return res.status(400).json(response);
+        }
 
         const ordenes = await geteOrdensUtil();
 

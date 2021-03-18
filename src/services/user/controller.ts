@@ -29,18 +29,19 @@ export const getUsers = async (req: Request, res: Response) => {
   req.logger.info({ status: 'start' });
 
   try {
-    /* const user = req.user
+    const me = req.user;
 
-    if(!user.isAdmin){
-      const response = { status: 'No eres admin' };
+    if(!me.isAdmin || me.isBanner){
+      const response = { status: 'No eres admin o estas bloqueado' };
       req.logger.warn(response);
       return res.status(400).json(response);
-    } */
+    }
 
     const users = await getUsersUtil();
 
     return res.status(200).json({ users });
   } catch (error) {
+    console.log(error.message);
     req.logger.error({ status: 'error', code: 500 });
     return res.status(404).json();
   }
@@ -52,13 +53,13 @@ export const getUser = async (req: Request, res: Response) => {
 
   try {
     const { idUser } = req.params
-    /* const user = req.user
+    const me = req.user
 
-    if(!user.isAdmin){
-      const response = { status: 'No eres admin' };
+    if(!me.isAdmin || me.isBanner){
+      const response = { status: 'No eres admin o estas bloqueado' };
       req.logger.warn(response);
       return res.status(400).json(response);
-    } */
+    }
 
     const user = await getUserUtil({ idUser });
     user[0].created_at = format(new Date(user[0].created_at), 'PPPP', {locale: Locale})
@@ -227,21 +228,21 @@ export const login = async (req: Request, res: Response) => {
   }
 }
 
-export const updateUser = async (req: Request, res: Response) => {
-  req.logger = req.logger.child({ service: 'users', serviceHandler: 'updateUser' });
+export const updateMeUser = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'updateMeUser' });
   req.logger.info({ status: 'start' });
 
   try {
-    const {userName, email} = req.body
+    const {userName, email, phone} = req.body
     const user = req.user
   
-    if(!email || !userName){
+    if(!email || !userName || !phone){
       const response = { status: 'No data user provided' };
       req.logger.warn(response);
       return res.status(400).json(response);
     }
 
-    await updateUserUtil(userName, email, user.idUser)
+    await updateUserUtil(userName, email, phone, user.idUser)
 
     return res.status(200).json();
   } catch (error) {

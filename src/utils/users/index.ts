@@ -1,7 +1,7 @@
 import { User } from "../../models/users";
 import { dataBase } from "../database";
 
-let response_campo: string = 'idUser, userName, email, password, created_at, isAdmin, avatar, provider';
+let response_campo: string = 'idUser, userName, email, password, created_at, isAdmin, avatar, provider, phone, isBanner';
 
 export const getUserUtil = async (option: {
     idUser?: string,
@@ -76,11 +76,11 @@ export const createUserUtil = async (user: User) => {
     }
 }
 
-export const updateUserUtil = async (userName: string, email: string, idUser: string) => {
+export const updateUserUtil = async (userName: string, email: string, phone: number, idUser: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `UPDATE users SET userName = '${userName}', email = '${email}' WHERE idUser = '${idUser}';`,
+            `UPDATE users SET userName = '${userName}', email = '${email}', phone = ${phone} WHERE idUser = '${idUser}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         });

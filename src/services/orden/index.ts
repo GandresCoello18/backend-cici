@@ -8,6 +8,6 @@ const baseURL = '/orden';
 
 router.post(`${baseURL}`, auth, newOrden);
 router.get(`${baseURL}/status/:status`, auth, getOrdenStatus);
-router.get(`${baseURL}`, getOrders);
+router.get(`${baseURL}`, auth, getOrders);
 
 export default router;
