@@ -145,6 +145,7 @@ export const getOrders = async (req: Request, res: Response) => {
 
     try {
         const me = req.user;
+        const idPago = req.query.idPago as string;
 
         if(!me.isAdmin || me.isBanner){
         const response = { status: 'No eres admin o estas bloqueado' };
@@ -152,7 +153,7 @@ export const getOrders = async (req: Request, res: Response) => {
         return res.status(400).json(response);
         }
 
-        const ordenes = await geteOrdensUtil();
+        const ordenes = await geteOrdensUtil(idPago || undefined);
 
         const responseOrden = await Promise.all(
             ordenes.map(async orden => {

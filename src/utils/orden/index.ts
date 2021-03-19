@@ -29,11 +29,11 @@ export const geteOrdenStatusUtil = async (idUser: string, status: string) => {
   }
 }
 
-export const geteOrdensUtil = async () => {
+export const geteOrdensUtil = async (idPago?: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT idOrder, idCart, idUser, created_at, update_at, paymentMethod, paymentId, shipping, discount, status, totalAmount, id_user_coupons FROM orden ORDER BY created_at DESC LIMIT 30;`,
+            `SELECT idOrder, idCart, idUser, created_at, update_at, paymentMethod, paymentId, shipping, discount, status, totalAmount, id_user_coupons FROM orden ${idPago ? `WHERE paymentId = '${idPago}'` : ''} ORDER BY created_at DESC LIMIT 30;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as Orden[];

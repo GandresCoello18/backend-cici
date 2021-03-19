@@ -1,4 +1,4 @@
-import { Coupons, CouponsUser, MyCouponsUser } from "../../models/coupons";
+import { Coupons, CouponsAssing, CouponsUser, MyCouponsUser } from "../../models/coupons";
 import { dataBase } from "../database";
 
 export const getCouponstUtil = async () => {
@@ -37,6 +37,20 @@ export const getCouponsUsertUtil = async (IdUser: string, status: string) => {
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as CouponsUser[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const getCouponsAssingtUtil = async (id_user_coupon: string | undefined) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT user_coupons.id_user_coupons, user_coupons.created_at, user_coupons.expiration_date, user_coupons.status, coupons.type, users.userName, users.avatar, invita.userName as user_name_invita, invita.avatar as user_avatar_invita FROM user_coupons LEFT JOIN users ON users.idUser = user_coupons.idUser LEFT JOIN coupons ON coupons.idCoupon = user_coupons.idCoupon LEFT JOIN users as invita ON user_coupons.idGuestUser = invita.idUser ${id_user_coupon ? `WHERE user_coupons.id_user_coupons = '${id_user_coupon}'` : ''} ORDER BY user_coupons.created_at DESC;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as CouponsAssing[];
   } catch (error) {
       console.log(error.message);
       return [];

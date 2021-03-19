@@ -48,17 +48,19 @@ export const getUserUtil = async (option: {
     }
 }
 
-export const getUsersUtil = async () => {
+export const getUsersUtil = async (findUser?: string) => {
   try {
+      const findEmail = `WHERE email LIKE '%${findUser}%' OR userName LIKE '%${findUser}%'`;
+
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT ${response_campo} FROM users ORDER BY created_at DESC;`,
+            `SELECT ${response_campo} FROM users ${findUser ? findEmail : ''} ORDER BY created_at DESC;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
-        });
+        }) as User[];
   } catch (error) {
       console.log(error.message);
-      return false;
+      return [];
   }
 }
 

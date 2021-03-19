@@ -30,6 +30,7 @@ export const getUsers = async (req: Request, res: Response) => {
 
   try {
     const me = req.user;
+    const findUser = req.query.findUser as string;
 
     if(!me.isAdmin || me.isBanner){
       const response = { status: 'No eres admin o estas bloqueado' };
@@ -37,7 +38,9 @@ export const getUsers = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    const users = await getUsersUtil();
+    const users = await getUsersUtil(findUser || undefined);
+
+    users.map(user => user.created_at = format(new Date(user.created_at), 'yyyy-MM-dd'))
 
     return res.status(200).json({ users });
   } catch (error) {
@@ -269,7 +272,7 @@ export const updatePasswordUser = async (req: Request, res: Response) => {
       const ValidatePassword = await bcryptjs.compare(currentKey, user.password);
       
       if(!ValidatePassword){
-        const response = { status: 'La clave actual es incorrecta, revise y veulva a intentarl' };
+        const response = { status: 'Datos incorrectos, revise y vuelva a intentarlo' };
         req.logger.warn(response);
         return res.status(400).json(response);
       }

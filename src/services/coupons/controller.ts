@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Locale from 'date-fns/locale/es'
 import { CouponsUser } from '../../models/coupons';
-import { createUserCouponsUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
+import { createUserCouponsUtil, getCouponsAssingtUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
 import { getUserUtil } from '../../utils';
 
 export const getCoupons = async (req: Request, res: Response) => {
@@ -93,6 +93,34 @@ export const createUserCoupons = async (req: Request, res: Response) => {
         await createUserCouponsUtil(userCoupon)
 
         return res.status(200).json();
+    } catch (error) {
+        console.log(error.message)
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+
+export const getAssignCoupons = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'getAssignCoupons' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const user = req.user;
+        const id_user_coupon = req.query.id_user_coupon as string;
+
+        if(!user.isAdmin || user.isBanner){
+            const response = { status: 'No eres Admin o estas bloqueado' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        const Coupons = await getCouponsAssingtUtil(id_user_coupon || undefined);
+
+        Coupons.map(cupon => cupon.created_at = format(new Date(cupon.created_at), 'yyyy-MM-dd'));
+        Coupons.map(cupon => cupon.expiration_date = format(new Date(cupon.expiration_date), 'yyyy-MM-dd'));
+
+        return res.status(200).json({ CouponsAssing: Coupons });
     } catch (error) {
         console.log(error.message)
         req.logger.error({ status: 'error', code: 500 });
