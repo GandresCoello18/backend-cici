@@ -42,3 +42,18 @@ export const geteOrdensUtil = async (idPago?: string) => {
       return [];
   }
 }
+
+
+export const geteOrdensByUserUtil = async (idUser: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT idOrder, idCart, idUser, created_at, update_at, paymentMethod, paymentId, shipping, discount, status, totalAmount, id_user_coupons FROM orden WHERE idUser = '${idUser}' ORDER BY created_at DESC LIMIT 30;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Orden[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}

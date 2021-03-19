@@ -4,12 +4,11 @@ import Locale from 'date-fns/locale/es'
 import { v4 as uuidv4 } from 'uuid';
 import { Orden, productOrden } from '../../models/orden';
 import { getProductCartUtil, getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
-import { createOrdenUtil, geteOrdenStatusUtil, geteOrdensUtil } from '../../utils/orden';
+import { createOrdenUtil, geteOrdensByUserUtil, geteOrdenStatusUtil, geteOrdensUtil } from '../../utils/orden';
 import { Shipping } from '../../models/shipping';
 import { geteShippingByOrdenUtil } from '../../utils/shipping';
 import { updateStatusCouponsUtil } from '../../utils/coupons';
-import { User } from '../../models/users';
-import { getUserUtil } from '../../utils';
+import { SchemaOrder } from '../../helpers/Order';
 
 export const newOrden = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -154,33 +153,33 @@ export const getOrders = async (req: Request, res: Response) => {
         }
 
         const ordenes = await geteOrdensUtil(idPago || undefined);
+        const responseOrden = await SchemaOrder(ordenes);
 
-        const responseOrden = await Promise.all(
-            ordenes.map(async orden => {
+        return res.status(200).json({ ordenes: responseOrden });
+    } catch (error) {
+        console.log(error.message);
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
 
-                const product: productOrden[] = await getProductCartUtil(orden.idCart)
-                const user: User[] = await getUserUtil({ idUser: orden.idUser });
 
-                return {
-                    idOrder: orden.idOrder,
-                    created_at: format(new Date(orden.created_at), 'PPPP', {locale: Locale}),
-                    update_at: format(new Date(orden.update_at), 'PPPP', {locale: Locale}),
-                    shipping: orden.shipping,
-                    discount: orden.discount,
-                    status: orden.status,
-                    paymentMethod: orden.paymentMethod,
-                    paymentId: orden.paymentId,
-                    totalAmount: orden.totalAmount,
-                    id_user_coupons: orden.id_user_coupons,
-                    product,
-                    user: {
-                        avatar: user[0].avatar,
-                        userName: user[0].userName,
-                        email: user[0].email,
-                    }
-                }
-            })
-        )
+export const getOrdersByUser = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'orden', serviceHandler: 'getOrdersByUser' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const me = req.user;
+        const { idUser } = req.params;
+
+        if(!me.isAdmin || me.isBanner){
+            const response = { status: 'No eres admin o estas bloqueado' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        const ordenes = await geteOrdensByUserUtil(idUser);
+        const responseOrden = await SchemaOrder(ordenes);
 
         return res.status(200).json({ ordenes: responseOrden });
     } catch (error) {

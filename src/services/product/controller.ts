@@ -79,6 +79,7 @@ export const getProducts = async (req: Request, res: Response) => {
       let start: number;
       let products: Product[] = [];
       const { priceMin, priceMax, isPromo, order, orderPrice, orderStar } = req.query
+      const findProduct = req.query.findProduct as string;
 
       const valueQuery = (query: any): boolean => {
         if(query === 'false' || query === 'undefined' || query === '0' || query === undefined){
@@ -100,7 +101,7 @@ export const getProducts = async (req: Request, res: Response) => {
         start = 1;
         products = await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT * FROM products WHERE status = 'Disponible' ORDER BY created_at DESC LIMIT ${start}, 12;`,
+              `SELECT * FROM products WHERE status = 'Disponible' AND title LIKE '%${findProduct || ''}%' ORDER BY created_at DESC LIMIT ${start}, 12;`,
               (err, data) => err ? reject(err) : resolve(data)
             );
         });
