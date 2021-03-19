@@ -15,6 +15,34 @@ export const createOrdenUtil = async (orden: Orden) => {
     }
 }
 
+export const UpdateStatusOrdenUtil = async (idOrder: string, status: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE orden SET status = '${status}' WHERE idOrder = '${idOrder}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Orden[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const Update_atOrdenUtil = async (idOrder: string, update_at: string | Date) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE orden SET update_at = '${update_at}' WHERE idOrder = '${idOrder}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Orden[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
 export const geteOrdenStatusUtil = async (idUser: string, status: string) => {
   try {
       return await new Promise((resolve, reject) => {
