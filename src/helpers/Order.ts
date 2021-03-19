@@ -1,9 +1,10 @@
 import { format } from "date-fns";
 import { Orden, productOrden } from "../models/orden";
+import { Shipping } from "../models/shipping";
 import { User } from "../models/users";
-import Locale from 'date-fns/locale/es'
 import { getUserUtil } from "../utils";
 import { getProductCartUtil } from "../utils/cart";
+import { geteShippingByOrdenUtil } from "../utils/shipping";
 
 export const SchemaOrder = async (ordenes: Orden[]) => {
     const responseOrden = await Promise.all(
@@ -11,11 +12,13 @@ export const SchemaOrder = async (ordenes: Orden[]) => {
 
             const product: productOrden[] = await getProductCartUtil(orden.idCart)
             const user: User[] = await getUserUtil({ idUser: orden.idUser });
+            const shipping: Shipping[] = await geteShippingByOrdenUtil(orden.idOrder);
 
             return {
                 idOrder: orden.idOrder,
-                created_at: format(new Date(orden.created_at), 'PPPP', {locale: Locale}),
-                update_at: format(new Date(orden.update_at), 'PPPP', {locale: Locale}),
+                created_at: format(new Date(orden.created_at), 'yyyy-MM-dd'),
+                update_at: format(new Date(orden.update_at), 'yyyy-MM-dd'),
+                sent: shipping.length > 0,
                 shipping: orden.shipping,
                 discount: orden.discount,
                 status: orden.status,

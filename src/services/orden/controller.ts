@@ -147,9 +147,9 @@ export const getOrders = async (req: Request, res: Response) => {
         const idPago = req.query.idPago as string;
 
         if(!me.isAdmin || me.isBanner){
-        const response = { status: 'No eres admin o estas bloqueado' };
-        req.logger.warn(response);
-        return res.status(400).json(response);
+            const response = { status: 'No eres admin o estas bloqueado' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
         }
 
         const ordenes = await geteOrdensUtil(idPago || undefined);

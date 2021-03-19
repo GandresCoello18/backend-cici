@@ -3,6 +3,6 @@ export interface Shipping {
     idOrder: string
     created_at: string | Date
     status: string
-    guide: number
+    guide: string
     method: string
 }
