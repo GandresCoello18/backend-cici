@@ -15,6 +15,20 @@ export const geteShippingByOrdenUtil = async (idOrder: string) => {
   }
 }
 
+export const getShippingUtil = async (idPago?: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT shipping.*, orden.paymentId, users.userName, users.avatar FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN users ON users.idUser = orden.idUser ${idPago ? `WHERE orden.paymentId LIKE '%${idPago}%'` : ''} ORDER BY shipping.created_at DESC;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Shipping[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
 export const createShippingUtil = async (Shipping: Shipping) => {
   try {
       return await new Promise((resolve, reject) => {

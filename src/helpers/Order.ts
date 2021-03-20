@@ -16,8 +16,8 @@ export const SchemaOrder = async (ordenes: Orden[]) => {
 
             return {
                 idOrder: orden.idOrder,
-                created_at: format(new Date(orden.created_at), 'yyyy-MM-dd'),
-                update_at: format(new Date(orden.update_at), 'yyyy-MM-dd'),
+                created_at: format(new Date(orden.created_at), 'yyyy-MM-dd HH:mm:ss'),
+                update_at: format(new Date(orden.update_at), 'yyyy-MM-dd HH:mm:ss'),
                 sent: shipping.length > 0,
                 shipping: orden.shipping,
                 discount: orden.discount,
