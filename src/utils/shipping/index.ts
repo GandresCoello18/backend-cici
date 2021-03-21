@@ -19,7 +19,7 @@ export const getShippingUtil = async (idPago?: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT shipping.*, orden.paymentId, users.userName, users.avatar FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN users ON users.idUser = orden.idUser ${idPago ? `WHERE orden.paymentId LIKE '%${idPago}%'` : ''} ORDER BY shipping.created_at DESC;`,
+            `SELECT shipping.*, orden.paymentId, users.userName, users.avatar FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN users ON users.idUser = orden.idUser ${idPago ? `WHERE orden.paymentId LIKE '%${idPago}%' OR shipping.guide LIKE '%${idPago}%'` : ''} ORDER BY shipping.created_at DESC;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as Shipping[];
