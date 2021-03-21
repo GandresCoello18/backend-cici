@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { format, endOfMonth, startOfMonth, subMonths } from 'date-fns';
-import { getStatisticsOrderMothUtil, getStatisticsOrderUtil, getStatisticsUserMothUtil, getStatisticsUserUtil } from '../../utils/statistics';
+import { getStatisticsOrdeAmountTotalUtil, getStatisticsOrdeAmountUtil, getStatisticsOrderMothUtil, getStatisticsOrderUtil, getStatisticsUserMothUtil, getStatisticsUserUtil } from '../../utils/statistics';
 
 export const getStatistics = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'Statistics', serviceHandler: 'getStatistics' });
@@ -29,6 +29,10 @@ export const getStatistics = async (req: Request, res: Response) => {
         const MothOrdens = await getStatisticsOrderMothUtil(InitialDate, FinishDate);
         const LasOrdens = await getStatisticsOrderMothUtil(LastInitialDate, LastFinishDate);
 
+        const grafico = await getStatisticsOrdeAmountUtil(InitialDate, FinishDate);
+
+        const Amount = await getStatisticsOrdeAmountTotalUtil(InitialDate, FinishDate);
+
         const statistics = {
             user: {
                 user: Users[0].total || 0,
@@ -39,7 +43,14 @@ export const getStatistics = async (req: Request, res: Response) => {
                 order: Orders[0].total || 0,
                 totalOrders: MothOrdens[0].total || 0,
                 totalLasOrders: LasOrdens[0].total || 0,
-            }
+            },
+            grafico: {
+                fechas: grafico.map(item => item.fecha),
+                ventas: grafico.map(item => item.totalAmount),
+                comision: grafico.map(item => item.comision),
+            },
+            Amount: Amount[0].total || 0,
+            ComisionAmount: grafico.reduce((total, b) => total + b.comision, 0) || 0,
         }
 
         return res.status(200).json({ statistics });
