@@ -6,7 +6,7 @@ import { Shipping } from '../../models/shipping';
 import { createShippingUtil, getShippingUtil } from '../../utils/shipping';
 
 export const newShipping = async (req: Request, res: Response) => {
-    req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newShipping' });
+    req.logger = req.logger.child({ service: 'shipping', serviceHandler: 'newShipping' });
     req.logger.info({ status: 'start' });
 
     try {
@@ -45,7 +45,7 @@ export const newShipping = async (req: Request, res: Response) => {
 }
 
 export const getShipping = async (req: Request, res: Response) => {
-    req.logger = req.logger.child({ service: 'orden', serviceHandler: 'getShipping' });
+    req.logger = req.logger.child({ service: 'shipping', serviceHandler: 'getShipping' });
     req.logger.info({ status: 'start' });
 
     try {
