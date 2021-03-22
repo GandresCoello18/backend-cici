@@ -36,3 +36,8 @@ export interface CouponsAssing {
     user_name_invita: string | null
     user_avatar_invita: string | null
 }
+
+export interface CouponAmount {
+    type: string;
+    cantidad: number;
+}  

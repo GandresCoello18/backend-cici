@@ -1,4 +1,4 @@
-import { Coupons, CouponsAssing, CouponsUser, MyCouponsUser } from "../../models/coupons";
+import { CouponAmount, Coupons, CouponsAssing, CouponsUser, MyCouponsUser } from "../../models/coupons";
 import { dataBase } from "../database";
 
 export const getCouponstUtil = async () => {
@@ -65,6 +65,20 @@ export const getCouponsUserFreetUtil = async (IdUser: string) => {
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as MyCouponsUser[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const getCouponsAmountUserUtil = async (IdUser: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT coupons.type, COUNT(coupons.type) as cantidad FROM user_coupons INNER JOIN coupons ON coupons.idCoupon = user_coupons.idCoupon WHERE user_coupons.idUser = '${IdUser}' AND user_coupons.status = 'Valido' GROUP BY coupons.type;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as CouponAmount[];
   } catch (error) {
       console.log(error.message);
       return [];

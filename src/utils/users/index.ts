@@ -105,3 +105,17 @@ export const updatePasswordUserUtil = async (password: string, idUser: string) =
       return false;
   }
 }
+
+export const deleteUserUtil = async (idUser: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `DELETE FROM users WHERE idUser = '${idUser}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}

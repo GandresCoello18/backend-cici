@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Locale from 'date-fns/locale/es'
 import { CouponsUser } from '../../models/coupons';
-import { createUserCouponsUtil, getCouponsAssingtUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
+import { createUserCouponsUtil, getCouponsAmountUserUtil, getCouponsAssingtUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
 import { getUserUtil } from '../../utils';
 
 export const getCoupons = async (req: Request, res: Response) => {
@@ -100,6 +100,35 @@ export const createUserCoupons = async (req: Request, res: Response) => {
     }
 }
 
+export const getAssignAmountCouponsByUser = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'getAssignAmountCouponsByUser' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const me = req.user;
+        const { idUser } = req.params
+
+        if(!me.isAdmin || me.isBanner){
+            const response = { status: 'No eres Admin o estas bloqueado' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        if(!idUser){
+            const response = { status: 'No id User provider' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        const CouponsAmountAssing = await getCouponsAmountUserUtil(idUser);
+
+        return res.status(200).json({ CouponsAmountAssing });
+    } catch (error) {
+        console.log(error.message)
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
 
 export const getAssignCoupons = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'getAssignCoupons' });

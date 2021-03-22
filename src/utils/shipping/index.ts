@@ -36,6 +36,20 @@ export const createShippingUtil = async (Shipping: Shipping) => {
             `INSERT INTO shipping (idShipping, idOrder, created_at, status, guide, method) VALUES ('${Shipping.idShipping}', '${Shipping.idOrder}', '${Shipping.created_at}', '${Shipping.status}', ${Shipping.guide ? `'${Shipping.guide}'` : null}, ${Shipping.method ? `'${Shipping.method}'` : null});`,
             (err, data) => err ? reject(err) : resolve(data)
           );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
+
+export const updateStatusShippingUtil = async (status: string, idShipping: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE shipping SET status = '${status}' WHERE idShipping = '${idShipping}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
         }) as Shipping[];
   } catch (error) {
       console.log(error.message);

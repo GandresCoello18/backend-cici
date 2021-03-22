@@ -3,7 +3,7 @@ import { addMonths, format } from 'date-fns'
 import Locale from 'date-fns/locale/es'
 import { User } from '../../models/users';
 import jwt from "jsonwebtoken";
-import {config, createUserUtil, dataBase, getUsersUtil, getUserUtil, updatePasswordUserUtil, updateUserUtil} from '../../utils';
+import {config, createUserUtil, dataBase, deleteUserUtil, getUsersUtil, getUserUtil, updatePasswordUserUtil, updateUserUtil} from '../../utils';
 import bcryptjs from "bcryptjs";
 import { v4 as uuidv4 } from 'uuid';
 import { createUserCouponsUtil, getCouponsUserFreetUtil } from '../../utils/coupons';
@@ -113,30 +113,30 @@ export const crerateUser = async (req: Request, res: Response) => {
 
       if(userExist.length){
         return res.status(400).json({status: 'Estos datos ya pertenecen a otra cuenta, utilize otro Nombre de usuario o Email'});
-      }else{
-        let passwordEncrip: string | null = null;
-
-        if (provider === 'cici' && password) {
-          passwordEncrip = await bcryptjs.hash(password, 10);
-        }
-
-        const user: User = {
-          idUser: uuidv4(),
-          userName,
-          email,
-          password: passwordEncrip ? passwordEncrip : null,
-          created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-          isAdmin: isAdmin ? true : false,
-          avatar: avatar ? avatar : null,
-          provider: provider ? provider : 'cici',
-          phone: phone || null,
-          isBanner: false,
-        }
-
-        await createUserUtil(user);
-
-        return res.status(200).json();
       }
+
+      let passwordEncrip: string | null = null;
+
+      if (provider === 'cici' && password) {
+        passwordEncrip = await bcryptjs.hash(password, 10);
+      }
+
+      const user: User = {
+        idUser: uuidv4(),
+        userName,
+        email,
+        password: passwordEncrip || null,
+        created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+        isAdmin: isAdmin ? true : false,
+        avatar: avatar || null,
+        provider: provider || 'cici',
+        phone: phone || null,
+        isBanner: false,
+      }
+
+      await createUserUtil(user);
+
+      return res.status(200).json();
     } catch (error) {
       req.logger.error({ status: 'error', code: 500, error: error.message });
       return res.status(404).json();
@@ -214,6 +214,11 @@ export const login = async (req: Request, res: Response) => {
     }
 
     if(user?.length){
+
+      if(user[0].isBanner){
+        return res.status(400).json({status: 'Usuario bloqueado.'});
+      }
+
       user[0].password = ''
 
       const me = {
@@ -221,10 +226,10 @@ export const login = async (req: Request, res: Response) => {
         token: jwt.sign({idUser: user[0].idUser}, config.JWT_SECRET),
       }
 
-      return res.status(200).json({me})
-    }else{
-      return res.status(400).json({status: 'Datos incorrectos, revise e intentelo de nuevo'});
+      return res.status(200).json({ me })
     }
+
+    return res.status(400).json({status: 'Datos incorrectos, revise e intentelo de nuevo'});
   } catch (error) {
     req.logger.error({ status: 'error', code: 500, error: error.message });
     return res.status(404).json();
@@ -287,6 +292,30 @@ export const updatePasswordUser = async (req: Request, res: Response) => {
     req.logger.warn(response);
     return res.status(400).json(response);
 
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
+}
+
+
+export const deleteUser = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'deleteUser' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { idUser } = req.params
+    const me = req.user
+  
+    if(!me.isAdmin || me.isBanner){
+      const response = { status: 'No eres admin o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await deleteUserUtil(idUser)
+
+    return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(404).json();
