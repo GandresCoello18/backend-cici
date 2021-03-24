@@ -12,6 +12,7 @@ import Coupons from './services/coupons'
 import Orden from './services/orden'
 import Shipping from './services/shipping';
 import Statistic from './services/statistics';
+import multer from 'multer';
 
 export function init() {
   const app = express();
@@ -25,6 +26,17 @@ export function init() {
 
   // app.use(express.json());
   // Use JSON parser for all non-webhook routes
+
+  const storage = multer.diskStorage({
+    destination: function (_req: Express.Request, _file: Express.Multer.File, callback: (error: Error | null, destination: string) => void) {
+      callback(null, "./public/uploads");
+    },
+    filename: function (_req: Express.Request, file: any, callback: any) {
+      callback(null, file.originalname);
+    },
+  });
+
+  app.use(multer({ storage }).single('source'));
 
   app.use((req, res, next) => {
     if (

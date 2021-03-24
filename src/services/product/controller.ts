@@ -2,56 +2,53 @@ import { format } from 'date-fns';
 import Locale from 'date-fns/locale/es'
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { Product, ProductReviews, SourcesProduct } from '../../models/products';
+import { Product, ProductReviews } from '../../models/products';
 import { dataBase } from '../../utils';
-import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, getProductReviewUtil, getProductSourcesUtil } from '../../utils/products';
+import { UploasProduct } from '../../utils/cloudinary/product';
+import { createProductReviewUtil, createProductUtil, getProductExistUtil, getProductReviewUtil, getProductSourcesUtil } from '../../utils/products';
 
 export const createProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'product', serviceHandler: 'createProduct' });
     req.logger.info({ status: 'start' });
-  
-    try {
-        const {title, source, price, description, available, brand, size, model, related_sources} = req.body;
 
-        if(!title || !source || !price || !description || !available || !brand || !size || !model){
+    try {
+        const {title, price, description, available, brand, size, model, discount, status} = req.body;
+        if(!title || !price || !description || !available || !size){
           const response = { status: 'No data product provided' };
           req.logger.warn(response);
           return res.status(400).json(response);
         }
 
-        const ProductExist: Product[] = await new Promise((resolve, reject) => {
-            dataBase.query(
-              `SELECT * FROM products WHERE title = '${title}' AND price = ${price};`,
-              (err, data) => err ? reject(err) : resolve(data)
-            );
-          });
+        const ProductExist = await getProductExistUtil(title, price);
 
         if(ProductExist.length){
           return res.status(400).json({status: 'Estos datos ya pertenecen a otro producto, utilize otro titulo o precio'});
         }
 
+        const imagen = await UploasProduct(req);
+
         const product: Product = {
           idProducts: uuidv4(),
           title,
-          source,
+          source: imagen.url,
           created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
           price,
-          status,
+          status: status || 'No Disponible',
           description,
           available,
           sold: 0,
           stars: 0,
-          brand,
+          brand: brand || 'normal',
           size,
-          model,
+          model: model || 'normal',
           related_sources: [],
-          discount: 0,
+          discount: discount || 0,
           starsPeople: 0,
         }
 
         await createProductUtil(product);
 
-        if(related_sources.length){
+        /* if(related_sources.length){
           related_sources.foreach(async (item: SourcesProduct) => {
             const sourcesProduct: SourcesProduct = {
               idSourceProduct: uuidv4(),
@@ -62,7 +59,7 @@ export const createProduct = async (req: Request, res: Response) => {
 
             await createProductSourcesUtil(sourcesProduct);
           })
-        }
+        } */
 
         return res.status(200).json();
     } catch (error) {
@@ -93,23 +90,23 @@ export const getProducts = async (req: Request, res: Response) => {
 
         products = await new Promise((resolve, reject) => {
           dataBase.query(
-            `${sql} LIMIT ${1}, 12;`,
+            `${sql} LIMIT ${0}, 30;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         });
       }else{
-        start = 1;
+        start = 0;
         products = await new Promise((resolve, reject) => {
-            dataBase.query(
-              `SELECT * FROM products WHERE status = 'Disponible' AND title LIKE '%${findProduct || ''}%' ORDER BY created_at DESC LIMIT ${start}, 12;`,
-              (err, data) => err ? reject(err) : resolve(data)
-            );
+          dataBase.query(
+            `SELECT * FROM products WHERE status = 'Disponible' AND title LIKE '%${findProduct || ''}%' ORDER BY created_at DESC LIMIT ${start}, 30;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
         });
       }
 
       products.map(item => item.created_at = format(new Date(item.created_at), 'yyyy-MM-dd'))
 
-        return res.status(200).json({ products });
+      return res.status(200).json({ products });
     } catch (error) {
         console.log(error.message);
         req.logger.error({ status: 'error', code: 500 });

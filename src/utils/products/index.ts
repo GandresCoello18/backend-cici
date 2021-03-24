@@ -29,6 +29,20 @@ export const getProductUtil = async (idProduct: string) => {
   }
 }
 
+export const getProductExistUtil = async (title: string, price: number) => {
+  try {
+      return await new Promise((resolve, reject) => {
+        dataBase.query(
+          `SELECT * FROM products WHERE title = '${title}' AND price = ${price};`,
+          (err, data) => err ? reject(err) : resolve(data)
+        );
+        }) as Product[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
 export const createProductSourcesUtil = async (sourceProduct: SourcesProduct) => {
   try {
       return await new Promise((resolve, reject) => {
