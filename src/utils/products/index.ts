@@ -98,3 +98,17 @@ export const createProductReviewUtil = async (productReview: ProductReviews) => 
       return false;
   }
 }
+
+export const deleteProductUtil = async (idProducts: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `DELETE FROM products WHERE idProducts = '${idProducts}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}

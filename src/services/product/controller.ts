@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Product, ProductReviews } from '../../models/products';
 import { dataBase } from '../../utils';
 import { UploasProduct } from '../../utils/cloudinary/product';
-import { createProductReviewUtil, createProductUtil, getProductExistUtil, getProductReviewUtil, getProductSourcesUtil } from '../../utils/products';
+import { createProductReviewUtil, createProductUtil, deleteProductUtil, getProductExistUtil, getProductReviewUtil, getProductSourcesUtil } from '../../utils/products';
 
 export const createProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'product', serviceHandler: 'createProduct' });
@@ -277,6 +277,27 @@ export const getReviewProduct = async (req: Request, res: Response) => {
       reviews.map(review => review.created_at = format(new Date(review.created_at), 'PPPP', {locale: Locale}))
 
       return res.status(200).json({ reviews });
+  } catch (error) {
+      req.logger.error({ status: 'error', code: 500 });
+      return res.status(404).json();
+  }
+}
+
+export const deleteProduct = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'product', serviceHandler: 'deleteProduct' });
+  req.logger.info({ status: 'start' });
+
+  try {
+      const {idProduct} = req.params;
+
+      if(!idProduct){
+          const response = { status: 'No product id provided' };
+          req.logger.warn(response);
+          return res.status(400).json(response);
+      }
+
+      await deleteProductUtil(idProduct)
+      return res.status(200).json();
   } catch (error) {
       req.logger.error({ status: 'error', code: 500 });
       return res.status(404).json();

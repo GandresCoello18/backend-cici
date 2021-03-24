@@ -1,7 +1,7 @@
 import express from 'express';
 import { auth } from '../../middlewares/auth';
 
-import { getProducts, getProductsCategory, getProductsOffers, getProductsBestRated, getProduct, getReviewProduct, createProduct, createReviewProduct } from './controller';
+import { getProducts, getProductsCategory, getProductsOffers, getProductsBestRated, getProduct, getReviewProduct, createProduct, createReviewProduct, deleteProduct } from './controller';
 
 const router = express.Router();
 const baseURL = '/products';
@@ -14,5 +14,6 @@ router.get(`${baseURL}/:idProduct`, getProduct);
 router.post(`${baseURL}/`, auth, createProduct);
 router.post(`${baseURL}/review`, auth, createReviewProduct);
 router.get(`${baseURL}/review/:idProduct`, getReviewProduct);
+router.delete(`${baseURL}/:idProduct`, deleteProduct);
 
 export default router;
