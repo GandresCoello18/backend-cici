@@ -2,10 +2,10 @@ import { format } from 'date-fns';
 import Locale from 'date-fns/locale/es'
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { Product, ProductReviews } from '../../models/products';
+import { Product, ProductReviews, SourcesProduct } from '../../models/products';
 import { dataBase } from '../../utils';
-import { UploasProduct } from '../../utils/cloudinary/product';
-import { createProductReviewUtil, createProductUtil, deleteProductUtil, getProductExistUtil, getProductReviewUtil, getProductSourcesUtil } from '../../utils/products';
+import { UploadMoreSourcesProduct, UploasProduct } from '../../utils/cloudinary/product';
+import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getProductExistUtil, getProductReviewUtil, getProductSourcesUtil } from '../../utils/products';
 
 export const createProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'product', serviceHandler: 'createProduct' });
@@ -13,6 +13,14 @@ export const createProduct = async (req: Request, res: Response) => {
 
     try {
         const {title, price, description, available, brand, size, model, discount, status} = req.body;
+        const me = req.user
+
+        if(!me.isAdmin || me.isBanner){
+          const response = { status: 'No eres admin o estas bloqueado' };
+          req.logger.warn(response);
+          return res.status(400).json(response);
+        }
+
         if(!title || !price || !description || !available || !size){
           const response = { status: 'No data product provided' };
           req.logger.warn(response);
@@ -30,7 +38,7 @@ export const createProduct = async (req: Request, res: Response) => {
         const product: Product = {
           idProducts: uuidv4(),
           title,
-          source: imagen.url,
+          source: imagen,
           created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
           price,
           status: status || 'No Disponible',
@@ -48,25 +56,56 @@ export const createProduct = async (req: Request, res: Response) => {
 
         await createProductUtil(product);
 
-        /* if(related_sources.length){
-          related_sources.foreach(async (item: SourcesProduct) => {
-            const sourcesProduct: SourcesProduct = {
-              idSourceProduct: uuidv4(),
-              source: item.source,
-              kind: item.kind,
-              idProduct: product.idProducts
-            }
-
-            await createProductSourcesUtil(sourcesProduct);
-          })
-        } */
-
         return res.status(200).json();
     } catch (error) {
       req.logger.error({ status: 'error', code: 500 });
       return res.status(404).json();
     }
 };
+
+export const MoreSourcesProduct = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'product', serviceHandler: 'MoreSourcesProduct' });
+  req.logger.info({ status: 'start' });
+
+  try {
+      const {idProduct} = req.body;
+      const me = req.user
+
+      if(!me.isAdmin || me.isBanner){
+        const response = { status: 'No eres admin o estas bloqueado' };
+        req.logger.warn(response);
+        return res.status(400).json(response);
+      }
+
+      if(!idProduct){
+          const response = { status: 'No product id provided' };
+          req.logger.warn(response);
+          return res.status(400).json(response);
+      }
+
+      const urls = await UploadMoreSourcesProduct(req);
+
+       if(urls.length){
+          urls.forEach(async (item: string) => {
+            const sourcesProduct: SourcesProduct = {
+              idSourceProduct: uuidv4(),
+              source: item,
+              kind: 'IMAGEN',
+              idProduct
+            }
+
+            await createProductSourcesUtil(sourcesProduct);
+          })
+
+          return res.status(200).json();
+        }
+
+        return res.status(400).json({ status: 'upload images faild' });
+  } catch (error) {
+      req.logger.error({ status: 'error', code: 500 });
+      return res.status(404).json();
+  }
+}
 
 export const getProducts = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'product', serviceHandler: 'getProducts' });
@@ -289,6 +328,13 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
   try {
       const {idProduct} = req.params;
+      const me = req.user
+
+      if(!me.isAdmin || me.isBanner){
+        const response = { status: 'No eres admin o estas bloqueado' };
+        req.logger.warn(response);
+        return res.status(400).json(response);
+      }
 
       if(!idProduct){
           const response = { status: 'No product id provided' };
