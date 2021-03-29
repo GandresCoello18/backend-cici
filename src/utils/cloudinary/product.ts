@@ -2,6 +2,7 @@ import cloudinary from 'cloudinary';
 import { Request } from 'express';
 import {config} from '../config';
 import { v4 as uuidv4 } from 'uuid';
+import { RemoveFilesTemp } from '../removeFileTemp';
 
 cloudinary.v2.config({
     cloud_name: config.CLOUD_NAME,
@@ -16,6 +17,8 @@ export const UploasProduct = async (req: Request) => {
     await cloudinary.v2.uploader.upload(
         path, { public_id: uniqueFilename, tags: `products` },
     )
+
+    RemoveFilesTemp();
 
     return uniqueFilename;
 }
@@ -36,6 +39,8 @@ export const UploadMoreSourcesProduct = async (req: Request | any) => {
             result.push(uniqueFilename);
         }
     }
+
+    RemoveFilesTemp();
 
     return result;
 }
