@@ -3,11 +3,12 @@ import { addMonths, format } from 'date-fns'
 import Locale from 'date-fns/locale/es'
 import { User } from '../../models/users';
 import jwt from "jsonwebtoken";
-import {config, createUserUtil, dataBase, deleteUserUtil, getUsersUtil, getUserUtil, updatePasswordUserUtil, updateUserUtil} from '../../utils';
+import {config, createUserUtil, dataBase, deleteUserUtil, getUsersUtil, getUserUtil, updateAvatarUserUtil, updatePasswordUserUtil, updateUserUtil} from '../../utils';
 import bcryptjs from "bcryptjs";
 import { v4 as uuidv4 } from 'uuid';
 import { createUserCouponsUtil, getCouponsUserFreetUtil } from '../../utils/coupons';
 import { CouponsUser } from '../../models/coupons';
+import { UploadAvatarUser } from '../../utils/cloudinary/user';
 
 export const getMe = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'users', serviceHandler: 'getMe' });
@@ -298,6 +299,22 @@ export const updatePasswordUser = async (req: Request, res: Response) => {
   }
 }
 
+export const updateAvatardUser = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'updateAvatardUser' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const me = req.user
+
+    const src = await UploadAvatarUser(req);
+    await updateAvatarUserUtil(src, me.idUser);
+
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
+}
 
 export const deleteUser = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'users', serviceHandler: 'deleteUser' });

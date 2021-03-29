@@ -106,6 +106,20 @@ export const updatePasswordUserUtil = async (password: string, idUser: string) =
   }
 }
 
+export const updateAvatarUserUtil = async (avatar: string, idUser: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE users SET avatar = '${avatar}' WHERE idUser = '${idUser}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
+
 export const deleteUserUtil = async (idUser: string) => {
   try {
       return await new Promise((resolve, reject) => {
