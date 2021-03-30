@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { createUserCouponsUtil, getCouponsUserFreetUtil } from '../../utils/coupons';
 import { CouponsUser } from '../../models/coupons';
 import { UploadAvatarUser } from '../../utils/cloudinary/user';
+import { SendEmail } from '../../utils/email/send';
+import { WelcomeEmail } from '../../utils/email/template/welcome';
 
 export const getMe = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'users', serviceHandler: 'getMe' });
@@ -136,6 +138,24 @@ export const crerateUser = async (req: Request, res: Response) => {
       }
 
       await createUserUtil(user);
+      await SendEmail({
+        from: email,
+        to: email,
+        subject: 'Tenemos un regalo para ti | Cici beauty place',
+        text:'',
+        html: WelcomeEmail,
+      });
+
+      const userCoupon: CouponsUser = {
+        id_user_coupons: uuidv4(),
+        idUser: user.idUser,
+        idCoupon: null,
+        expiration_date: format(addMonths(new Date(), 1), 'yyyy-MM-dd HH:mm:ss'),
+        created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+        idGuestUser: null,
+        status: 'Pendiente'
+      }
+      await createUserCouponsUtil(userCoupon)
 
       return res.status(200).json();
     } catch (error) {
@@ -211,7 +231,15 @@ export const login = async (req: Request, res: Response) => {
         idGuestUser: null,
         status: 'Pendiente'
       }
+
       await createUserCouponsUtil(userCoupon)
+      await SendEmail({
+        from: email,
+        to: email,
+        subject: 'Tenemos un regalo para ti | Cici beauty place',
+        text:'',
+        html: WelcomeEmail,
+      });
     }
 
     if(user?.length){
