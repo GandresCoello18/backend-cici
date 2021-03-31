@@ -131,7 +131,7 @@ export const Invitacion = (userName: string, avatar: string) => {
                             <td align="left" style="padding:0;Margin:0"> 
                             <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px"> 
                                 <tr style="border-collapse:collapse"> 
-                                <td class="es-m-txt-l" align="left" style="padding:0;Margin:0"><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:arvo, courier, georgia, serif;font-size:20px;font-style:normal;font-weight:bold;color:#333333">Harold</h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:arvo, courier, georgia, serif;font-size:20px;font-style:normal;font-weight:bold;color:#333333">${userName}</h3></td> 
+                                <td class="es-m-txt-l" align="left" style="padding:0;Margin:0"><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:arvo, courier, georgia, serif;font-size:20px;font-style:normal;font-weight:bold;color:#333333">${userName}</h3></td> 
                                 </tr> 
                             </table></td> 
                             </tr> 

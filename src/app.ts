@@ -12,6 +12,7 @@ import Coupons from './services/coupons'
 import Orden from './services/orden'
 import Shipping from './services/shipping';
 import Statistic from './services/statistics';
+import Invite from './services/invite';
 
 export function init() {
   const app = express();
@@ -50,6 +51,7 @@ export function init() {
     Orden,
     Shipping,
     Statistic,
+    Invite,
   ]);
 
   return { app };

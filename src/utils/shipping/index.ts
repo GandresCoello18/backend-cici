@@ -33,7 +33,7 @@ export const createShippingUtil = async (Shipping: Shipping) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `INSERT INTO shipping (idShipping, idOrder, created_at, status, guide, method) VALUES ('${Shipping.idShipping}', '${Shipping.idOrder}', '${Shipping.created_at}', '${Shipping.status}', ${Shipping.guide ? `'${Shipping.guide}'` : null}, ${Shipping.method ? `'${Shipping.method}'` : null});`,
+            `INSERT INTO shipping (idShipping, idOrder, created_at, status, guide, method, update_at) VALUES ('${Shipping.idShipping}', '${Shipping.idOrder}', '${Shipping.created_at}', '${Shipping.status}', ${Shipping.guide ? `'${Shipping.guide}'` : null}, ${Shipping.method ? `'${Shipping.method}'` : null}, '${Shipping.update_at}');`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         });

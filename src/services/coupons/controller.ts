@@ -5,8 +5,6 @@ import Locale from 'date-fns/locale/es'
 import { CouponsUser } from '../../models/coupons';
 import { createUserCouponsUtil, getCouponsAmountUserUtil, getCouponsAssingtUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
 import { getUserUtil } from '../../utils';
-import { SendEmail } from '../../utils/email/send';
-import { Invitacion } from '../../utils/email/template/invite';
 
 export const getCoupons = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'getCoupons' });
@@ -93,15 +91,6 @@ export const createUserCoupons = async (req: Request, res: Response) => {
         }
 
         await createUserCouponsUtil(userCoupon)
-
-        const userInvite = await getUserUtil({idUser: idGuestUser});
-
-        await SendEmail({
-            to: userInvite[0].email,
-            subject: 'Invitación | Cici beauty place',
-            text:'',
-            html: Invitacion(user.userName, user.avatar || ''),
-        });
 
         return res.status(200).json();
     } catch (error) {

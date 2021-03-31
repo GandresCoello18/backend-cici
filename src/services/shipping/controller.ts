@@ -29,6 +29,7 @@ export const newShipping = async (req: Request, res: Response) => {
             idShipping: uuidv4(),
             idOrder,
             created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+            update_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
             status: 'Sent',
             guide: guide || null,
             method: method || null,
