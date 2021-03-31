@@ -139,7 +139,6 @@ export const crerateUser = async (req: Request, res: Response) => {
 
       await createUserUtil(user);
       await SendEmail({
-        from: email,
         to: email,
         subject: 'Tenemos un regalo para ti | Cici beauty place',
         text:'',
@@ -234,7 +233,6 @@ export const login = async (req: Request, res: Response) => {
 
       await createUserCouponsUtil(userCoupon)
       await SendEmail({
-        from: email,
         to: email,
         subject: 'Tenemos un regalo para ti | Cici beauty place',
         text:'',

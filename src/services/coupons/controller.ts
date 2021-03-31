@@ -97,7 +97,6 @@ export const createUserCoupons = async (req: Request, res: Response) => {
         const userInvite = await getUserUtil({idUser: idGuestUser});
 
         await SendEmail({
-            from: userInvite[0].email,
             to: userInvite[0].email,
             subject: 'Invitación | Cici beauty place',
             text:'',
