@@ -1,14 +1,12 @@
 import { format } from 'date-fns';
 import { Request, Response } from 'express';
-import Locale from 'date-fns/locale/es'
 import { v4 as uuidv4 } from 'uuid';
-import { Orden, productOrden } from '../../models/orden';
-import { getProductCartUtil, getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
-import { createOrdenUtil, geteOrdensByUserUtil, geteOrdenStatusUtil, geteOrdensUtil, UpdateStatusOrdenUtil, Update_atOrdenUtil } from '../../utils/orden';
-import { Shipping } from '../../models/shipping';
-import { geteShippingByOrdenUtil } from '../../utils/shipping';
+import { Orden } from '../../models/orden';
+import { getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
+import { createOrdenUtil, geteOrdensByUserUtil, geteOrdensUtil, UpdateStatusOrdenUtil, Update_atOrdenUtil } from '../../utils/orden';
 import { updateStatusCouponsUtil } from '../../utils/coupons';
-import { SchemaOrder } from '../../helpers/Order';
+import { SchemaOrder, SchemaStatusOrder } from '../../helpers/Order';
+import { geteShippingByOrdenUtil } from '../../utils/shipping';
 
 export const newOrden = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -77,57 +75,28 @@ export const getOrdenStatus = async (req: Request, res: Response) => {
         }
 
         let responseOrden;
-        let ordenes;
 
         switch(status){
             case 'Pendiente de pago':
                 status = 'Pending'
-                ordenes = await geteOrdenStatusUtil(user.idUser, status)
-
-                responseOrden = await Promise.all(
-                    ordenes.map(async orden => {
-
-                        const product: productOrden[] = await getProductCartUtil(orden.idCart)
-
-                        return {
-                            idOrder: orden.idOrder,
-                            created_at: format(new Date(orden.created_at), 'PPPP', {locale: Locale}),
-                            status: orden.status,
-                            paymentMethod: orden.paymentMethod,
-                            paymentId: orden.paymentId,
-                            product,
-                        }
-                    })
-                )
+                responseOrden = await SchemaStatusOrder(user.idUser, status);
                 break
             case 'Pendiente de envio':
                 status = 'Paid'
-                ordenes = await geteOrdenStatusUtil(user.idUser, status)
-
-                responseOrden = await Promise.all(
-                    ordenes.map(async orden => {
-
-                        const shipping: Shipping[] = await geteShippingByOrdenUtil(orden.idOrder);
-
-                        if(shipping.length === 0){
-                            const product: productOrden[] = await getProductCartUtil(orden.idCart)
-
-                            return {
-                                idOrder: orden.idOrder,
-                                created_at: format(new Date(orden.created_at), 'PPPP', {locale: Locale}),
-                                status: orden.status,
-                                paymentMethod: orden.paymentMethod,
-                                paymentId: orden.paymentId,
-                                product,
-                            }
-                        }
-
-                        return null
-                    })
-                )
+                responseOrden = await SchemaStatusOrder(user.idUser, status);
                 break
             case 'Pendiente de entrega':
-                status = ''
+                status = 'Paid'
+                const OrdenPaid = await SchemaStatusOrder(user.idUser, status);
+
+                responseOrden = await Promise.all(
+                    OrdenPaid.map(async orden => {
+                        const IsShipping = await geteShippingByOrdenUtil(orden.idOrder);
+                        return IsShipping.length ? orden : null;
+                    })
+                )
+
+                responseOrden = responseOrden.filter(orden => orden !== null);
                 break
         }
 

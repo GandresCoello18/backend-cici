@@ -30,7 +30,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
         }else{
             const user = await getUserUtil({idUser: decoded.idUser});
 
-            if(!user){
+            if(!user || user[0].isBanner){
                 throw new Error()
             }
 

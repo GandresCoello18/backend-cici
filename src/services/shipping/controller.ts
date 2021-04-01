@@ -3,7 +3,8 @@ import { Request, Response } from 'express';
 // import Locale from 'date-fns/locale/es'
 import { v4 as uuidv4 } from 'uuid';
 import { Shipping } from '../../models/shipping';
-import { createShippingUtil, getShippingUtil, updateStatusShippingUtil } from '../../utils/shipping';
+import { getProductCartUtil } from '../../utils/cart';
+import { createShippingUtil, getShippingProductsUtil, getShippingUtil, updateStatusShippingUtil } from '../../utils/shipping';
 
 export const newShipping = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'shipping', serviceHandler: 'newShipping' });
@@ -52,16 +53,29 @@ export const getShipping = async (req: Request, res: Response) => {
     try {
         const me = req.user
         const idPago = req.query.idPago as string;
+        let shipping: Shipping[] = [];
 
-        if(!me.isAdmin || me.isBanner){
-            const response = { status: 'No eres admin o estas bloqueado' };
-            req.logger.warn(response);
-            return res.status(400).json(response);
+        if(!me.isAdmin){
+            shipping = await getShippingUtil(idPago || undefined);
+        }else{
+            const ShippingProduct = await getShippingProductsUtil(me.idUser);
+
+            shipping = await Promise.all(
+                ShippingProduct.map(async orden => {
+                    const cart = await getProductCartUtil(orden.idCart);
+
+                    return {
+                        ...orden,
+                        titleProduct: cart[0].title,
+                        sourcesProduct: cart[0].source,
+                        products: cart.length - 1,
+                    }
+                })
+            )
         }
 
-        const shipping = await getShippingUtil(idPago || undefined);
-
         shipping.map(envio => envio.created_at = format(new Date(envio.created_at), 'yyyy-MM-dd HH:mm:ss'));
+        shipping.map(envio => envio.update_at = format(new Date(envio.update_at), 'yyyy-MM-dd HH:mm:ss'));
 
         return res.status(200).json({ shipping });
     } catch (error) {
@@ -80,7 +94,7 @@ export const updateStatusShipping = async (req: Request, res: Response) => {
         const { idShipping } = req.params
         const { status } = req.body
 
-        if(!me.isAdmin || me.isBanner){
+        if(!me.isAdmin){
             const response = { status: 'No eres admin o estas bloqueado' };
             req.logger.warn(response);
             return res.status(400).json(response);

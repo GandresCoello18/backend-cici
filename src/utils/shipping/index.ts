@@ -1,4 +1,4 @@
-import { Shipping } from "../../models/shipping";
+import { Shipping, ShippingCart } from "../../models/shipping";
 import { dataBase } from "../database";
 
 export const geteShippingByOrdenUtil = async (idOrder: string) => {
@@ -9,6 +9,20 @@ export const geteShippingByOrdenUtil = async (idOrder: string) => {
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as Shipping[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const getShippingProductsUtil = async (idUser: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT shipping.*, cart.idCart FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN cart ON cart.idCart = orden.idCart WHERE orden.idUser = '${idUser}' ORDER BY shipping.update_at DESC;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as ShippingCart[];
   } catch (error) {
       console.log(error.message);
       return [];

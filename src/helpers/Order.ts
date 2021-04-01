@@ -4,6 +4,8 @@ import { Shipping } from "../models/shipping";
 import { User } from "../models/users";
 import { getUserUtil } from "../utils";
 import { getProductCartUtil } from "../utils/cart";
+import Locale from 'date-fns/locale/es'
+import { geteOrdenStatusUtil } from "../utils/orden";
 import { geteShippingByOrdenUtil } from "../utils/shipping";
 
 export const SchemaOrder = async (ordenes: Orden[]) => {
@@ -37,4 +39,23 @@ export const SchemaOrder = async (ordenes: Orden[]) => {
     )
 
     return responseOrden;
+}
+
+export const SchemaStatusOrder = async (idUser: string, status: string) => {
+    const ordenes = await geteOrdenStatusUtil(idUser, status)
+
+    return await Promise.all(
+        ordenes.map(async orden => {
+            const product: productOrden[] = await getProductCartUtil(orden.idCart)
+
+            return {
+                idOrder: orden.idOrder,
+                created_at: format(new Date(orden.created_at), 'PPPP', {locale: Locale}),
+                status: orden.status,
+                paymentMethod: orden.paymentMethod,
+                paymentId: orden.paymentId,
+                product,
+            }
+        })
+    )
 }
