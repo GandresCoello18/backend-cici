@@ -1,3 +1,5 @@
+import { Cart } from "./cart";
+
 export interface Shipping {
     idShipping: string
     idOrder: string
@@ -29,4 +31,19 @@ export interface ShippingProduct {
     method: string
     title: string
     sources: string
+}
+
+export interface DetailsOrdenAndShipping {
+    idShipping: string
+    enviado_el: string | Date
+    entregado_el: string | Date
+    status: string
+    guide: string
+    method: string
+    idCart: string
+    ordenado_el: string | Date
+    shipping: number
+    discount: number
+    totalAmount: number
+    products: Cart[]
 }

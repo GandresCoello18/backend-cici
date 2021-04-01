@@ -2,11 +2,11 @@ import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Orden } from '../../models/orden';
-import { getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
+import { getProductCartUtil, getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
 import { createOrdenUtil, geteOrdensByUserUtil, geteOrdensUtil, UpdateStatusOrdenUtil, Update_atOrdenUtil } from '../../utils/orden';
 import { updateStatusCouponsUtil } from '../../utils/coupons';
 import { SchemaOrder, SchemaStatusOrder } from '../../helpers/Order';
-import { geteShippingByOrdenUtil } from '../../utils/shipping';
+import { geteShippingByOrdenUtil, getShippingAndOrderDetailsUtil } from '../../utils/shipping';
 
 export const newOrden = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -125,6 +125,40 @@ export const getOrders = async (req: Request, res: Response) => {
         const responseOrden = await SchemaOrder(ordenes);
 
         return res.status(200).json({ ordenes: responseOrden });
+    } catch (error) {
+        console.log(error.message);
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const getOrdenDetails = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'orden', serviceHandler: 'getOrdenDetails' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const me = req.user;
+
+        const ShippingProduct = await getShippingAndOrderDetailsUtil(me.idUser);
+
+        const DetailOrden = await Promise.all(
+            ShippingProduct.map(async orden => {
+                const cartProduct = await getProductCartUtil(orden.idCart);
+
+                return {
+                    ...orden,
+                    products: cartProduct,
+                }
+            })
+        )
+
+        DetailOrden.map(envio => envio.entregado_el = format(new Date(envio.entregado_el), 'yyyy-MM-dd HH:mm'));
+        DetailOrden.map(envio => envio.ordenado_el = format(new Date(envio.ordenado_el), 'yyyy-MM-dd HH:mm'));
+        DetailOrden.map(envio => envio.enviado_el = format(new Date(envio.enviado_el), 'yyyy-MM-dd HH:mm'));
+
+        console.log(DetailOrden);
+
+        return res.status(200).json({ DetailOrden: DetailOrden[0] });
     } catch (error) {
         console.log(error.message);
         req.logger.error({ status: 'error', code: 500 });
