@@ -47,6 +47,7 @@ export const newOrden = async (req: Request, res: Response) => {
             totalAmount,
             id_user_coupons: id_user_coupons || null,
             paymentId: paymentId || null,
+            qualified: false
         }
 
         await createOrdenUtil(Orden)
@@ -155,8 +156,6 @@ export const getOrdenDetails = async (req: Request, res: Response) => {
         DetailOrden.map(envio => envio.entregado_el = format(new Date(envio.entregado_el), 'yyyy-MM-dd HH:mm'));
         DetailOrden.map(envio => envio.ordenado_el = format(new Date(envio.ordenado_el), 'yyyy-MM-dd HH:mm'));
         DetailOrden.map(envio => envio.enviado_el = format(new Date(envio.enviado_el), 'yyyy-MM-dd HH:mm'));
-
-        console.log(DetailOrden);
 
         return res.status(200).json({ DetailOrden: DetailOrden[0] });
     } catch (error) {

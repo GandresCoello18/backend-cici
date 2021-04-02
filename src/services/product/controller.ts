@@ -271,10 +271,10 @@ export const createReviewProduct = async (req: Request, res: Response) => {
   req.logger.info({ status: 'start' });
 
   try {
-      const {idProduct, commentary, stars} = req.body;
+      const {idProduct, commentary, stars, received, recommendation} = req.body;
       const user = req.user
 
-      if(!idProduct || !commentary || !stars){
+      if(!idProduct || !commentary || !stars || !recommendation || !received){
         const response = { status: 'No data product review provided' };
         req.logger.warn(response);
         return res.status(400).json(response);
@@ -287,6 +287,8 @@ export const createReviewProduct = async (req: Request, res: Response) => {
         stars: stars || null,
         idUser: user.idUser,
         commentary,
+        received,
+        recommendation
       }
 
       await createProductReviewUtil(productReview);

@@ -31,6 +31,8 @@ export interface ProductReviews {
     created_at: Date | string
     idUser: string
     idProduct: string
+    received: string
+    recommendation: string
 }
 
 export interface ProductReviewByUser {

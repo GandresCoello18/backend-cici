@@ -11,6 +11,7 @@ export interface Orden {
     totalAmount: number
     id_user_coupons: string | null
     paymentId: string | null
+    qualified: boolean
 }
 
 export interface OrdenProduct {

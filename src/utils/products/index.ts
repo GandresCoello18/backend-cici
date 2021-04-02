@@ -89,7 +89,7 @@ export const createProductReviewUtil = async (productReview: ProductReviews) => 
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `INSERT INTO productReviews (idProductReviews, commentary, stars, created_at, idUser, idProduct) VALUES ('${productReview.idProductReviews}', '${productReview.commentary}', ${productReview.stars ? `${productReview.stars}` : null}, '${productReview.created_at}', '${productReview.idUser}', '${productReview.idProduct}');`,
+            `INSERT INTO productReviews (idProductReviews, commentary, stars, created_at, idUser, idProduct, received, recommendation) VALUES ('${productReview.idProductReviews}', '${productReview.commentary}', ${productReview.stars ? `${productReview.stars}` : null}, '${productReview.created_at}', '${productReview.idUser}', '${productReview.idProduct}', '${productReview.received}', '${productReview.recommendation}');`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         });
