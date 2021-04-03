@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { format, endOfMonth, startOfMonth, subMonths } from 'date-fns';
-import { getStatisticsOrdeAmountTotalUtil, getStatisticsOrdeAmountUtil, getStatisticsOrderMothUtil, getStatisticsOrderUtil, getStatisticsUserMothUtil, getStatisticsUserUtil } from '../../utils/statistics';
+import { getStatisticsOrdeAmountTotalUtil, getStatisticsOrdeAmountUtil, getStatisticsOrderMothUtil, getStatisticsOrderUtil, getStatisticsReceivedProductUtil, getStatisticsRecomendationProductUtil, getStatisticsUserMothUtil, getStatisticsUserUtil } from '../../utils/statistics';
 
 export const getStatistics = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'Statistics', serviceHandler: 'getStatistics' });
@@ -9,7 +9,7 @@ export const getStatistics = async (req: Request, res: Response) => {
     try {
         const me = req.user
 
-        if(!me.isAdmin || me.isBanner){
+        if(!me.isAdmin){
             const response = { status: 'No eres admin o estas bloqueado' };
             req.logger.warn(response);
             return res.status(400).json(response);
@@ -54,6 +54,36 @@ export const getStatistics = async (req: Request, res: Response) => {
         }
 
         return res.status(200).json({ statistics });
+    } catch (error) {
+        console.log(error.message)
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const getStatisticsReviewProduct = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'Statistics', serviceHandler: 'getStatisticsReviewProduct' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const me = req.user
+        const { idProduct } = req.params
+
+        if(!me.isAdmin){
+            const response = { status: 'No eres admin o estas bloqueado' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        const Received = await getStatisticsReceivedProductUtil(idProduct);
+        const Recommendation = await getStatisticsRecomendationProductUtil(idProduct);
+
+        const StatisticsReview = {
+            Received,
+            Recommendation
+        }
+
+        return res.status(200).json({ StatisticsReview });
     } catch (error) {
         console.log(error.message)
         req.logger.error({ status: 'error', code: 500 });

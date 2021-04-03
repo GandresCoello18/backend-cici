@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Product, ProductReviews, SourcesProduct } from '../../models/products';
 import { dataBase } from '../../utils';
 import { UploadMoreSourcesProduct, UploasProduct } from '../../utils/cloudinary/product';
+import { UpdateQualifledOrdenUtil } from '../../utils/orden';
 import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getProductExistUtil, getProductReviewUtil, getProductSourcesUtil } from '../../utils/products';
 
 export const createProduct = async (req: Request, res: Response) => {
@@ -292,6 +293,7 @@ export const createReviewProduct = async (req: Request, res: Response) => {
       }
 
       await createProductReviewUtil(productReview);
+      await UpdateQualifledOrdenUtil('' , true);
 
       return res.status(200).json();
   } catch (error) {

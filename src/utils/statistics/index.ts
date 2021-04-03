@@ -84,3 +84,31 @@ export const getStatisticsOrdeAmountUtil = async (InitiañDate: string, FinishDa
       return [];
   }
 }
+
+export const getStatisticsReceivedProductUtil = async (idProduct: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT COUNT(*), received FROM productReviews WHERE idProduct = '${idProduct}' GROUP BY received;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as any[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const getStatisticsRecomendationProductUtil = async (idProduct: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT COUNT(*), received FROM productReviews WHERE idProduct = '${idProduct}' GROUP BY received;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as any[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
