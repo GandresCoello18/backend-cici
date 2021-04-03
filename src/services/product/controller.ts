@@ -182,6 +182,8 @@ export const getProduct = async (req: Request, res: Response) => {
           idProduct: Product[0].idProducts
         })
 
+        Product.map(product => product.created_at = format(new Date(product.created_at), 'yyyy-MM-dd'))
+
         return res.status(200).json({ product: Product[0] });
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
@@ -272,10 +274,10 @@ export const createReviewProduct = async (req: Request, res: Response) => {
   req.logger.info({ status: 'start' });
 
   try {
-      const {idProduct, commentary, stars, received, recommendation} = req.body;
+      const {idOrden, idProduct, commentary, stars, received, recommendation} = req.body;
       const user = req.user
 
-      if(!idProduct || !commentary || !stars || !recommendation || !received){
+      if(!idOrden || !idProduct || !commentary || !stars || !recommendation || !received){
         const response = { status: 'No data product review provided' };
         req.logger.warn(response);
         return res.status(400).json(response);
@@ -293,7 +295,7 @@ export const createReviewProduct = async (req: Request, res: Response) => {
       }
 
       await createProductReviewUtil(productReview);
-      await UpdateQualifledOrdenUtil('' , true);
+      await UpdateQualifledOrdenUtil(idOrden , true);
 
       return res.status(200).json();
   } catch (error) {

@@ -89,7 +89,7 @@ export const getStatisticsReceivedProductUtil = async (idProduct: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT COUNT(*), received FROM productReviews WHERE idProduct = '${idProduct}' GROUP BY received;`,
+            `SELECT COUNT(*) as total, received FROM productReviews WHERE idProduct = '${idProduct}' GROUP BY received;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as any[];
@@ -103,7 +103,7 @@ export const getStatisticsRecomendationProductUtil = async (idProduct: string) =
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT COUNT(*), received FROM productReviews WHERE idProduct = '${idProduct}' GROUP BY received;`,
+            `SELECT COUNT(*) as total, recommendation FROM productReviews WHERE idProduct = '${idProduct}' GROUP BY	recommendation;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as any[];
