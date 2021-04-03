@@ -15,11 +15,25 @@ export const geteShippingByOrdenUtil = async (idOrder: string) => {
   }
 }
 
+export const geteShippingUtil = async (idShipping: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT * FROM shipping WHERE idShipping = '${idShipping}' ORDER BY created_at DESC;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Shipping[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
 export const getShippingProductsUtil = async (idUser: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT shipping.*, cart.idCart FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN cart ON cart.idCart = orden.idCart WHERE orden.idUser = '${idUser}' ORDER BY shipping.update_at DESC;`,
+            `SELECT shipping.*, cart.idCart, users.userName, users.avatar FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN cart ON cart.idCart = orden.idCart INNER JOIN users ON users.idUser = cart.idUser WHERE orden.idUser = '${idUser}' ORDER BY shipping.update_at DESC;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as ShippingCart[];

@@ -57,6 +57,20 @@ export const Update_atOrdenUtil = async (idOrder: string, update_at: string | Da
   }
 }
 
+export const geteOrdenUtil = async (idOrder: string, status: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT * FROM orden WHERE idOrder = '${idOrder}' AND status = '${status}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as Orden[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
 export const geteOrdenStatusUtil = async (idUser: string, status: string) => {
   try {
       return await new Promise((resolve, reject) => {

@@ -3,8 +3,12 @@ import { Request, Response } from 'express';
 // import Locale from 'date-fns/locale/es'
 import { v4 as uuidv4 } from 'uuid';
 import { Shipping } from '../../models/shipping';
+import { getUserUtil } from '../../utils';
 import { getProductCartUtil } from '../../utils/cart';
-import { createShippingUtil, getShippingProductsUtil, getShippingUtil, updateStatusShippingUtil } from '../../utils/shipping';
+import { SendEmail } from '../../utils/email/send';
+import { QualifyOrder } from '../../utils/email/template/qualifyOrder';
+import { geteOrdenUtil } from '../../utils/orden';
+import { createShippingUtil, geteShippingUtil, getShippingProductsUtil, getShippingUtil, updateStatusShippingUtil } from '../../utils/shipping';
 
 export const newShipping = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'shipping', serviceHandler: 'newShipping' });
@@ -107,6 +111,22 @@ export const updateStatusShipping = async (req: Request, res: Response) => {
         }
 
         await updateStatusShippingUtil(status, idShipping);
+
+        const shipping = await geteShippingUtil(idShipping);
+        const order = await geteOrdenUtil(shipping[0].idOrder, 'Paid');
+
+        if(order.length){
+            const user = await getUserUtil({ idUser: order[0].idUser })
+
+            if(status === 'Delivered'){
+                await SendEmail({
+                to: user[0].email,
+                subject: 'Tu orden acaba de llegar | Cici beauty place',
+                text:'',
+                html: QualifyOrder(user[0].userName, order[0].idOrder),
+                });
+            }
+        }
 
         return res.status(200).json();
     } catch (error) {
