@@ -12,6 +12,7 @@ export const config = envalid.cleanEnv(
     DB_PASSWORD: str(),
     DB_NAME: str(),
     DB_PORT: str(),
+    APP_PORT: num(),
     JWT_SECRET: str(),
     TZ: str(),
     CLOUD_NAME: str(),

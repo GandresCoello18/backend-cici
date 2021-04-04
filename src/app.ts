@@ -13,8 +13,8 @@ import Orden from './services/orden'
 import Shipping from './services/shipping';
 import Statistic from './services/statistics';
 import Invite from './services/invite';
+import { config } from './utils';
 
-export function init() {
   const app = express();
 
   app.use(cors({
@@ -39,6 +39,7 @@ export function init() {
   });
 
   app.use("/static", express.static("public"));
+  app.set("port", config.APP_PORT);
 
   app.use('/api', logger, [
     User,
@@ -54,11 +55,11 @@ export function init() {
     Invite,
   ]);
 
-  return { app };
-}
+export const App = app;
+export let serverListen: any;
 
-if (require.main === module) {
-  init().app.listen(9000, () => {
-    console.log('🚀 Server ready at http://localhost:9000');
+if(process.env.NODE_ENV !== 'test'){
+  serverListen = app.listen(app.get("port"), () => {
+    console.log(`🚀 Server ready at http://localhost:${app.get("port")}`);
   });
 }

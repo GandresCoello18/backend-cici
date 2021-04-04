@@ -150,7 +150,7 @@ export const getProducts = async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error.message);
         req.logger.error({ status: 'error', code: 500 });
-        return res.status(404).json();
+        return res.status(500).json();
     }
 }
 
