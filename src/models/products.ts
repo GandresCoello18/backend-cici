@@ -15,6 +15,7 @@ export interface Product {
     created_at: Date | string;
     discount: number;
     starsPeople: number;
+    colors?: string | null;
 }
 
 export interface SourcesProduct {

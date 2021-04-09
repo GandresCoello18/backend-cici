@@ -13,7 +13,7 @@ export const createProduct = async (req: Request, res: Response) => {
     req.logger.info({ status: 'start' });
 
     try {
-        const {title, price, description, available, brand, size, model, discount, status} = req.body;
+        const {title, price, description, available, brand, size, model, discount, status, colors} = req.body;
         const me = req.user
 
         if(!me.isAdmin || me.isBanner){
@@ -53,6 +53,7 @@ export const createProduct = async (req: Request, res: Response) => {
           related_sources: [],
           discount: discount || 0,
           starsPeople: 0,
+          colors: colors || null
         }
 
         await createProductUtil(product);
