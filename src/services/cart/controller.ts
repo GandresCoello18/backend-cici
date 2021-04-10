@@ -4,14 +4,13 @@ import { Cart, CartProduct } from '../../models/cart';
 import { v4 as uuidv4 } from 'uuid';
 import { createCartProductUtil, createCartUtil, DeleteProductCart, getStatusCartUserUtil, ExistProductCart, getProductCartUserUtil, UpdateProductCart } from '../../utils/cart';
 import { getProductUtil } from '../../utils/products';
-// import { dataBase } from '../../utils';
 
 export const newProductCart = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'cart', serviceHandler: 'newProductCart' });
     req.logger.info({ status: 'start' });
 
     try {
-        const {idProduct, quantity} = req.body
+        const {idProduct, quantity, colour} = req.body
         const user = req.user
 
         if(!idProduct && !quantity){
@@ -36,6 +35,7 @@ export const newProductCart = async (req: Request, res: Response) => {
                 idProduct,
                 quantity,
                 idCart: idCart || existCart[0].idCart,
+                colour: colour || null
             }
 
             await createCartProductUtil(cartProduct)
@@ -46,7 +46,7 @@ export const newProductCart = async (req: Request, res: Response) => {
 
             if (existProduct.length) {
                 const SumQuantity: number = existProduct[0].quantity + Number(quantity)
-                UpdateProductCart(existCart[0].idCart, idProduct, SumQuantity)
+                UpdateProductCart(existCart[0].idCart, idProduct, SumQuantity, colour)
             } else {
                 AddProductCart()
             }

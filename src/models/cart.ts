@@ -10,4 +10,5 @@ export interface CartProduct {
     idProduct: string
     quantity: number
     idCart: string
+    colour: string
 }

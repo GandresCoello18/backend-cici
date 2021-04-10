@@ -20,7 +20,7 @@ export const createCartProductUtil = async (cartProduct: CartProduct) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `INSERT INTO cart_product (id_cart_product, idProduct, quantity, idCart) VALUES ('${cartProduct.id_cart_product}', '${cartProduct.idProduct}', ${cartProduct.quantity}, '${cartProduct.idCart}');`,
+              `INSERT INTO cart_product (id_cart_product, idProduct, quantity, idCart, colour) VALUES ('${cartProduct.id_cart_product}', '${cartProduct.idProduct}', ${cartProduct.quantity}, '${cartProduct.idCart}', ${cartProduct.colour ? `'${cartProduct.colour}'` : null});`,
               (err, data) => err ? reject(err) : resolve(data)
             );
           });
@@ -86,11 +86,11 @@ export const ExistProductCart = async (idCart: string, idProduct: string) => {
     }
 }
 
-export const UpdateProductCart = async (idCart: string, idProduct: string, quantity: number) => {
+export const UpdateProductCart = async (idCart: string, idProduct: string, quantity: number, colour: string) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `UPDATE cart_product SET quantity = ${quantity} WHERE idProduct = '${idProduct}' AND idCart = '${idCart}';`,
+              `UPDATE cart_product SET quantity = ${quantity}, colour = ${colour ? `'${colour}'` : null} WHERE idProduct = '${idProduct}' AND idCart = '${idCart}';`,
               (err, data) => err ? reject(err) : resolve(data)
             );
           });
