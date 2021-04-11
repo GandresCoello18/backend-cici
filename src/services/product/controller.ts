@@ -6,7 +6,7 @@ import { Product, ProductReviews, SourcesProduct } from '../../models/products';
 import { dataBase } from '../../utils';
 import { UploadMoreSourcesProduct, UploasProduct } from '../../utils/cloudinary/product';
 import { UpdateQualifledOrdenUtil } from '../../utils/orden';
-import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getProductExistUtil, getProductReviewUtil, getProductSourcesUtil } from '../../utils/products';
+import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getProductExistUtil, getProductReviewUtil, getProductSourcesUtil, updateProductStartPeopleUtil } from '../../utils/products';
 
 export const createProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'product', serviceHandler: 'createProduct' });
@@ -297,6 +297,7 @@ export const createReviewProduct = async (req: Request, res: Response) => {
 
       await createProductReviewUtil(productReview);
       await UpdateQualifledOrdenUtil(idOrden , true);
+      await updateProductStartPeopleUtil(idProduct, stars);
 
       return res.status(200).json();
   } catch (error) {

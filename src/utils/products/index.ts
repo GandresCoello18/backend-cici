@@ -99,6 +99,21 @@ export const createProductReviewUtil = async (productReview: ProductReviews) => 
   }
 }
 
+export const updateProductStartPeopleUtil = async (idProducts: string, stars: number) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE products SET starsPeople = starsPeople + 1, stars = TRUNCATE((stars + ${stars}) / 5, 2) WHERE idProducts = '${idProducts}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
+
+
 export const deleteProductUtil = async (idProducts: string) => {
   try {
       return await new Promise((resolve, reject) => {

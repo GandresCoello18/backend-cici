@@ -13,6 +13,7 @@ import Orden from './services/orden'
 import Shipping from './services/shipping';
 import Statistic from './services/statistics';
 import Invite from './services/invite';
+import TimeMessage from './services/timeMessage';
 
 export function init() {
   const app = express();
@@ -52,6 +53,7 @@ export function init() {
     Shipping,
     Statistic,
     Invite,
+    TimeMessage,
   ]);
 
   return { app };
