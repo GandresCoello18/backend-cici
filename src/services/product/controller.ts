@@ -13,7 +13,7 @@ export const createProduct = async (req: Request, res: Response) => {
     req.logger.info({ status: 'start' });
 
     try {
-        const {title, price, description, available, brand, size, model, discount, status, colors} = req.body;
+        const {title, price, description, available, brand, size, model, discount, status, colors, offer_expires_date} = req.body;
         const me = req.user
 
         if(!me.isAdmin || me.isBanner){
@@ -41,6 +41,7 @@ export const createProduct = async (req: Request, res: Response) => {
           title,
           source: imagen,
           created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+          updated_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
           price,
           status: status || 'No Disponible',
           description,
@@ -53,7 +54,8 @@ export const createProduct = async (req: Request, res: Response) => {
           related_sources: [],
           discount: discount || 0,
           starsPeople: 0,
-          colors: colors || null
+          colors: colors || null,
+          offer_expires_date: offer_expires_date || null
         }
 
         await createProductUtil(product);
@@ -184,6 +186,7 @@ export const getProduct = async (req: Request, res: Response) => {
         })
 
         Product.map(product => product.created_at = format(new Date(product.created_at), 'yyyy-MM-dd'))
+        Product.map(product => product.updated_at = format(new Date(product.updated_at), 'yyyy-MM-dd HH:mm:ss'))
 
         return res.status(200).json({ product: Product[0] });
     } catch (error) {

@@ -5,7 +5,7 @@ export const createProductUtil = async (product: Product) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `INSERT INTO products (idProducts, title, source, price, status, description, available, sold, stars, brand, size, model, created_at, discount, starsPeople, colors) VALUES ('${product.idProducts}', '${product.title}', '${product.source}', ${product.price}, '${product.status}', '${product.description}', ${product.available}, ${product.sold}, ${product.stars}, '${product.brand}', '${product.size}', '${product.model}', '${product.created_at}', ${product.discount}, ${product.starsPeople}, ${product.colors ? `'${product.colors}'` : null});`,
+              `INSERT INTO products (idProducts, title, source, price, status, description, available, sold, stars, brand, size, model, created_at, discount, starsPeople, colors, updated_at, offer_expires_date) VALUES ('${product.idProducts}', '${product.title}', '${product.source}', ${product.price}, '${product.status}', '${product.description}', ${product.available}, ${product.sold}, ${product.stars}, '${product.brand}', '${product.size}', '${product.model}', '${product.created_at}', ${product.discount}, ${product.starsPeople}, ${product.colors ? `'${product.colors}'` : null}, '${product.updated_at}', ${product.offer_expires_date ? `'${product.offer_expires_date}'` : null});`,
               (err, data) => err ? reject(err) : resolve(data)
             );
           });
