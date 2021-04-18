@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { logger } from './middlewares';
+import cloudinary from 'cloudinary';
 
 import User from './services/user';
 import Product from './services/product';
@@ -14,6 +15,7 @@ import Shipping from './services/shipping';
 import Statistic from './services/statistics';
 import Invite from './services/invite';
 import TimeMessage from './services/timeMessage';
+import { config } from './utils';
 
 export function init() {
   const app = express();
@@ -24,6 +26,12 @@ export function init() {
       'http://localhost:8080'
     ]
   }));
+
+  cloudinary.v2.config({
+    cloud_name: config.CLOUD_NAME,
+    api_key: config.API_KEY_CLOUDINARY,
+    api_secret: config.API_SECRET_CLOUDINARY,
+  });
 
   // app.use(express.json());
   // Use JSON parser for all non-webhook routes

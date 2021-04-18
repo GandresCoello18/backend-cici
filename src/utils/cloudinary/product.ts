@@ -1,14 +1,7 @@
 import cloudinary from 'cloudinary';
-import { Request } from 'express';
-import {config} from '../config';
+import { Request } from 'express'
 import { v4 as uuidv4 } from 'uuid';
 import { RemoveFilesTemp } from '../removeFileTemp';
-
-cloudinary.v2.config({
-    cloud_name: config.CLOUD_NAME,
-    api_key: config.API_KEY_CLOUDINARY,
-    api_secret: config.API_SECRET_CLOUDINARY,
-});
 
 export const UploasProduct = async (req: Request) => {
     const path = req.file.path

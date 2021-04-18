@@ -1,11 +1,11 @@
 import { CouponAmount, Coupons, CouponsAssing, CouponsUser, MyCouponsUser } from "../../models/coupons";
 import { dataBase } from "../database";
 
-export const getCouponstUtil = async () => {
+export const getCouponstUtil = async (option: {status?: string}) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT * FROM coupons WHERE status = 'Active';`,
+              `SELECT * FROM coupons ${option.status ? `WHERE status = '${option.status}'` : ''} ORDER BY type DESC;`,
               (err, data) => err ? reject(err) : resolve(data)
             );
           }) as Coupons[];
@@ -99,6 +99,20 @@ export const createUserCouponsUtil = async (userCoupon: CouponsUser) => {
   }
 }
 
+export const createCouponUtil = async (Coupon: Coupons) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `INSERT INTO coupons (idCoupon, type, descripcion, status, source) VALUES ('${Coupon.idCoupon}', '${Coupon.type}', '${Coupon.descripcion}', '${Coupon.status}', '${Coupon.source}')`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
+
 export const updateUserCouponsUtil = async (idCoupon: string, id_user_coupons: string, idUser: string) => {
   try {
       return await new Promise((resolve, reject) => {
@@ -118,6 +132,20 @@ export const updateStatusCouponsUtil = async (id_user_coupons: string, status: s
       return await new Promise((resolve, reject) => {
           dataBase.query(
             `UPDATE user_coupons SET status = '${status}' WHERE id_user_coupons = '${id_user_coupons}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
+
+export const DeleteCoupontUtil = async (idCoupon: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `DELETE FROM coupons WHERE idCoupon = '${idCoupon}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         });

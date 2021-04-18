@@ -2,18 +2,59 @@ import { format, addMonths } from 'date-fns';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Locale from 'date-fns/locale/es'
-import { CouponsUser } from '../../models/coupons';
-import { createUserCouponsUtil, getCouponsAmountUserUtil, getCouponsAssingtUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
+import { Coupons, CouponsUser } from '../../models/coupons';
+import { createCouponUtil, createUserCouponsUtil, DeleteCoupontUtil, getCouponsAmountUserUtil, getCouponsAssingtUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
 import { getUserUtil } from '../../utils';
+import { UploadSourceCoupon } from '../../utils/cloudinary/coupon';
 
 export const getCoupons = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'getCoupons' });
     req.logger.info({ status: 'start' });
 
     try {
-        const coupons = await getCouponstUtil()
+        const coupons = await getCouponstUtil({ status: 'Active' })
 
         return res.status(200).json({ coupons });
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const getCouponsAll = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'getCouponsAll' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const coupons = await getCouponstUtil({})
+
+        return res.status(200).json({ coupons });
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const newCoupon = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'newCoupon' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const { type, descripcion } = req.body
+
+        const source = await UploadSourceCoupon(req);
+
+        const coupon: Coupons = {
+            idCoupon: uuidv4(),
+            type,
+            descripcion,
+            status: 'Disabled',
+            source,
+        }
+
+        await createCouponUtil(coupon)
+
+        return res.status(201).json();
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
@@ -176,6 +217,29 @@ export const updateUserCoupon = async (req: Request, res: Response) => {
         return res.status(200).json();
     } catch (error) {
         console.log(error.message)
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const deleteCoupon = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'deleteCoupon' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const user = req.user
+        const { idCoupon } = req.params
+
+        if(!idCoupon || !user.isAdmin){
+            const response = { status: 'No data idCoupon provided' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        await DeleteCoupontUtil(idCoupon)
+
+        return res.status(200).json();
+    } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
     }
