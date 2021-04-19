@@ -141,6 +141,20 @@ export const updateStatusCouponsUtil = async (id_user_coupons: string, status: s
   }
 }
 
+export const updateExpireCouponsUtil = async () => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE user_coupons SET status = 'Expirado' WHERE status <> 'Expirado' AND expiration_date < NOW();`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
+
 export const DeleteCoupontUtil = async (idCoupon: string) => {
   try {
       return await new Promise((resolve, reject) => {
