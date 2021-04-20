@@ -36,11 +36,12 @@ export const newTimeMessage = async (req: Request, res: Response) => {
         }
 
         await newTimeMessageUtil(message);
+
         await SendEmail({
             to: destination,
             subject: 'Recupera tu contraseña | Cici beauty place',
             text:'',
-            html: 'QualifyOrder(user[0].userName, order[0].idOrder)',
+            html: `Link para: <a href='https://cici.beauty/password-reset/${message.id_time_message}'>Cambiar clave</a>`,
         });
 
         return res.status(200).json();
@@ -66,19 +67,16 @@ export const getTimeMessage = async (req: Request, res: Response) => {
         const message = await getTimeMessageUtil(id_time_message);
 
         if(message.length){
-            let status;
             const time = addMinutes(new Date(message[0].created_at), message[0].life_minutes)
 
-            if(time > new Date()){
-                status = 'Expirado'
+            if(time.getTime() < new Date().getTime()){
+              message[0].status = 'Expirado'
             }else{
-                status = 'En progreso'
+              message[0].status = 'En progreso'
             }
-
-            message[0].status = status
         }
 
-        return res.status(200).json({ message: message[0] || [] });
+        return res.status(200).json({ message: message[0] || undefined });
     } catch (error) {
       req.logger.error({ status: 'error', code: 500 });
       return res.status(404).json();

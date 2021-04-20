@@ -17,6 +17,7 @@ export const config = envalid.cleanEnv(
     CLOUD_NAME: str(),
     API_KEY_CLOUDINARY: num(),
     API_SECRET_CLOUDINARY: str(),
+    APP_PORT: num(),
     CORREO_NAMECHEAP: str(),
     CLAVE_NAMECHEAP: str(),
   },

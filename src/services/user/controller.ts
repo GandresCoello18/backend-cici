@@ -287,6 +287,39 @@ export const updateMeUser = async (req: Request, res: Response) => {
   }
 }
 
+export const updatePasswordEmail = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'updatePasswordEmail' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const {newKey} = req.body
+    const { email } = req.params
+  
+    if(!email || !newKey){
+      const response = { status: 'No data password user provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const user = await getUserUtil({ email })
+
+    if(user[0].password && user[0].provider === 'cici'){
+      const newPassword: string = await bcryptjs.hash(newKey, 10);
+      await updatePasswordUserUtil(newPassword, user[0].idUser)
+
+      return res.status(200).json();
+    }
+
+    const response = { status: 'No user provided cici' };
+    req.logger.warn(response);
+    return res.status(400).json(response);
+
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
+}
+
 export const updatePasswordUser = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'users', serviceHandler: 'updatePasswordUser' });
   req.logger.info({ status: 'start' });

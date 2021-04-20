@@ -24,7 +24,8 @@ export function init() {
   app.use(cors({
     origin: [
       'http://localhost:3000',
-      'http://localhost:8080'
+      'http://localhost:8080',
+      'https://cici.beauty',
     ]
   }));
 
@@ -51,6 +52,7 @@ export function init() {
   });
 
   app.use("/static", express.static("public"));
+  app.set("port", config.APP_PORT)
 
   app.use('/api', logger, [
     User,
@@ -71,7 +73,7 @@ export function init() {
 }
 
 if (require.main === module) {
-  init().app.listen(9000, () => {
-    console.log('🚀 Server ready at http://localhost:9000');
+  init().app.listen(init().app.get("port"), () => {
+    console.log(`🚀 Server ready at http://localhost:${init().app.get("port")}`);
   });
 }
