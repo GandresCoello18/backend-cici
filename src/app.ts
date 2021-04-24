@@ -16,7 +16,7 @@ import Statistic from './services/statistics';
 import Invite from './services/invite';
 import TimeMessage from './services/timeMessage';
 import { config } from './utils';
-import { ExpiredCoupon } from './utils/cron/coupon';
+import { CronMidnight } from './utils/cron';
 
 export function init() {
   const app = express();
@@ -35,7 +35,7 @@ export function init() {
     api_secret: config.API_SECRET_CLOUDINARY,
   });
 
-  ExpiredCoupon()
+  CronMidnight()
 
   // app.use(express.json());
   // Use JSON parser for all non-webhook routes

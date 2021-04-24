@@ -113,6 +113,19 @@ export const updateProductStartPeopleUtil = async (idProducts: string, stars: nu
   }
 }
 
+export const updateOfferExpiresProductUtil = async () => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE products SET discount = 0 WHERE NOW() > offer_expires_date;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
 
 export const deleteProductUtil = async (idProducts: string) => {
   try {
