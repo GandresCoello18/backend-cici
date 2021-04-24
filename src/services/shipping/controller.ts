@@ -110,7 +110,7 @@ export const updateStatusShipping = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        await updateStatusShippingUtil(status, idShipping);
+        await updateStatusShippingUtil(status, format(new Date(), 'yyyy-MM-dd HH:mm:ss'), idShipping);
 
         const shipping = await geteShippingUtil(idShipping);
         const order = await geteOrdenUtil(shipping[0].idOrder, 'Paid');

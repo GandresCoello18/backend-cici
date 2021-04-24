@@ -85,11 +85,11 @@ export const createShippingUtil = async (Shipping: Shipping) => {
   }
 }
 
-export const updateStatusShippingUtil = async (status: string, idShipping: string) => {
+export const updateStatusShippingUtil = async (status: string, update_at: string, idShipping: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `UPDATE shipping SET status = '${status}' WHERE idShipping = '${idShipping}';`,
+            `UPDATE shipping SET status = '${status}', update_at = '${update_at}' WHERE idShipping = '${idShipping}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as Shipping[];
