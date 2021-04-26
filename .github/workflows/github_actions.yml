@@ -26,12 +26,3 @@ jobs:
             yarn install
             yarn build
             pm2 start build/app.js
-          artifacts:
-            paths: |
-              build
-              node_modules
-          only:
-            refs: |
-              master
-            changes: |
-              /**/*
