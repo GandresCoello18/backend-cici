@@ -21,8 +21,4 @@ jobs:
             mkdir backend 
             cd backend 
             git clone git@github.com:GandresCoello18/backend-cici.git
-            echo 'Deployment successful to digital ocean' 
-            cd backend-cici
-            yarn install
-            yarn build
-            pm2 start build/app.js
+            echo 'Deployment successful to digital ocean'
