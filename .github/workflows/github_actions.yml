@@ -7,15 +7,31 @@ on:
       - master
 
 jobs:
-  test:
-    name: Running Units Tests
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: Install
-      run: yarn install
+      - name: Deploy NodeJS app
+        uses: appleboy/ssh-action@v0.1.2
+        with:
+          host: ${{secrets.SSH_HOST}} # IP address of the server you wish to ssh into
+          key: ${{secrets.SSH_KEY}} # Private or public key of the server
+          username: ${{ secrets.SSH_USERNAME }} # User of the server you want to ssh into
+
+          script:
+            - mkdir backend 
+            - cd backend 
+            - git clone git@github.com:GandresCoello18/backend-cici.git
+            - echo 'Deployment successful to digital ocean' 
+            - cd backend-cici
+            - yarn install
+            - yarn build
+            - pm2 start build/app.js
+          artifacts:
+            paths:
+              - build
+              - node_modules
+          only:
+            refs:
+              - master
+            changes:
+              - /**/*

@@ -4,6 +4,8 @@
   "description": "Servicio de api rest para el consumo de datos en cici beauty place",
   "main": "index.js",
   "scripts": {
+    "clean:modules": "rm -rf ./node_modules",
+    "clean": "rm -rf ./build",
     "prebuild": "yarn clean",
     "build": "tsc",
     "dev": "tsc-watch --onSuccess \"node build/app.js\"",
