@@ -26,6 +26,7 @@ export function init() {
       'http://localhost:3000',
       'http://localhost:8080',
       'https://cici.beauty',
+      'https://dashboard-cici.vercel.app',
     ]
   }));
 
