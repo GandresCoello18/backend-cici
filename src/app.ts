@@ -30,6 +30,13 @@ export function init() {
     ]
   }));
 
+  app.use(function(_req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+
   cloudinary.v2.config({
     cloud_name: config.CLOUD_NAME,
     api_key: config.API_KEY_CLOUDINARY,
