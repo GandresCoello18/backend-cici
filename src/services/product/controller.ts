@@ -6,7 +6,7 @@ import { Product, ProductReviews, SourcesProduct } from '../../models/products';
 import { dataBase } from '../../utils';
 import { UploadMoreSourcesProduct, UploasProduct } from '../../utils/cloudinary/product';
 import { UpdateQualifledOrdenUtil } from '../../utils/orden';
-import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getProductExistUtil, getProductReviewUtil, getProductSourcesUtil, updateProductStartPeopleUtil } from '../../utils/products';
+import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getProductExistUtil, getProductReviewUtil, getProductSearchUtil, getProductSourcesUtil, updateProductStartPeopleUtil } from '../../utils/products';
 
 export const createProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'product', serviceHandler: 'createProduct' });
@@ -247,6 +247,28 @@ export const getProductsBestRated = async (req: Request, res: Response) => {
         });
 
         return res.status(200).json({ products: Products });
+    } catch (error) {
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(404).json();
+    }
+}
+
+export const getSearchProducts = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'product', serviceHandler: 'getSearchProducts' });
+  req.logger.info({ status: 'start' });
+
+    try {
+        const { key } = req.params;
+        
+        if(!key){
+          const response = { status: 'No product key provided' };
+          req.logger.warn(response);
+          return res.status(400).json(response);
+        }
+
+        const products = await getProductSearchUtil(key);
+
+        return res.status(200).json({ products });
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(404).json();

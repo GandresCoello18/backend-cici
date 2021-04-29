@@ -93,7 +93,7 @@ export const getOrdenStatus = async (req: Request, res: Response) => {
                 responseOrden = await Promise.all(
                     OrdenPaid.map(async orden => {
                         const IsShipping = await geteShippingByOrdenUtil(orden.idOrder);
-                        return IsShipping.length ? orden : null;
+                        return IsShipping.length ? null : orden;
                     })
                 )
 
