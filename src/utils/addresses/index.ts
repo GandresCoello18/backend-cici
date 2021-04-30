@@ -81,6 +81,6 @@ export const updateSelectAddressUtil = async (idUser: string, title: string, isS
         }) as Addresses[];
   } catch (error) {
       console.log(error.message);
-      return false;
+      return [];
   }
 }
