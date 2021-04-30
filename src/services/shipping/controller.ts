@@ -59,7 +59,7 @@ export const getShipping = async (req: Request, res: Response) => {
         const idPago = req.query.idPago as string;
         let shipping: Shipping[] = [];
 
-        if(!me.isAdmin){
+        if(me.isAdmin){
             shipping = await getShippingUtil(idPago || undefined);
         }else{
             const ShippingProduct = await getShippingProductsUtil(me.idUser);

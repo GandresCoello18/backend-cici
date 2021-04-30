@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { format, endOfMonth, startOfMonth, subMonths } from 'date-fns';
 import { getStatisticsOrdeAmountTotalUtil, getStatisticsOrdeAmountUtil, getStatisticsOrderMothUtil, getStatisticsOrderUtil, getStatisticsReceivedProductUtil, getStatisticsRecomendationProductUtil, getStatisticsUserMothUtil, getStatisticsUserUtil } from '../../utils/statistics';
 
 export const getStatistics = async (req: Request, res: Response) => {
@@ -15,23 +14,17 @@ export const getStatistics = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        const InitialDate = format(startOfMonth(new Date()), 'yyyy-MM-dd');
-        const FinishDate = format(new Date(endOfMonth(new Date())), 'yyyy-MM-dd');
-
-        const LastInitialDate = format(subMonths(new Date(InitialDate), 1), 'yyyy-MM-dd');
-        const LastFinishDate = format(subMonths(new Date(FinishDate), 1), 'yyyy-MM-dd');
-
         const Users = await getStatisticsUserUtil();
-        const MothUsers = await getStatisticsUserMothUtil(InitialDate, FinishDate);
-        const LasUsers = await getStatisticsUserMothUtil(LastInitialDate, LastFinishDate);
+        const MothUsers = await getStatisticsUserMothUtil();
+        const LasUsers = await getStatisticsUserMothUtil();
 
         const Orders = await getStatisticsOrderUtil();
-        const MothOrdens = await getStatisticsOrderMothUtil(InitialDate, FinishDate);
-        const LasOrdens = await getStatisticsOrderMothUtil(LastInitialDate, LastFinishDate);
+        const MothOrdens = await getStatisticsOrderMothUtil();
+        const LasOrdens = await getStatisticsOrderMothUtil();
 
-        const grafico = await getStatisticsOrdeAmountUtil(InitialDate, FinishDate);
+        const grafico = await getStatisticsOrdeAmountUtil();
 
-        const Amount = await getStatisticsOrdeAmountTotalUtil(InitialDate, FinishDate);
+        const Amount = await getStatisticsOrdeAmountTotalUtil();
 
         const statistics = {
             user: {

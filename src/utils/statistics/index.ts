@@ -1,11 +1,13 @@
 import { StatisticGrafico, StatisticUser } from "../../models/statistics";
 import { dataBase } from "../database";
 
-export const getStatisticsUserMothUtil = async (InitiañDate: string, FinishDate: string) => {
+const DentroDelMes = "created_at >= CONCAT(DATE_ADD(DATE_ADD(LAST_DAY(NOW()), INTERVAL 1 DAY),INTERVAL -1 MONTH), ' 00:00:00') AND created_at <= CONCAT(LAST_DAY(NOW()), ' 23:59:00')";
+
+export const getStatisticsUserMothUtil = async () => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT COUNT(*) as total FROM users WHERE created_at >= '${InitiañDate}' AND created_at <= '${FinishDate}';`,
+            `SELECT COUNT(*) as total FROM users WHERE ${DentroDelMes};`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as StatisticUser[];
@@ -29,11 +31,11 @@ export const getStatisticsUserUtil = async () => {
     }
   }
 
-export const getStatisticsOrderMothUtil = async (InitiañDate: string, FinishDate: string) => {
+export const getStatisticsOrderMothUtil = async () => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT COUNT(*) as total FROM orden WHERE created_at >= '${InitiañDate}' AND created_at <= '${FinishDate}';`,
+              `SELECT COUNT(*) as total FROM orden WHERE ${DentroDelMes};`,
               (err, data) => err ? reject(err) : resolve(data)
             );
           }) as StatisticUser[];
@@ -57,11 +59,11 @@ export const getStatisticsOrderUtil = async () => {
     }
 }
 
-export const getStatisticsOrdeAmountTotalUtil = async (InitiañDate: string, FinishDate: string) => {
+export const getStatisticsOrdeAmountTotalUtil = async () => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT SUM(totalAmount) as total FROM orden WHERE created_at >= '${InitiañDate}' AND created_at <= '${FinishDate}';`,
+            `SELECT SUM(totalAmount) as total FROM orden WHERE ${DentroDelMes};`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as StatisticUser[];
@@ -71,11 +73,11 @@ export const getStatisticsOrdeAmountTotalUtil = async (InitiañDate: string, Fin
   }
 }
 
-export const getStatisticsOrdeAmountUtil = async (InitiañDate: string, FinishDate: string) => {
+export const getStatisticsOrdeAmountUtil = async () => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT totalAmount, TRUNCATE(((totalAmount * 10) / 100), 2) as comision, DATE_FORMAT(created_at, "%M %d %Y") as fecha FROM orden WHERE created_at >= '${InitiañDate}' AND created_at <= '${FinishDate}' ORDER BY created_at ASC;`,
+            `SELECT totalAmount, TRUNCATE(((totalAmount * 10) / 100), 2) as comision, DATE_FORMAT(created_at, "%M %d %Y") as fecha FROM orden WHERE ${DentroDelMes} ORDER BY created_at ASC;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as StatisticGrafico[];
