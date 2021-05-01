@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { TimeMessage } from '../../models/time-message';
 import { getUserUtil } from '../../utils';
 import { SendEmail } from '../../utils/email/send';
+import { PasswordReset } from '../../utils/email/template/password-reset';
 import { getTimeMessageUtil, newTimeMessageUtil } from '../../utils/time-message';
 
 export const newTimeMessage = async (req: Request, res: Response) => {
@@ -36,12 +37,13 @@ export const newTimeMessage = async (req: Request, res: Response) => {
         }
 
         await newTimeMessageUtil(message);
+        console.log(subject);
 
         await SendEmail({
             to: destination,
             subject: 'Recupera tu contraseña | Cici beauty place',
             text:'',
-            html: `Link para: <a href='https://cici.beauty/password-reset/${message.id_time_message}'>Cambiar clave</a>`,
+            html: PasswordReset(message.id_time_message),
         });
 
         return res.status(200).json();

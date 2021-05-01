@@ -4,8 +4,10 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Shipping } from '../../models/shipping';
 import { getUserUtil } from '../../utils';
+import { getMyAddressUtil } from '../../utils/addresses';
 import { getProductCartUtil } from '../../utils/cart';
 import { SendEmail } from '../../utils/email/send';
+import { PackageSent } from '../../utils/email/template/packageSent';
 import { QualifyOrder } from '../../utils/email/template/qualifyOrder';
 import { geteOrdenUtil } from '../../utils/orden';
 import { createShippingUtil, geteShippingUtil, getShippingProductsUtil, getShippingUtil, updateStatusShippingUtil } from '../../utils/shipping';
@@ -41,6 +43,19 @@ export const newShipping = async (req: Request, res: Response) => {
         }
 
         await createShippingUtil(shipping)
+
+        const Orden = await geteOrdenUtil(shipping.idOrder, 'Paid')
+        const user = await getUserUtil({ idUser: Orden[0].idUser })
+        const AddressUser = await getMyAddressUtil(user[0].idUser);
+
+        const AddressSelect = AddressUser.find(item => item.selected)
+
+        await SendEmail({
+            to: user[0].email,
+            subject: 'Tu paquete fue enviado | Cici beauty place',
+            text:'',
+            html: PackageSent(user[0].userName, shipping.guide, AddressSelect),
+        });
 
         return res.status(200).json();
     } catch (error) {
