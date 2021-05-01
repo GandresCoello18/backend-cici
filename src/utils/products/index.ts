@@ -141,6 +141,34 @@ export const updateOfferExpiresProductUtil = async () => {
   }
 }
 
+export const updateAddSoldProductUtil = async (quantity: number, idProducts: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE products SET sold = sold + ${quantity} WHERE idProducts = '${idProducts}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
+
+export const updateSubtractAvailabledProductUtil = async (quantity: number, idProducts: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE products SET available = available - ${quantity} WHERE idProducts = '${idProducts}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}
+
 export const deleteProductUtil = async (idProducts: string) => {
   try {
       return await new Promise((resolve, reject) => {

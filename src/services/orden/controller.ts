@@ -2,11 +2,12 @@ import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Orden } from '../../models/orden';
-import { getProductCartUtil, getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
+import { getCartProductUtil, getProductCartUtil, getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
 import { createOrdenUtil, geteOrdensByUserUtil, geteOrdensUtil, UpdateStatusOrdenUtil, Update_atOrdenUtil } from '../../utils/orden';
 import { updateStatusCouponsUtil } from '../../utils/coupons';
 import { SchemaOrder, SchemaStatusOrder } from '../../helpers/Order';
 import { geteShippingByOrdenUtil, getShippingAndOrderDetailsUtil } from '../../utils/shipping';
+import { updateAddSoldProductUtil, updateSubtractAvailabledProductUtil } from '../../utils/products';
 
 export const newOrden = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -52,6 +53,13 @@ export const newOrden = async (req: Request, res: Response) => {
 
         await createOrdenUtil(Orden)
         await UpdateStatusCart(Orden.idCart, 'Complete')
+
+        const cartProducts = await getCartProductUtil(Orden.idCart);
+        cartProducts.map(async item => await updateAddSoldProductUtil(item.quantity, item.idProduct))
+
+        if(Orden.status === 'Paid'){
+            cartProducts.map(async item => await updateSubtractAvailabledProductUtil(item.quantity, item.idProduct))
+        }
 
         return res.status(200).json();
     } catch (error) {

@@ -58,6 +58,20 @@ export const getStatusCartUserUtil = async (idUser: string, status: string) => {
   }
 }
 
+export const getCartProductUtil = async (idCart: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT * FROM cart_product  WHERE idCart = '${idCart}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as CartProduct[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
 export const getProductCartUtil = async (idCart: string) => {
   try {
       return await new Promise((resolve, reject) => {
