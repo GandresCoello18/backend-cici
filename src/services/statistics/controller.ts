@@ -43,7 +43,7 @@ export const getStatistics = async (req: Request, res: Response) => {
                 comision: grafico.map(item => item.comision),
             },
             Amount: Amount[0].total || 0,
-            ComisionAmount: grafico.reduce((total, b) => total + b.comision, 0) || 0,
+            ComisionAmount: grafico.reduce((total, b) => total + b.comision, 0).toFixed(2) || 0,
         }
 
         return res.status(200).json({ statistics });
