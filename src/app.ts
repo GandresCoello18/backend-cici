@@ -15,6 +15,7 @@ import Shipping from './services/shipping';
 import Statistic from './services/statistics';
 import Invite from './services/invite';
 import TimeMessage from './services/timeMessage';
+import Category from './services/category';
 import { config } from './utils';
 import { CronMidnight } from './utils/cron';
 
@@ -75,6 +76,7 @@ export function init() {
     Statistic,
     Invite,
     TimeMessage,
+    Category,
   ]);
 
   return { app };
