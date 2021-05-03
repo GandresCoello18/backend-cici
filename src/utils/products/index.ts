@@ -57,6 +57,34 @@ export const getProductSearchUtil = async (key: string) => {
   }
 }
 
+export const getProductByCategory = async (TitleCategory: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT products.* FROM product_category INNER JOIN products ON products.idProducts = product_category.idProduct INNER JOIN category ON category.idCategory = product_category.idCategory  WHERE category.titleCategory = '${TitleCategory}';`,
+        (err, data) => err ? reject(err) : resolve(data)
+      );
+  }) as Product[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+}
+
+export const getBestSellerProductByCategory = async (idCategory: number) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT products.* FROM product_category INNER JOIN category ON category.idCategory = product_category.idCategory INNER JOIN products ON products.idProducts = product_category.idProduct WHERE product_category.idCategory = ${idCategory} AND products.stars >= 4;`,
+        (err, data) => err ? reject(err) : resolve(data)
+      );
+  }) as Product[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+}
+
 export const createProductSourcesUtil = async (sourceProduct: SourcesProduct) => {
   try {
       return await new Promise((resolve, reject) => {

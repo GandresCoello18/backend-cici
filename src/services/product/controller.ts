@@ -4,10 +4,10 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Product, ProductReviews, SourcesProduct } from '../../models/products';
 import { dataBase } from '../../utils';
-import { getCategoryByProductUtil } from '../../utils/category';
+import { getCategoryByProductUtil, getCategorysUtil } from '../../utils/category';
 import { UploadMoreSourcesProduct, UploasProduct } from '../../utils/cloudinary/product';
 import { UpdateQualifledOrdenUtil } from '../../utils/orden';
-import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getProductExistUtil, getProductReviewUtil, getProductSearchUtil, getProductSourcesUtil, updateProductStartPeopleUtil } from '../../utils/products';
+import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getBestSellerProductByCategory, getProductByCategory, getProductExistUtil, getProductReviewUtil, getProductSearchUtil, getProductSourcesUtil, updateProductStartPeopleUtil } from '../../utils/products';
 
 export const createProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'product', serviceHandler: 'createProduct' });
@@ -237,9 +237,9 @@ export const getProductsBestRated = async (req: Request, res: Response) => {
         let sql: string;
 
         if(limit){
-          sql = `SELECT * FROM products WHERE status = 'Disponible' AND stars > 4 LIMIT ${Number(limit)};`
+          sql = `SELECT * FROM products WHERE status = 'Disponible' AND stars >= 4 LIMIT ${Number(limit)};`
         }else{
-          sql = `SELECT * FROM products WHERE status = 'Disponible' AND stars > 4;`
+          sql = `SELECT * FROM products WHERE status = 'Disponible' AND stars >= 4;`
         }
 
         const Products: Product[] = await new Promise((resolve, reject) => {
@@ -283,14 +283,15 @@ export const getProductsCategory = async (req: Request, res: Response) => {
   req.logger.info({ status: 'start' });
 
     try {
-        const { idCategory } = req.params;
+        const { TitleCategory } = req.params;
 
-        const Products: Product[] = await new Promise((resolve, reject) => {
-            dataBase.query(
-              `SELECT products.* FROM product_category INNER JOIN products ON products.idProducts = product_category.idProduct INNER JOIN category ON category.idCategory = product_category.idCategory  WHERE category.titleCategory = '${idCategory}';`,
-              (err, data) => err ? reject(err) : resolve(data)
-            );
-        });
+        if(!TitleCategory){
+          const response = { status: 'No data Title Category provided' };
+          req.logger.warn(response);
+          return res.status(400).json(response);
+        }
+
+        const Products = await getProductByCategory(TitleCategory);
 
         return res.status(200).json({ products: Products });
     } catch (error) {
@@ -334,6 +335,33 @@ export const createReviewProduct = async (req: Request, res: Response) => {
     return res.status(500).json();
   }
 };
+
+export const getBestSellersByCategory = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'product', serviceHandler: 'getBestSellersByCategory' });
+  req.logger.info({ status: 'start' });
+
+  try {
+      const categorys = await getCategorysUtil();
+
+      let BestSellers = await Promise.all(
+        categorys.map(async cate => {
+          const products = await getBestSellerProductByCategory(cate.idCategory);
+
+          return {
+            categoria: cate.titleCategory,
+            products,
+          }
+        })
+      )
+
+      BestSellers = BestSellers.filter(product => product.products.length > 0)
+
+      return res.status(200).json({ BestSellers });
+  } catch (error) {
+      req.logger.error({ status: 'error', code: 500 });
+      return res.status(404).json();
+  }
+}
 
 export const getReviewProduct = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'product', serviceHandler: 'getReviewProduct' });
