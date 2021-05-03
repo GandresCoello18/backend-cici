@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createCategoryProductUtil, createCategoryUtil, deleteCategoryProductUtil, deleteCategoryUtil, getCategoryProductsUtil, getCategorysUtil, getExitsCategoryUtil, getExitsProductCategoryUtil } from '../../utils/category';
+import { createCategoryProductUtil, createCategoryUtil, deleteCategoryProductUtil, deleteCategoryUtil, getCategoryCountProductsUtil, getCategorysUtil, getExitsCategoryUtil, getExitsProductCategoryUtil } from '../../utils/category';
 
 export const createCategory = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'category', serviceHandler: 'createCategory' });
@@ -43,7 +43,7 @@ export const createCategoryProduct = async (req: Request, res: Response) => {
     req.logger.info({ status: 'start' });
 
     try {
-        const { products } = req.body
+        const { categorys, idProduct } = req.body
         const me = req.user
 
         if(!me.isAdmin || me.isBanner){
@@ -52,18 +52,18 @@ export const createCategoryProduct = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        if(products.length === 0){
-            const response = { status: 'No products provider' };
+        if(categorys.length === 0 || !idProduct){
+            const response = { status: 'No id Product or categorys provider' };
             req.logger.warn(response);
             return res.status(400).json(response);
         }
 
         await Promise.all(
-            products.map(async (product: { idCategory: string; idProduct: string; }) => {
-                const existProductCategory = await getExitsProductCategoryUtil(product.idCategory, product.idProduct)
+            categorys.map(async (idCategory: number) => {
+                const existProductCategory = await getExitsProductCategoryUtil(Number(idCategory), idProduct)
 
                 if(existProductCategory.length === 0){
-                    await createCategoryProductUtil(product.idCategory, product.idProduct);
+                    await createCategoryProductUtil(Number(idCategory), idProduct);
                 }
             })
         )
@@ -110,7 +110,19 @@ export const getCategoryProducts = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        const categoryProducts = await getCategoryProductsUtil();
+        const category = await getCategorysUtil();
+
+        const categoryProducts = await Promise.all(
+            category.map(async cate => {
+                const count = await getCategoryCountProductsUtil(cate.idCategory)
+
+                return {
+                    idCategory: cate.idCategory,
+                    titleCategory: cate.titleCategory,
+                    productos: count[0].productos
+                }
+            })
+        )
 
         return res.status(200).json({ categoryProducts });
     } catch (error) {

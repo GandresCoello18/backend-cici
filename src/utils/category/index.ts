@@ -1,4 +1,4 @@
-import { Category, CategoryProduct } from "../../models/category";
+import { Category, CategoryProduct, ResProductCategory } from "../../models/category";
 import { dataBase } from "../database";
 
 export const createCategoryUtil = async (title: string) => {
@@ -15,11 +15,11 @@ export const createCategoryUtil = async (title: string) => {
     }
 }
 
-export const createCategoryProductUtil = async (idCategory: string, idProduct: string) => {
+export const createCategoryProductUtil = async (idCategory: number, idProduct: string) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `INSERT INTO product_category (idCategory, idProduct) VALUES ('${idCategory}', '${idProduct}');`,
+              `INSERT INTO product_category (idCategory, idProduct) VALUES (${idCategory}, '${idProduct}');`,
               (err, data) => err ? reject(err) : resolve(data)
             );
           });
@@ -43,11 +43,11 @@ export const getExitsCategoryUtil = async (title: string) => {
     }
 }
 
-export const getExitsProductCategoryUtil = async (idCategory: string, idProduct: string) => {
+export const getExitsProductCategoryUtil = async (idCategory: number, idProduct: string) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT * FROM product_category WHERE idCategory = '${idCategory}' AND idProduct = '${idProduct}';`,
+              `SELECT * FROM product_category WHERE idCategory = ${idCategory} AND idProduct = '${idProduct}';`,
               (err, data) => err ? reject(err) : resolve(data)
             );
           }) as CategoryProduct[];
@@ -71,18 +71,32 @@ export const getCategorysUtil = async () => {
     }
 }
 
-export const getCategoryProductsUtil = async () => {
+export const getCategoryCountProductsUtil = async (idCategory: number) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT category.titleCategory, COUNT(*) as productos FROM product_category INNER JOIN category ON category.idCategory = product_category.idCategory INNER JOIN products ON products.idProducts = product_category.idProduct GROUP BY category.titleCategory;`,
+              `SELECT COUNT(*) as productos FROM product_category WHERE idCategory = ${idCategory};`,
               (err, data) => err ? reject(err) : resolve(data)
             );
-          }) as CategoryProduct[];
+          }) as {productos: number}[];
     } catch (error) {
         console.log(error.message);
         return [];
     }
+}
+
+export const getCategoryByProductUtil = async (idProduct: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT product_category.id_product_category, category.titleCategory FROM product_category INNER JOIN category ON category.idCategory = product_category.idCategory WHERE product_category.idProduct = '${idProduct}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as ResProductCategory[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
 }
 
 export const deleteCategoryUtil = async (title: string) => {

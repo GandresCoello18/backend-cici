@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Product, ProductReviews, SourcesProduct } from '../../models/products';
 import { dataBase } from '../../utils';
+import { getCategoryByProductUtil } from '../../utils/category';
 import { UploadMoreSourcesProduct, UploasProduct } from '../../utils/cloudinary/product';
 import { UpdateQualifledOrdenUtil } from '../../utils/orden';
 import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getProductExistUtil, getProductReviewUtil, getProductSearchUtil, getProductSourcesUtil, updateProductStartPeopleUtil } from '../../utils/products';
@@ -177,6 +178,8 @@ export const getProduct = async (req: Request, res: Response) => {
               (err, data) => err ? reject(err) : resolve(data)
             );
         });
+
+        Product[0].categorys = await getCategoryByProductUtil(idProduct);
 
         Product[0].related_sources = await getProductSourcesUtil(Product[0].idProducts);
         Product[0].related_sources.push({
