@@ -16,6 +16,7 @@ import Statistic from './services/statistics';
 import Invite from './services/invite';
 import TimeMessage from './services/timeMessage';
 import Category from './services/category';
+import ProductHistory from './services/productHistory';
 import { config } from './utils';
 import { CronMidnight } from './utils/cron';
 
@@ -77,6 +78,7 @@ export function init() {
     Invite,
     TimeMessage,
     Category,
+    ProductHistory,
   ]);
 
   return { app };
