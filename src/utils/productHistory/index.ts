@@ -71,3 +71,17 @@ export const DeleteProductHistoryUtil = async (idUser: string) => {
         return false;
     }
 }
+
+export const ExpiredProductHistoryUtil = async () => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `DELETE FROM productHistory WHERE MONTH(NOW())- MONTH(created_at) > 3;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
+  }
+}

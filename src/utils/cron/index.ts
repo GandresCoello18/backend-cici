@@ -3,6 +3,7 @@ import { CartAbandonado, getProductCartUtil } from '../cart';
 import { updateExpireCouponsUtil } from '../coupons';
 import { SendEmail } from '../email/send';
 import { TemplateAbandonedCart } from '../email/template/abandonedCart';
+import { ExpiredProductHistoryUtil } from '../productHistory';
 import { updateOfferExpiresProductUtil } from '../products';
 
 export const CronMidnight = () => {
@@ -10,8 +11,9 @@ export const CronMidnight = () => {
         await updateExpireCouponsUtil();
         await updateOfferExpiresProductUtil();
         await AbandonedCart();
+        await ExpiredProductHistoryUtil();
 
-        console.group('Validar cupones expirados', 'validar productos con descuentos expirados', 'Email para Carrito abandonado');
+        console.group('Validar cupones expirados', 'validar productos con descuentos expirados', 'Email para Carrito abandonado', 'Expired product history');
     });
 }
 
