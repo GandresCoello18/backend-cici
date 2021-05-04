@@ -1,4 +1,4 @@
-import { Cart, CartProduct } from "../../models/cart";
+import { Cart, CartProduct, ProductCart } from "../../models/cart";
 import { Product } from "../../models/products";
 import { dataBase } from "../database";
 
@@ -79,7 +79,7 @@ export const getProductCartUtil = async (idCart: string) => {
             `SELECT products.idProducts, products.source, products.title, products.price, cart_product.quantity, cart_product.colour FROM cart_product INNER JOIN products ON products.idProducts = cart_product.idProduct WHERE cart_product.idCart = '${idCart}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
-        }) as Product[];
+        }) as ProductCart[];
   } catch (error) {
       console.log(error.message);
       return [];
@@ -98,6 +98,20 @@ export const ExistProductCart = async (idCart: string, idProduct: string) => {
         console.log(error.message);
         return [];
     }
+}
+
+export const CartAbandonado = async () => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT users.userName, users.email, cart.idCart FROM cart INNER JOIN users ON users.idUser = cart.idUser WHERE DATEDIFF(NOW(), cart.created_at) = 30 AND cart.status = 'Pending' GROUP BY users.email, users.userName, cart.idCart;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as {userName: string, email: string, idCart: string}[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
 }
 
 export const UpdateProductCart = async (idCart: string, idProduct: string, quantity: number, colour: string) => {
