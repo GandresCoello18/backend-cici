@@ -19,13 +19,27 @@ export const getProductUtil = async (idProduct: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT * FROM products WHERE idProducts = '${idProduct}';`,
+            `SELECT * FROM products WHERE status = 'Disponible' AND idProducts = '${idProduct}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as Product[];
   } catch (error) {
       console.log(error.message);
       return [];
+  }
+}
+
+export const getProductsUtil = async (findProduct: string, start: number) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT *, DATEDIFF(NOW(), created_at) <= 7 as isNew FROM products WHERE status = 'Disponible' AND title LIKE '%${findProduct || ''}%' ORDER BY created_at DESC LIMIT ${start}, 30;`,
+        (err, data) => err ? reject(err) : resolve(data)
+      );
+    }) as Product[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
   }
 }
 

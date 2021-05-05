@@ -7,7 +7,7 @@ import { dataBase } from '../../utils';
 import { getCategoryByProductUtil, getCategorysUtil } from '../../utils/category';
 import { UploadMoreSourcesProduct, UploasProduct } from '../../utils/cloudinary/product';
 import { UpdateQualifledOrdenUtil } from '../../utils/orden';
-import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getBestSellerProductByCategory, getProductByCategory, getProductExistUtil, getProductReviewUtil, getProductSearchUtil, getProductSourcesUtil, updateProductStartPeopleUtil } from '../../utils/products';
+import { createProductReviewUtil, createProductSourcesUtil, createProductUtil, deleteProductUtil, getBestSellerProductByCategory, getProductByCategory, getProductExistUtil, getProductReviewUtil, getProductSearchUtil, getProductSourcesUtil, getProductsUtil, getProductUtil, updateProductStartPeopleUtil } from '../../utils/products';
 
 export const createProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'product', serviceHandler: 'createProduct' });
@@ -131,7 +131,7 @@ export const getProducts = async (req: Request, res: Response) => {
       }
 
       if(valueQuery(priceMin) || valueQuery(priceMax) || valueQuery(isPromo) || valueQuery(order) || valueQuery(orderPrice) || valueQuery(orderStar)){
-        let sql: string = `SELECT * FROM products WHERE status = 'Disponible' AND price > ${valueQuery(priceMin) ? Number(priceMin) : 0} ${valueQuery(priceMax) ? `AND price < ${Number(priceMax)}` : ''} ${valueQuery(orderPrice) || valueQuery(orderStar) ? `ORDER BY ${valueQuery(orderPrice) ? 'price' : 'stars'} ${valueQuery(order) ? order : 'ASC'}` : ''}`;
+        let sql: string = `SELECT *, DATEDIFF(NOW(), created_at) <= 7 as isNew FROM products WHERE status = 'Disponible' AND price > ${valueQuery(priceMin) ? Number(priceMin) : 0} ${valueQuery(priceMax) ? `AND price < ${Number(priceMax)}` : ''} ${valueQuery(orderPrice) || valueQuery(orderStar) ? `ORDER BY ${valueQuery(orderPrice) ? 'price' : 'stars'} ${valueQuery(order) ? order : 'ASC'}` : ''}`;
 
         products = await new Promise((resolve, reject) => {
           dataBase.query(
@@ -141,12 +141,7 @@ export const getProducts = async (req: Request, res: Response) => {
         });
       }else{
         start = 0;
-        products = await new Promise((resolve, reject) => {
-          dataBase.query(
-            `SELECT * FROM products WHERE status = 'Disponible' AND title LIKE '%${findProduct || ''}%' ORDER BY created_at DESC LIMIT ${start}, 30;`,
-            (err, data) => err ? reject(err) : resolve(data)
-          );
-        });
+        products = await getProductsUtil(findProduct, start);
       }
 
       products.map(item => item.created_at = format(new Date(item.created_at), 'yyyy-MM-dd'))
@@ -172,12 +167,7 @@ export const getProduct = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        const Product: Product[] = await new Promise((resolve, reject) => {
-            dataBase.query(
-              `SELECT * FROM products WHERE status = 'Disponible' AND idProducts = '${idProduct}';`,
-              (err, data) => err ? reject(err) : resolve(data)
-            );
-        });
+        const Product = await getProductUtil(idProduct);
 
         Product[0].categorys = await getCategoryByProductUtil(idProduct);
 
