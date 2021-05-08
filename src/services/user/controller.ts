@@ -3,7 +3,7 @@ import { addMonths, format } from 'date-fns'
 import Locale from 'date-fns/locale/es'
 import { User } from '../../models/users';
 import jwt from "jsonwebtoken";
-import {config, createUserUtil, dataBase, deleteUserUtil, getUsersUtil, getUserUtil, updateAvatarUserUtil, updatePasswordUserUtil, updateUserUtil} from '../../utils';
+import {config, createUserUtil, deleteUserUtil, getUserProviderUtil, getUsersUtil, getUserUtil, updateAvatarUserUtil, updatePasswordUserUtil, updateUserUtil} from '../../utils';
 import bcryptjs from "bcryptjs";
 import { v4 as uuidv4 } from 'uuid';
 import { createUserCouponsUtil, getCouponsUserFreetUtil } from '../../utils/coupons';
@@ -194,12 +194,7 @@ export const login = async (req: Request, res: Response) => {
       const userExist = await getUserUtil({email});
 
       if(userExist.length){
-        user = await new Promise((resolve, reject) => {
-          dataBase.query(
-            `SELECT * FROM users WHERE email = '${email}' AND provider = '${provider}';`,
-            (err, data) => err ? reject(err) : resolve(data)
-          );
-        }) as User[];
+        user = await getUserProviderUtil(email, provider)
       }else{
         const saveUser: User = {
           idUser: uuidv4(),
@@ -229,7 +224,7 @@ export const login = async (req: Request, res: Response) => {
         expiration_date: format(addMonths(new Date(), 1), 'yyyy-MM-dd HH:mm:ss'),
         created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
         idGuestUser: null,
-        status: 'Pendiente'
+        status: 'No valido aun'
       }
 
       await createUserCouponsUtil(userCoupon)
@@ -251,7 +246,7 @@ export const login = async (req: Request, res: Response) => {
 
       const me = {
         user: user[0],
-        token: jwt.sign({idUser: user[0].idUser}, config.JWT_SECRET),
+        token: jwt.sign({idUser: user[0].idUser}, config.JWT_SECRET, {expiresIn: '3h'}),
       }
 
       return res.status(200).json({ me })
