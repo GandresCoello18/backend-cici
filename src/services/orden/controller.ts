@@ -92,7 +92,16 @@ export const getOrdenStatus = async (req: Request, res: Response) => {
                 break
             case 'Pendiente de envio':
                 status = 'Paid'
-                responseOrden = await SchemaStatusOrder(user.idUser, status);
+                const OrdenPaidPendingShippin = await SchemaStatusOrder(user.idUser, status);
+
+                responseOrden = await Promise.all(
+                    OrdenPaidPendingShippin.map(async orden => {
+                        const IsShipping = await geteShippingByOrdenUtil(orden.idOrder);
+                        return IsShipping.length ? null : orden;
+                    })
+                )
+
+                responseOrden = responseOrden.filter(orden => orden !== null);
                 break
             case 'Pendiente de entrega':
                 status = 'Paid'
@@ -100,8 +109,13 @@ export const getOrdenStatus = async (req: Request, res: Response) => {
 
                 responseOrden = await Promise.all(
                     OrdenPaid.map(async orden => {
-                        const IsShipping = await geteShippingByOrdenUtil(orden.idOrder);
-                        return IsShipping.length ? null : orden;
+                        const Shipping = await geteShippingByOrdenUtil(orden.idOrder);
+
+                        if(Shipping[0].status === 'Delivered'){
+                            return null
+                        }
+
+                        return orden
                     })
                 )
 
