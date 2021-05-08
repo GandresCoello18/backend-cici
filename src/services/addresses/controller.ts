@@ -36,10 +36,16 @@ export const newAddress = async (req: Request, res: Response) => {
             const response = { status: 'Esta direccion ya existe' };
             req.logger.warn(response);
             return res.status(400).json(response);
-        }else{
-            await createAddressUtil(newAddress)
-            return res.status(200).json({address: newAddress});
         }
+
+        const AddresByUser = await getMyAddressUtil(idUser)
+
+        if(AddresByUser.length === 0){
+            newAddress.selected = true;
+        }
+
+        await createAddressUtil(newAddress)
+        return res.status(200).json({address: newAddress});
 
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
