@@ -33,7 +33,7 @@ export const newTimeMessage = async (req: Request, res: Response) => {
           destination,
           subject,
           created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-          life_minutes: 5,
+          life_minutes: 10,
         }
 
         await newTimeMessageUtil(message);
@@ -43,7 +43,7 @@ export const newTimeMessage = async (req: Request, res: Response) => {
             to: destination,
             subject: 'Recupera tu contraseña | Cici beauty place',
             text:'',
-            html: PasswordReset(message.id_time_message),
+            html: PasswordReset(message.id_time_message, message.life_minutes),
         });
 
         return res.status(200).json();
