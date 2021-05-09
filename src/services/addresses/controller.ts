@@ -18,6 +18,14 @@ export const newAddress = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
+        const AddresByUser = await getMyAddressUtil(idUser)
+
+        if(AddresByUser.length > 3){
+            const response = { status: 'Solo peudes registrar un limite de 3 direcciones' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
         const newAddress: Addresses = {
             idAddresses: uuidv4(),
             title,
@@ -37,8 +45,6 @@ export const newAddress = async (req: Request, res: Response) => {
             req.logger.warn(response);
             return res.status(400).json(response);
         }
-
-        const AddresByUser = await getMyAddressUtil(idUser)
 
         if(AddresByUser.length === 0){
             newAddress.selected = true;
