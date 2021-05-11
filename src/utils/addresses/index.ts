@@ -15,11 +15,11 @@ export const createAddressUtil = async (Addresses: Addresses) => {
     }
 }
 
-export const ExistAddressUtil = async (title: string) => {
+export const ExistAddressUtil = async (title: string, idUser: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT * FROM addresses WHERE title = '${title}';`,
+            `SELECT * FROM addresses WHERE title = '${title}' AND idUser = '${idUser}';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as Addresses[];

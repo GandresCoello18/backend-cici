@@ -38,7 +38,7 @@ export const newAddress = async (req: Request, res: Response) => {
             selected: false
         }
 
-        const existAddress = await ExistAddressUtil(newAddress.title)
+        const existAddress = await ExistAddressUtil(newAddress.title, idUser)
 
         if(existAddress.length){
             const response = { status: 'Esta direccion ya existe' };
