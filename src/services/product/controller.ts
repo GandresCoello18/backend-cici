@@ -118,7 +118,8 @@ export const getProducts = async (req: Request, res: Response) => {
     req.logger.info({ status: 'start' });
 
     try {
-      let start: number;
+      const  lastIdProduct  = req.query.lastIdProduct as string
+
       let products: Product[] = [];
       const { priceMin, priceMax, isPromo, order, orderPrice, orderStar } = req.query
       const findProduct = req.query.findProduct as string;
@@ -140,8 +141,7 @@ export const getProducts = async (req: Request, res: Response) => {
           );
         });
       }else{
-        start = 0;
-        products = await getProductsUtil(findProduct, start);
+        products = await getProductsUtil(findProduct, lastIdProduct);
       }
 
       products.map(item => item.created_at = format(new Date(item.created_at), 'yyyy-MM-dd'))

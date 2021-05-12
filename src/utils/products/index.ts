@@ -29,11 +29,11 @@ export const getProductUtil = async (idProduct: string) => {
   }
 }
 
-export const getProductsUtil = async (findProduct: string, start: number) => {
+export const getProductsUtil = async (findProduct: string, lastIdProduct?: string) => {
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT *, DATEDIFF(NOW(), created_at) <= 7 as isNew FROM products WHERE status = 'Disponible' AND title LIKE '%${findProduct || ''}%' ORDER BY created_at DESC LIMIT ${start}, 30;`,
+        `SELECT *, DATEDIFF(NOW(), created_at) <= 7 as isNew FROM products WHERE status = 'Disponible' AND idProducts > '${lastIdProduct || ''}' AND title LIKE '%${findProduct || ''}%' ${!lastIdProduct ? 'ORDER BY updated_at DESC' : ''} LIMIT 8;`,
         (err, data) => err ? reject(err) : resolve(data)
       );
     }) as Product[];
