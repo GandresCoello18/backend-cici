@@ -48,13 +48,13 @@ export const getUserUtil = async (option: {
     }
 }
 
-export const getUsersUtil = async (findUser?: string) => {
+export const getUsersUtil = async (findUser?: string, page?: number) => {
   try {
       const findEmail = `WHERE email LIKE '%${findUser}%' OR userName LIKE '%${findUser}%'`;
 
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT ${response_campo} FROM users ${findUser ? findEmail : ''} ORDER BY created_at DESC;`,
+            `SELECT ${response_campo} FROM users ${findUser ? findEmail : ''} ORDER BY created_at DESC LIMIT ${page}, 15;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as User[];

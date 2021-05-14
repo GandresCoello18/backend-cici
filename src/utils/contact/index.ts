@@ -15,14 +15,28 @@ export const NewContactUtil = async (contact: Contact) => {
     }
 }
 
-export const GetContactsUtil = async () => {
+export const GetContactsUtil = async (page: number) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-              `SELECT * FROM contact ORDER BY created_at DESC;`,
+              `SELECT * FROM contact ORDER BY created_at DESC LIMIT ${page}, 15;`,
               (err, data) => err ? reject(err) : resolve(data)
             );
         }) as Contact[];
+    } catch (error) {
+        console.log(error.message);
+        return [];
+    }
+}
+
+export const GetCountContactsUtil = async () => {
+    try {
+        return await new Promise((resolve, reject) => {
+            dataBase.query(
+              `SELECT COUNT(*) / 15 as pages FROM contact;`,
+              (err, data) => err ? reject(err) : resolve(data)
+            );
+        }) as {pages: number}[];
     } catch (error) {
         console.log(error.message);
         return [];

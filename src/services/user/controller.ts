@@ -11,6 +11,7 @@ import { CouponsUser } from '../../models/coupons';
 import { UploadAvatarUser } from '../../utils/cloudinary/user';
 import { SendEmail } from '../../utils/email/send';
 import { WelcomeEmail } from '../../utils/email/template/welcome';
+import { getStatisticsUserUtil } from '../../utils/statistics';
 
 export const getMe = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'users', serviceHandler: 'getMe' });
@@ -34,6 +35,9 @@ export const getUsers = async (req: Request, res: Response) => {
   try {
     const me = req.user;
     const findUser = req.query.findUser as string;
+    const page = req.query.page as string;
+    let pages = 0;
+    let start = 0;
 
     if(!me.isAdmin || me.isBanner){
       const response = { status: 'No eres admin o estas bloqueado' };
@@ -41,11 +45,20 @@ export const getUsers = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    const users = await getUsersUtil(findUser || undefined);
+    if(Number(page)){
+      const totalUser = await getStatisticsUserUtil();
+      pages = Math.trunc(totalUser[0].total /  15)
+      
+      if(Number(page) > 1){
+        start = Math.trunc((Number(page) -1) * 15)
+      }
+    }
+
+    const users = await getUsersUtil(findUser || undefined, start);
 
     users.map(user => user.created_at = format(new Date(user.created_at), 'yyyy-MM-dd'))
 
-    return res.status(200).json({ users });
+    return res.status(200).json({ users, pages });
   } catch (error) {
     console.log(error.message);
     req.logger.error({ status: 'error', code: 500 });

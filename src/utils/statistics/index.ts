@@ -63,7 +63,7 @@ export const getStatisticsOrdeAmountTotalUtil = async () => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT SUM(totalAmount) as total FROM orden WHERE ${DentroDelMes};`,
+            `SELECT SUM(totalAmount) as total FROM orden WHERE ${DentroDelMes} AND status = 'Paid';`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as StatisticUser[];
@@ -77,7 +77,7 @@ export const getStatisticsOrdeAmountUtil = async () => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT totalAmount, TRUNCATE(((totalAmount * 12) / 100), 2) as comision, DATE_FORMAT(created_at, "%M %d %Y") as fecha FROM orden WHERE ${DentroDelMes} ORDER BY created_at ASC;`,
+            `SELECT totalAmount, TRUNCATE(((totalAmount * 12) / 100), 2) as comision, DATE_FORMAT(created_at, "%M %d %Y") as fecha FROM orden WHERE ${DentroDelMes} AND status = 'Paid' ORDER BY created_at ASC;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as StatisticGrafico[];

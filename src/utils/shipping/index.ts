@@ -29,6 +29,20 @@ export const geteShippingUtil = async (idShipping: string) => {
   }
 }
 
+export const getCountShippingUtil = async () => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT COUNT(*) / 15 as totalShipping FROM shipping;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as {totalShipping: number}[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
 export const getShippingProductsUtil = async (idUser: string) => {
   try {
       return await new Promise((resolve, reject) => {
@@ -57,11 +71,11 @@ export const getShippingAndOrderDetailsUtil = async (idUser: string) => {
   }
 }
 
-export const getShippingUtil = async (idPago?: string) => {
+export const getShippingUtil = async (idPago?: string, page?: number) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT shipping.*, orden.paymentId, users.userName, users.avatar FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN users ON users.idUser = orden.idUser ${idPago ? `WHERE orden.paymentId LIKE '%${idPago}%' OR shipping.guide LIKE '%${idPago}%'` : ''} ORDER BY shipping.created_at DESC;`,
+            `SELECT shipping.*, orden.paymentId, users.userName, users.avatar FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN users ON users.idUser = orden.idUser ${idPago ? `WHERE orden.paymentId LIKE '%${idPago}%' OR shipping.guide LIKE '%${idPago}%'` : ''} ORDER BY shipping.created_at DESC LIMIT ${page}, 15;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as Shipping[];

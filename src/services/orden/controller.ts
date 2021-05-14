@@ -8,6 +8,7 @@ import { updateStatusCouponsUtil } from '../../utils/coupons';
 import { SchemaOrder, SchemaStatusOrder } from '../../helpers/Order';
 import { geteShippingByOrdenUtil, getShippingAndOrderDetailsUtil } from '../../utils/shipping';
 import { updateAddSoldProductUtil, updateSubtractAvailabledProductUtil } from '../../utils/products';
+import { getStatisticsOrderUtil } from '../../utils/statistics';
 
 export const newOrden = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -137,6 +138,9 @@ export const getOrders = async (req: Request, res: Response) => {
     try {
         const me = req.user;
         const idPago = req.query.idPago as string;
+        const page = req.query.page as string;
+        let pages = 0;
+        let start = 0;
 
         if(!me.isAdmin || me.isBanner){
             const response = { status: 'No eres admin o estas bloqueado' };
@@ -144,10 +148,19 @@ export const getOrders = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        const ordenes = await geteOrdensUtil(idPago || undefined);
+        if(Number(page)){
+            const totalOrden = await getStatisticsOrderUtil();
+            pages = Math.trunc(totalOrden[0].total / 15)
+
+            if(Number(page) > 1){
+              start = Math.trunc((Number(page) -1) * 15)
+            }
+        }
+
+        const ordenes = await geteOrdensUtil(idPago || undefined, start);
         const responseOrden = await SchemaOrder(ordenes);
 
-        return res.status(200).json({ ordenes: responseOrden });
+        return res.status(200).json({ ordenes: responseOrden, pages });
     } catch (error) {
         console.log(error.message);
         req.logger.error({ status: 'error', code: 500 });

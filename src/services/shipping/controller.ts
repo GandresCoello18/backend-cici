@@ -10,7 +10,7 @@ import { SendEmail } from '../../utils/email/send';
 import { PackageSent } from '../../utils/email/template/packageSent';
 import { QualifyOrder } from '../../utils/email/template/qualifyOrder';
 import { geteOrdenUtil } from '../../utils/orden';
-import { createShippingUtil, geteShippingUtil, getShippingProductsUtil, getShippingUtil, updateStatusShippingUtil } from '../../utils/shipping';
+import { createShippingUtil, getCountShippingUtil, geteShippingUtil, getShippingProductsUtil, getShippingUtil, updateStatusShippingUtil } from '../../utils/shipping';
 
 export const newShipping = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'shipping', serviceHandler: 'newShipping' });
@@ -72,10 +72,22 @@ export const getShipping = async (req: Request, res: Response) => {
     try {
         const me = req.user
         const idPago = req.query.idPago as string;
+        const page = req.query.page as string;
+        let pages = 0;
+        let start = 0;
         let shipping: Shipping[] = [];
 
+        if(Number(page)){
+            const totalOrden = await getCountShippingUtil();
+            pages = totalOrden[0].totalShipping
+
+            if(Number(page) > 1){
+              start = Math.trunc((Number(page) -1) * 15)
+            }
+        }
+
         if(me.isAdmin){
-            shipping = await getShippingUtil(idPago || undefined);
+            shipping = await getShippingUtil(idPago || undefined, start);
         }else{
             const ShippingProduct = await getShippingProductsUtil(me.idUser);
 
@@ -96,7 +108,7 @@ export const getShipping = async (req: Request, res: Response) => {
         shipping.map(envio => envio.created_at = format(new Date(envio.created_at), 'yyyy-MM-dd HH:mm:ss'));
         shipping.map(envio => envio.update_at = format(new Date(envio.update_at), 'yyyy-MM-dd HH:mm:ss'));
 
-        return res.status(200).json({ shipping });
+        return res.status(200).json({ shipping, pages });
     } catch (error) {
         console.log(error.message)
         req.logger.error({ status: 'error', code: 500 });

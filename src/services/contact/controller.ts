@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Contact } from '../../models/contact';
-import { DeleteContactUtil, GetContactsUtil, NewContactUtil, UpdateStatusContactUtil } from '../../utils/contact';
+import { DeleteContactUtil, GetContactsUtil, GetCountContactsUtil, NewContactUtil, UpdateStatusContactUtil } from '../../utils/contact';
 import { SendEmail } from '../../utils/email/send';
 
 export const createSms = async (req: Request, res: Response) => {
@@ -66,6 +66,9 @@ export const getSms = async (req: Request, res: Response) => {
 
     try {
         const me = req.user
+        const page = req.query.page as string;
+        let pages = 0;
+        let start = 0;
 
         if(!me.isAdmin || me.isBanner){
             const response = { status: 'No eres admin o estas bloqueado' };
@@ -73,9 +76,18 @@ export const getSms = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        const contact = await GetContactsUtil();
+        if(Number(page)){
+            const totalPages = await GetCountContactsUtil();
+            pages = totalPages[0].pages
 
-        return res.status(200).json({ contact });
+            if(Number(page) > 1){
+              start = Math.trunc((Number(page) -1) * 15)
+            }
+        }
+
+        const contact = await GetContactsUtil(start);
+
+        return res.status(200).json({ contact, pages });
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
