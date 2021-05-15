@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Orden } from '../../models/orden';
 import { getCartProductUtil, getProductCartUtil, getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
-import { createOrdenUtil, geteOrdensByUserUtil, geteOrdensUtil, UpdateStatusOrdenUtil, Update_atOrdenUtil } from '../../utils/orden';
+import { createOrdenUtil, getCountOrdensByUserUtil, geteOrdensByUserUtil, geteOrdensUtil, UpdateStatusOrdenUtil, Update_atOrdenUtil } from '../../utils/orden';
 import { updateStatusCouponsUtil } from '../../utils/coupons';
 import { SchemaOrder, SchemaStatusOrder } from '../../helpers/Order';
 import { geteShippingByOrdenUtil, getShippingAndOrderDetailsUtil } from '../../utils/shipping';
@@ -77,6 +77,9 @@ export const getOrdenStatus = async (req: Request, res: Response) => {
     try {
         const user = req.user
         let { status } = req.params
+        const page = req.query.page as string;
+        let pages = 0;
+        let start = 0;
 
         if(!status){
             const response = { status: 'No data orden status provided' };
@@ -84,16 +87,25 @@ export const getOrdenStatus = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
+        if(Number(page)){
+            const totalOrden = await getCountOrdensByUserUtil(user.idUser, status === 'Pendiente de pago' ? 'Pending' : 'Paid');
+            pages = totalOrden[0].totalOrden
+
+            if(Number(page) > 1){
+              start = Math.trunc((Number(page) -1) * 5)
+            }
+        }
+
         let responseOrden;
 
         switch(status){
             case 'Pendiente de pago':
                 status = 'Pending'
-                responseOrden = await SchemaStatusOrder(user.idUser, status);
+                responseOrden = await SchemaStatusOrder(user.idUser, status, start);
                 break
             case 'Pendiente de envio':
                 status = 'Paid'
-                const OrdenPaidPendingShippin = await SchemaStatusOrder(user.idUser, status);
+                const OrdenPaidPendingShippin = await SchemaStatusOrder(user.idUser, status, start);
 
                 responseOrden = await Promise.all(
                     OrdenPaidPendingShippin.map(async orden => {
@@ -106,7 +118,7 @@ export const getOrdenStatus = async (req: Request, res: Response) => {
                 break
             case 'Pendiente de entrega':
                 status = 'Paid'
-                const OrdenPaid = await SchemaStatusOrder(user.idUser, status);
+                const OrdenPaid = await SchemaStatusOrder(user.idUser, status, start);
 
                 responseOrden = await Promise.all(
                     OrdenPaid.map(async orden => {
@@ -124,7 +136,7 @@ export const getOrdenStatus = async (req: Request, res: Response) => {
                 break
         }
 
-        return res.status(200).json({ ordenes: responseOrden || [] });
+        return res.status(200).json({ ordenes: responseOrden || [], pages });
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();

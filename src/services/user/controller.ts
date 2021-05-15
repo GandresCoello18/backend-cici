@@ -195,19 +195,24 @@ export const login = async (req: Request, res: Response) => {
     if(provider === 'cici'){
       const userExist = await getUserUtil({email});
 
-      if(userExist.length){
-        const passwordDB = userExist[0].password as string;
-        const ValidatePassword = await bcryptjs.compare(password, passwordDB);
-        
-        ValidatePassword ? user = userExist : user = [];
-      }else{
+      if(!userExist.length){
         return res.status(400).json({status: 'Datos incorrectos, revise e intentelo de nuevo'});
       }
+
+      const passwordDB = userExist[0].password as string;
+      const ValidatePassword = await bcryptjs.compare(password, passwordDB);
+
+      ValidatePassword ? user = userExist : user = [];
     }else{
       const userExist = await getUserUtil({email});
 
       if(userExist.length){
         user = await getUserProviderUtil(email, provider)
+
+        if(!user.length){
+          return res.status(400).json({status: `Este usuario no usa (${provider.toUpperCase()}) como proveedor de datos.`});
+        }
+
       }else{
         const saveUser: User = {
           idUser: uuidv4(),
@@ -217,7 +222,7 @@ export const login = async (req: Request, res: Response) => {
           created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
           isAdmin: false,
           avatar,
-          provider: provider ? provider : 'cici',
+          provider: provider || 'cici',
           phone: null,
           isBanner: false,
         }
@@ -268,7 +273,7 @@ export const login = async (req: Request, res: Response) => {
     return res.status(400).json({status: 'Datos incorrectos, revise e intentelo de nuevo'});
   } catch (error) {
     req.logger.error({ status: 'error', code: 500, error: error.message });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 }
 

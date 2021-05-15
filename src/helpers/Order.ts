@@ -41,8 +41,8 @@ export const SchemaOrder = async (ordenes: Orden[]) => {
     return responseOrden;
 }
 
-export const SchemaStatusOrder = async (idUser: string, status: string) => {
-    const ordenes = await geteOrdenStatusUtil(idUser, status)
+export const SchemaStatusOrder = async (idUser: string, status: string, page: number) => {
+    const ordenes = await geteOrdenStatusUtil(idUser, status, page)
 
     return await Promise.all(
         ordenes.map(async orden => {
