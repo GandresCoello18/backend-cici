@@ -49,11 +49,8 @@ export const SchemaStatusOrder = async (idUser: string, status: string, page: nu
             const product: productOrden[] = await getProductCartUtil(orden.idCart)
 
             return {
-                idOrder: orden.idOrder,
+                ...orden,
                 created_at: format(new Date(orden.created_at), 'PPPP', {locale: Locale}),
-                status: orden.status,
-                paymentMethod: orden.paymentMethod,
-                paymentId: orden.paymentId,
                 product,
             }
         })
