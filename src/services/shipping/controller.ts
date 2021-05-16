@@ -10,7 +10,7 @@ import { SendEmail } from '../../utils/email/send';
 import { PackageSent } from '../../utils/email/template/packageSent';
 import { QualifyOrder } from '../../utils/email/template/qualifyOrder';
 import { geteOrdenUtil } from '../../utils/orden';
-import { createShippingUtil, getCountShippingUtil, geteShippingUtil, getShippingProductsUtil, getShippingUtil, updateStatusShippingUtil } from '../../utils/shipping';
+import { createShippingUtil, getCountShippingByUserUtil, getCountShippingUtil, geteShippingUtil, getShippingProductsUtil, getShippingUtil, updateStatusShippingUtil } from '../../utils/shipping';
 
 export const newShipping = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'shipping', serviceHandler: 'newShipping' });
@@ -78,18 +78,18 @@ export const getShipping = async (req: Request, res: Response) => {
         let shipping: Shipping[] = [];
 
         if(Number(page)){
-            const totalOrden = await getCountShippingUtil();
+            const totalOrden = me.isAdmin ? await getCountShippingUtil() : await getCountShippingByUserUtil(me.idUser);
             pages = totalOrden[0].totalShipping
 
             if(Number(page) > 1){
-              start = Math.trunc((Number(page) -1) * 15)
+              start = Math.trunc((Number(page) -1) * (me.isAdmin ? 15 : 5))
             }
         }
 
         if(me.isAdmin){
             shipping = await getShippingUtil(idPago || undefined, start);
         }else{
-            const ShippingProduct = await getShippingProductsUtil(me.idUser);
+            const ShippingProduct = await getShippingProductsUtil(me.idUser, start);
 
             shipping = await Promise.all(
                 ShippingProduct.map(async orden => {

@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Locale from 'date-fns/locale/es'
 import { Coupons, CouponsUser } from '../../models/coupons';
-import { createCouponUtil, createUserCouponsUtil, DeleteCoupontUtil, getCouponsAmountUserUtil, getCouponsAssingtUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
+import { createCouponUtil, createUserCouponsUtil, DeleteCoupontUtil, getCountCouponsUserUtil, getCouponsAmountUserUtil, getCouponsAssingtUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
 import { getUserUtil } from '../../utils';
 import { UploadSourceCoupon } from '../../utils/cloudinary/coupon';
 
@@ -68,7 +68,26 @@ export const getUserCoupons = async (req: Request, res: Response) => {
     try {
         const { status } = req.params
         const user = req.user
-        let myCoupons = await getCouponsUsertUtil(user.idUser, status)
+        const page = req.query.page as string;
+        let pages = 0;
+        let start = 0;
+
+        if(!status){
+            const response = { status: 'No status coupons provider' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        if(Number(page)){
+            const totalCoupons = await getCountCouponsUserUtil(user.idUser, status);
+            pages = Math.trunc(totalCoupons[0].totalCoupons)
+
+            if(Number(page) > 1){
+              start = Math.trunc((Number(page) -1) * 5)
+            }
+        }
+
+        let myCoupons = await getCouponsUsertUtil(user.idUser, status, start)
 
         const returnMyCoupons = await Promise.all(
             myCoupons.map(async cupon => {
@@ -99,13 +118,9 @@ export const getUserCoupons = async (req: Request, res: Response) => {
         if(returnMyCoupons.length){
             returnMyCoupons[0].created_at = format(new Date(returnMyCoupons[0].created_at), 'PPPP', {locale: Locale})
             returnMyCoupons[0].expiration_date = format(new Date(returnMyCoupons[0].expiration_date), 'PPPP', {locale: Locale})
-
-            if(returnMyCoupons[0].created_at === returnMyCoupons[0].expiration_date){
-                returnMyCoupons[0].expiration_date = 'No Expira'
-            }
         }
 
-        return res.status(200).json({ myCoupons: returnMyCoupons });
+        return res.status(200).json({ myCoupons: returnMyCoupons, pages });
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
@@ -117,9 +132,9 @@ export const createUserCoupons = async (req: Request, res: Response) => {
     req.logger.info({ status: 'start' });
 
     try {
-        const {idUser, idCoupon, expiration_date, idGuestUser} = req.body
+        const {idUser, idCoupon, idGuestUser} = req.body
         const user = req.user
-        let expire: Date = expiration_date ? new Date(expiration_date) : addMonths(new Date(), 1)
+        let expire: Date = addMonths(new Date(), 1)
 
         const userCoupon: CouponsUser = {
             id_user_coupons: uuidv4(),
@@ -128,7 +143,7 @@ export const createUserCoupons = async (req: Request, res: Response) => {
             expiration_date: format(expire, 'yyyy-MM-dd HH:mm:ss'),
             created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
             idGuestUser: idGuestUser || user.idUser,
-            status: 'No valido aun'
+            status: 'Pendiente'
         }
 
         await createUserCouponsUtil(userCoupon)

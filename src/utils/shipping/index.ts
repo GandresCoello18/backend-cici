@@ -43,11 +43,25 @@ export const getCountShippingUtil = async () => {
   }
 }
 
-export const getShippingProductsUtil = async (idUser: string) => {
+export const getCountShippingByUserUtil = async (idUser: string) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT shipping.*, cart.idCart, users.userName, users.avatar FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN cart ON cart.idCart = orden.idCart INNER JOIN users ON users.idUser = cart.idUser WHERE orden.idUser = '${idUser}' ORDER BY shipping.update_at DESC;`,
+            `SELECT COUNT(*) / 5 as totalShipping FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder WHERE orden.idUser = '${idUser}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as {totalShipping: number}[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const getShippingProductsUtil = async (idUser: string, page: number) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT shipping.*, cart.idCart, users.userName, users.avatar FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN cart ON cart.idCart = orden.idCart INNER JOIN users ON users.idUser = cart.idUser WHERE orden.idUser = '${idUser}' ORDER BY shipping.update_at DESC LIMIT ${page}, 5;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as ShippingCart[];

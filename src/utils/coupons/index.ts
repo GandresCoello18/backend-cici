@@ -29,11 +29,11 @@ export const getCoupontUtil = async (IdCoupon: string) => {
   }
 }
 
-export const getCouponsUsertUtil = async (IdUser: string, status: string) => {
+export const getCouponsUsertUtil = async (IdUser: string, status: string, page: number) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT * FROM user_coupons WHERE idUser = '${IdUser}' AND status = '${status}';`,
+            `SELECT * FROM user_coupons WHERE idUser = '${IdUser}' AND status = '${status}' LIMIT ${page}, 5;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as CouponsUser[];
@@ -65,6 +65,20 @@ export const getCouponsUserFreetUtil = async (IdUser: string) => {
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as MyCouponsUser[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const getCountCouponsUserUtil = async (IdUser: string, status: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT COUNT(*) / 5 as totalCoupons FROM user_coupons WHERE idUser = '${IdUser}' AND status = '${status}';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as {totalCoupons: number}[];
   } catch (error) {
       console.log(error.message);
       return [];
