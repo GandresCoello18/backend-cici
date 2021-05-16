@@ -30,11 +30,11 @@ export const getProductsFavoriteUtil = async (idUser: string) => {
     }
 }
 
-export const getMyProductsFavoriteUtil = async (idUser: string) => {
+export const getMyProductsFavoriteUtil = async (idUser: string, page: number) => {
     try {
         return await new Promise((resolve, reject) => {
             dataBase.query(
-                `SELECT products.* FROM favorite_product INNER JOIN products ON products.idProducts = favorite_product.idProduct WHERE favorite_product.idUser = '${idUser}';`,
+                `SELECT products.* FROM favorite_product INNER JOIN products ON products.idProducts = favorite_product.idProduct WHERE favorite_product.idUser = '${idUser}' LIMIT ${page}, 15;`,
                 (err, data) => err ? reject(err) : resolve(data)
             );
         }) as Product[];
@@ -52,6 +52,20 @@ export const getProductsFavoriteCountUtil = async (idProduct: string) => {
                 (err, data) => err ? reject(err) : resolve(data)
             );
         }) as { COUNT: number }[];
+    } catch (error) {
+        console.log(error.message);
+        return [];
+    }
+}
+
+export const getProductsFavoriteCountByUserUtil = async (idUser: string) => {
+    try {
+        return await new Promise((resolve, reject) => {
+            dataBase.query(
+                `SELECT COUNT(*) / 15 as totalFavorites FROM favorite_product WHERE idUser = '${idUser}';`,
+                (err, data) => err ? reject(err) : resolve(data)
+            );
+        }) as { totalFavorites: number }[];
     } catch (error) {
         console.log(error.message);
         return [];

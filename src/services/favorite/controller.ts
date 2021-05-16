@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Favorite } from '../../models/favorite';
-import { deleteAllFavoriteUtil, deletetFavoriteUtil, getMyProductsFavoriteUtil, getProductFavoriteUtil, getProductsFavoriteCountUtil, getProductsFavoriteUtil, insertFavoriteUtil } from '../../utils/favorite';
+import { deleteAllFavoriteUtil, deletetFavoriteUtil, getMyProductsFavoriteUtil, getProductFavoriteUtil, getProductsFavoriteCountByUserUtil, getProductsFavoriteCountUtil, getProductsFavoriteUtil, insertFavoriteUtil } from '../../utils/favorite';
 
 export const getFavoriteProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'favorite', serviceHandler: 'getFavoriteProduct' });
@@ -57,10 +57,22 @@ export const getMyFavoritesProducts = async (req: Request, res: Response) => {
 
     try {
         const user = req.user
+        const page = req.query.page as string;
+        let pages = 0;
+        let start = 0;
 
-        const favorites = await getMyProductsFavoriteUtil(user.idUser)
+        if(Number(page)){
+            const totalFavorites = await getProductsFavoriteCountByUserUtil(user.idUser);
+            pages = Math.trunc(totalFavorites[0].totalFavorites)
 
-        return res.status(200).json({ favorites });
+            if(Number(page) > 1){
+              start = Math.trunc((Number(page) -1) * 15)
+            }
+        }
+
+        const favorites = await getMyProductsFavoriteUtil(user.idUser, start)
+
+        return res.status(200).json({ favorites, pages });
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
