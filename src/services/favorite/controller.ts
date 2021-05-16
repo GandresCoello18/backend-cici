@@ -2,8 +2,7 @@ import { format } from 'date-fns';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Favorite } from '../../models/favorite';
-import { Product } from '../../models/products';
-import { dataBase } from '../../utils';
+import { deleteAllFavoriteUtil, deletetFavoriteUtil, getMyProductsFavoriteUtil, getProductFavoriteUtil, getProductsFavoriteCountUtil, getProductsFavoriteUtil, insertFavoriteUtil } from '../../utils/favorite';
 
 export const getFavoriteProduct = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'favorite', serviceHandler: 'getFavoriteProduct' });
@@ -19,14 +18,9 @@ export const getFavoriteProduct = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        const favorites: Favorite[] = await new Promise((resolve, reject) => {
-            dataBase.query(
-                `SELECT * FROM favorite_product WHERE idProduct = '${idProduct}' AND idUser = '${user.idUser}';`,
-                (err, data) => err ? reject(err) : resolve(data)
-            );
-        });
+        const favorites = await getProductFavoriteUtil(idProduct,user.idUser )
 
-        return res.status(200).json({ isFav: favorites.length ? true : false});
+        return res.status(200).json({ isFav: favorites.length || false});
     } catch (error) {
         req.logger.error({ status: 'error', code: 500 });
         return res.status(500).json();
@@ -46,12 +40,7 @@ export const getFavoriteByUser = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-       const products: Product[] = await new Promise((resolve, reject) => {
-            dataBase.query(
-                `SELECT products.* FROM favorite_product INNER JOIN products ON products.idProducts = favorite_product.idProduct WHERE favorite_product.idUser = '${idUser}';`,
-                (err, data) => err ? reject(err) : resolve(data)
-            );
-        });
+       const products = await getProductsFavoriteUtil(idUser)
 
         products.map(product => product.created_at = format(new Date(product.created_at), 'yyyy-MM-dd'))
 
@@ -69,12 +58,7 @@ export const getMyFavoritesProducts = async (req: Request, res: Response) => {
     try {
         const user = req.user
 
-        const favorites: Product[] = await new Promise((resolve, reject) => {
-            dataBase.query(
-                `SELECT products.* FROM favorite_product INNER JOIN products ON products.idProducts = favorite_product.idProduct WHERE favorite_product.idUser = '${user.idUser}';`,
-                (err, data) => err ? reject(err) : resolve(data)
-            );
-        });
+        const favorites = await getMyProductsFavoriteUtil(user.idUser)
 
         return res.status(200).json({ favorites });
     } catch (error) {
@@ -96,16 +80,7 @@ export const getFavoriteProductCount = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        interface Count {
-            COUNT: number
-        }
-
-        const CountFav: Count[]  = await new Promise((resolve, reject) => {
-            dataBase.query(
-                `SELECT COUNT(*) as COUNT FROM favorite_product WHERE idProduct = '${idProduct}';`,
-                (err, data) => err ? reject(err) : resolve(data)
-            );
-        });
+        const CountFav = await getProductsFavoriteCountUtil(idProduct)
 
         return res.status(200).json({ count: CountFav[0].COUNT });
     } catch (error) {
@@ -128,12 +103,7 @@ export const createFavorite = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        const FavoriteExit: Favorite[] = await new Promise((resolve, reject) => {
-            dataBase.query(
-              `SELECT * FROM favorite_product WHERE idProduct = '${idProduct}' AND idUser = '${user.idUser}';`,
-              (err, data) => err ? reject(err) : resolve(data)
-            );
-        });
+        const FavoriteExit = await getProductFavoriteUtil(idProduct, user.idUser);
 
         if(FavoriteExit.length === 0){
             const favorite: Favorite = {
@@ -143,12 +113,7 @@ export const createFavorite = async (req: Request, res: Response) => {
                 created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
             }
 
-            await new Promise((resolve, reject) => {
-                dataBase.query(
-                  `INSERT INTO favorite_product (id_favorite_product, idProduct, idUser, created_at) VALUES ('${favorite.id_favorite_product}', '${favorite.idProduct}', '${favorite.idUser}', '${favorite.created_at}');`,
-                  (err, data) => err ? reject(err) : resolve(data)
-                );
-            });
+            await insertFavoriteUtil(favorite)
         }
 
         return res.status(200).json();
@@ -172,12 +137,7 @@ export const deleteFavorite = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        await new Promise((resolve, reject) => {
-            dataBase.query(
-                `DELETE FROM favorite_product WHERE idProduct = '${idProduct}' AND idUser = '${user.idUser}';`,
-                (err, data) => err ? reject(err) : resolve(data)
-            );
-        });
+        await deletetFavoriteUtil(idProduct, user.idUser)
 
         return res.status(200).json();
     } catch (error) {
@@ -193,12 +153,7 @@ export const deleteAllMyFavorites = async (req: Request, res: Response) => {
     try {
         const user = req.user
 
-        await new Promise((resolve, reject) => {
-            dataBase.query(
-                `DELETE FROM favorite_product WHERE idUser = '${user.idUser}';`,
-                (err, data) => err ? reject(err) : resolve(data)
-            );
-        });
+        await deleteAllFavoriteUtil(user.idUser)
 
         return res.status(200).json();
     } catch (error) {
