@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Locale from 'date-fns/locale/es'
 import { Coupons, CouponsUser } from '../../models/coupons';
-import { createCouponUtil, createUserCouponsUtil, DeleteCoupontUtil, getCountCouponsUserUtil, getCouponsAmountUserUtil, getCouponsAssingtUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
+import { createCouponUtil, createUserCouponsUtil, DeleteCoupontUtil, getCountCouponsUserUtil, getCouponsAmountUserUtil, getCouponsAssingtUtil, getCouponsAssingUserUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
 import { getUserUtil } from '../../utils';
 import { UploadSourceCoupon } from '../../utils/cloudinary/coupon';
 
@@ -193,6 +193,9 @@ export const getAssignCoupons = async (req: Request, res: Response) => {
     try {
         const user = req.user;
         const id_user_coupon = req.query.id_user_coupon as string;
+        const page = req.query.page as string;
+        let pages = 0;
+        let start = 0;
 
         if(!user.isAdmin || user.isBanner){
             const response = { status: 'No eres Admin o estas bloqueado' };
@@ -200,12 +203,21 @@ export const getAssignCoupons = async (req: Request, res: Response) => {
             return res.status(400).json(response);
         }
 
-        const Coupons = await getCouponsAssingtUtil(id_user_coupon || undefined);
+        if(Number(page)){
+            const assing = await getCouponsAssingUserUtil();
+            pages = Math.trunc(assing[0].totalAssing)
+
+            if(Number(page) > 1){
+              start = Math.trunc((Number(page) -1) * 15)
+            }
+        }
+
+        const Coupons = await getCouponsAssingtUtil(id_user_coupon || undefined, start);
 
         Coupons.map(cupon => cupon.created_at = format(new Date(cupon.created_at), 'yyyy-MM-dd'));
         Coupons.map(cupon => cupon.expiration_date = format(new Date(cupon.expiration_date), 'yyyy-MM-dd'));
 
-        return res.status(200).json({ CouponsAssing: Coupons });
+        return res.status(200).json({ CouponsAssing: Coupons, pages });
     } catch (error) {
         console.log(error.message)
         req.logger.error({ status: 'error', code: 500 });

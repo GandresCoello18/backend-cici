@@ -43,14 +43,28 @@ export const getCouponsUsertUtil = async (IdUser: string, status: string, page: 
   }
 }
 
-export const getCouponsAssingtUtil = async (id_user_coupon: string | undefined) => {
+export const getCouponsAssingtUtil = async (id_user_coupon: string | undefined, page: number) => {
   try {
       return await new Promise((resolve, reject) => {
           dataBase.query(
-            `SELECT user_coupons.id_user_coupons, user_coupons.created_at, user_coupons.expiration_date, user_coupons.status, coupons.type, users.userName, users.avatar, invita.userName as user_name_invita, invita.avatar as user_avatar_invita FROM user_coupons LEFT JOIN users ON users.idUser = user_coupons.idUser LEFT JOIN coupons ON coupons.idCoupon = user_coupons.idCoupon LEFT JOIN users as invita ON user_coupons.idGuestUser = invita.idUser ${id_user_coupon ? `WHERE user_coupons.id_user_coupons = '${id_user_coupon}'` : ''} ORDER BY user_coupons.created_at DESC;`,
+            `SELECT user_coupons.id_user_coupons, user_coupons.created_at, user_coupons.expiration_date, user_coupons.status, coupons.type, users.userName, users.avatar, invita.userName as user_name_invita, invita.avatar as user_avatar_invita FROM user_coupons LEFT JOIN users ON users.idUser = user_coupons.idUser LEFT JOIN coupons ON coupons.idCoupon = user_coupons.idCoupon LEFT JOIN users as invita ON user_coupons.idGuestUser = invita.idUser ${id_user_coupon ? `WHERE user_coupons.id_user_coupons = '${id_user_coupon}'` : ''} ORDER BY user_coupons.created_at DESC LIMIT ${page}, 15;`,
             (err, data) => err ? reject(err) : resolve(data)
           );
         }) as CouponsAssing[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const getCouponsAssingUserUtil = async () => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT COUNT(*) / 15 as totalAssing FROM user_coupons;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as {totalAssing: number}[];
   } catch (error) {
       console.log(error.message);
       return [];
