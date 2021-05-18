@@ -1,4 +1,5 @@
 import { CouponAmount, Coupons, CouponsAssing, CouponsUser, MyCouponsUser } from "../../models/coupons";
+import { User } from "../../models/users";
 import { dataBase } from "../database";
 
 export const getCouponstUtil = async (option: {status?: string}) => {
@@ -110,6 +111,34 @@ export const getCouponsAmountUserUtil = async (IdUser: string) => {
   } catch (error) {
       console.log(error.message);
       return [];
+  }
+}
+
+export const getCouponsRewarUserUtil = async (IdUser: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `SELECT users.idUser, users.userName, users.email FROM user_coupons INNER JOIN users on users.idUser = user_coupons.idGuestUser WHERE user_coupons.idUser = '${IdUser}' AND user_coupons.status = 'Pendiente' GROUP BY users.idUser, users.userName, users.email;`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        }) as User[];
+  } catch (error) {
+      console.log(error.message);
+      return [];
+  }
+}
+
+export const updateCouponsRewarUserUtil = async (IdUser: string, idGuestUser: string) => {
+  try {
+      return await new Promise((resolve, reject) => {
+          dataBase.query(
+            `UPDATE user_coupons SET status = 'Usado' WHERE idUser = '${IdUser}' AND idGuestUser = '${idGuestUser}' AND status = 'Pendiente';`,
+            (err, data) => err ? reject(err) : resolve(data)
+          );
+        });
+  } catch (error) {
+      console.log(error.message);
+      return false;
   }
 }
 

@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Locale from 'date-fns/locale/es'
 import { Coupons, CouponsUser } from '../../models/coupons';
-import { createCouponUtil, createUserCouponsUtil, DeleteCoupontUtil, getCountCouponsUserUtil, getCouponsAmountUserUtil, getCouponsAssingtUtil, getCouponsAssingUserUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateUserCouponsUtil } from '../../utils/coupons';
+import { createCouponUtil, createUserCouponsUtil, DeleteCoupontUtil, getCountCouponsUserUtil, getCouponsAmountUserUtil, getCouponsAssingtUtil, getCouponsAssingUserUtil, getCouponsRewarUserUtil, getCouponstUtil, getCouponsUsertUtil, getCoupontUtil, updateCouponsRewarUserUtil, updateUserCouponsUtil } from '../../utils/coupons';
 import { getUserUtil } from '../../utils';
 import { UploadSourceCoupon } from '../../utils/cloudinary/coupon';
 
@@ -134,7 +134,7 @@ export const createUserCoupons = async (req: Request, res: Response) => {
     try {
         const {idUser, idCoupon, idGuestUser} = req.body
         const user = req.user
-        let expire: Date = addMonths(new Date(), 1)
+        let expire: Date = addMonths(new Date(), 3)
 
         const userCoupon: CouponsUser = {
             id_user_coupons: uuidv4(),
@@ -147,6 +147,53 @@ export const createUserCoupons = async (req: Request, res: Response) => {
         }
 
         await createUserCouponsUtil(userCoupon)
+
+        return res.status(200).json();
+    } catch (error) {
+        console.log(error.message)
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const createRewardCoupons = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'createRewardCoupons' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const me = req.user
+        const {idUser} = req.body
+
+        const CouponsRewarAssing = await getCouponsRewarUserUtil(me.idUser);
+
+        if(!CouponsRewarAssing.length){
+            const response = { status: 'No reward assing coupons' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        const findUser = CouponsRewarAssing.find(user => user.idUser === idUser)
+
+        if(findUser === undefined){
+            const response = { status: 'No reward assing coupons' };
+            req.logger.warn(response);
+            return res.status(400).json(response);
+        }
+
+        let expire: Date = addMonths(new Date(), 3)
+
+        const userCoupon: CouponsUser = {
+            id_user_coupons: uuidv4(),
+            idUser: idUser || null,
+            idCoupon: null,
+            expiration_date: format(expire, 'yyyy-MM-dd HH:mm:ss'),
+            created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+            idGuestUser: null,
+            status: 'No valido aun'
+        }
+
+        await createUserCouponsUtil(userCoupon)
+        await updateCouponsRewarUserUtil(me.idUser, idUser);
 
         return res.status(200).json();
     } catch (error) {
@@ -179,6 +226,22 @@ export const getAssignAmountCouponsByUser = async (req: Request, res: Response) 
         const CouponsAmountAssing = await getCouponsAmountUserUtil(idUser);
 
         return res.status(200).json({ CouponsAmountAssing });
+    } catch (error) {
+        console.log(error.message)
+        req.logger.error({ status: 'error', code: 500 });
+        return res.status(500).json();
+    }
+}
+
+export const getRewardCoupons = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'getRewardCoupons' });
+    req.logger.info({ status: 'start' });
+
+    try {
+        const me = req.user;
+        const CouponsRewarAssing = await getCouponsRewarUserUtil(me.idUser);
+
+        return res.status(200).json({ CouponsRewarAssing });
     } catch (error) {
         console.log(error.message)
         req.logger.error({ status: 'error', code: 500 });
