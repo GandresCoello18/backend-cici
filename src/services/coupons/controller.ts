@@ -116,8 +116,8 @@ export const getUserCoupons = async (req: Request, res: Response) => {
         )
 
         if(returnMyCoupons.length){
-            returnMyCoupons[0].created_at = format(new Date(returnMyCoupons[0].created_at), 'PPPP', {locale: Locale})
-            returnMyCoupons[0].expiration_date = format(new Date(returnMyCoupons[0].expiration_date), 'PPPP', {locale: Locale})
+            returnMyCoupons.map(coupon => coupon.created_at = format(new Date(coupon.created_at), 'PPPP', {locale: Locale}))
+            returnMyCoupons.map(coupon => coupon.expiration_date = format(new Date(coupon.expiration_date), 'PPPP', {locale: Locale}))
         }
 
         return res.status(200).json({ myCoupons: returnMyCoupons, pages });

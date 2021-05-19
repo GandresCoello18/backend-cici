@@ -86,7 +86,7 @@ export const getShipping = async (req: Request, res: Response) => {
             }
         }
 
-        if(me.isAdmin){
+        if(me.isAdmin && req.hostname === 'dashboard-cici.vercel.app'){
             shipping = await getShippingUtil(idPago || undefined, start);
         }else{
             const ShippingProduct = await getShippingProductsUtil(me.idUser, start);
