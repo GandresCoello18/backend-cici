@@ -19,7 +19,7 @@ import Category from './services/category';
 import ProductHistory from './services/productHistory';
 import { config } from './utils';
 import { CronMidnight } from './utils/cron';
-const SocketIo = require('socket.io');
+import { ConfigSocketIo } from './utils/socket';
 
   const app = express();
 
@@ -85,45 +85,4 @@ const server = app.listen(app.get("port"), () => {
   console.log(`🚀 Server ready at http://localhost:${app.get("port")}`);
 });
 
-/// SOCKET
-
-interface SocketUser { idSocket: any; userName: string; asign: boolean }
-
-const users: SocketUser[] = [];
-
-const getUser = (idSocket: string) => users.find(user => user.idSocket === idSocket)
-
-const getIndexUser = (idSocket: string) => users.findIndex(user => user.idSocket === idSocket)
-
-const io = SocketIo(server,{cors: {}})
-
-io.on('connection', (socket: any) => {
-  console.log('new connection', socket.id)
-
-  if(getUser(socket.id) === undefined){
-    users.push({
-      idSocket: socket.id,
-      userName: 'anonimo',
-      asign: false,
-    })
-  }
-
-  socket.on('new-message', (data: any) => {
-    console.log(data)
-    const { text, userName } = data
-
-    if(!getUser(socket.id)?.userName && userName){
-      users[getIndexUser(socket.id)].userName = userName
-    }
-
-    if(!getUser(socket.id)?.asign){
-      socket.emit('new-message', {
-        text
-      })
-    }
-  })
-
-  io.on('disconnect', function () {
-    console.log("Se desonectaron los socket." + socket.id)
-  });
-})
+ConfigSocketIo(server)
