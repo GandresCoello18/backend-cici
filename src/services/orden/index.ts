@@ -1,7 +1,14 @@
 import express from 'express';
 import { auth } from '../../middlewares/auth';
 
-import { newOrden, getOrdenStatus, getOrdenDetails, getOrders, getOrdersByUser, UpdateStatusOrder } from './controller';
+import {
+  newOrden,
+  getOrdenStatus,
+  getOrdenDetails,
+  getOrders,
+  getOrdersByUser,
+  UpdateStatusOrder,
+} from './controller';
 
 const router = express.Router();
 const baseURL = '/orden';
