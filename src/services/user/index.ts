@@ -3,7 +3,19 @@ import multer from 'multer';
 import { auth } from '../../middlewares/auth';
 import { storage } from '../../utils/multer';
 
-import { getMe, getUser, getUsers, getUserName, crerateUser, login, updateMeUser, updatePasswordEmail, updatePasswordUser, updateAvatardUser, deleteUser } from './controller';
+import {
+  getMe,
+  getUser,
+  getUsers,
+  getUserName,
+  crerateUser,
+  login,
+  updateMeUser,
+  updatePasswordEmail,
+  updatePasswordUser,
+  updateAvatardUser,
+  deleteUser,
+} from './controller';
 
 const router = express.Router();
 const baseURL = '/users';

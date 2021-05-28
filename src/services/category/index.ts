@@ -1,7 +1,14 @@
 import express from 'express';
 import { auth } from '../../middlewares/auth';
 
-import { createCategory, getCategoryProducts, createCategoryProduct, getCategorys, deleteCategoryProduct, deleteCategory } from './controller';
+import {
+  createCategory,
+  getCategoryProducts,
+  createCategoryProduct,
+  getCategorys,
+  deleteCategoryProduct,
+  deleteCategory,
+} from './controller';
 
 const router = express.Router();
 const baseURL = '/category';

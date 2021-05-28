@@ -3,7 +3,19 @@ import multer from 'multer';
 import { auth } from '../../middlewares/auth';
 import { storage } from '../../utils/multer';
 
-import { getCoupons, getCouponsAll, getRewardCoupons, newCoupon, createUserCoupons, createRewardCoupons, getAssignCoupons, getAssignAmountCouponsByUser, getUserCoupons, updateUserCoupon, deleteCoupon } from './controller';
+import {
+  getCoupons,
+  getCouponsAll,
+  getRewardCoupons,
+  newCoupon,
+  createUserCoupons,
+  createRewardCoupons,
+  getAssignCoupons,
+  getAssignAmountCouponsByUser,
+  getUserCoupons,
+  updateUserCoupon,
+  deleteCoupon,
+} from './controller';
 
 const router = express.Router();
 const baseURL = '/coupons';

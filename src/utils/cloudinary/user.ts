@@ -4,14 +4,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { RemoveFilesTemp } from '../removeFileTemp';
 
 export const UploadAvatarUser = async (req: Request) => {
-    const path = req.file.path
-    const uniqueFilename = `users/${uuidv4()}`;
+  const path = req.file.path;
+  const uniqueFilename = `users/${uuidv4()}`;
 
-    await cloudinary.v2.uploader.upload(
-        path, { public_id: uniqueFilename, tags: `avatars` },
-    )
+  await cloudinary.v2.uploader.upload(path, { public_id: uniqueFilename, tags: `avatars` });
 
-    RemoveFilesTemp();
+  RemoveFilesTemp();
 
-    return uniqueFilename;
-}
+  return uniqueFilename;
+};

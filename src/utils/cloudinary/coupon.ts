@@ -4,14 +4,12 @@ import cloudinary from 'cloudinary';
 import { RemoveFilesTemp } from '../removeFileTemp';
 
 export const UploadSourceCoupon = async (req: Request) => {
-    const path = req.file.path
-    const uniqueFilename = `coupons/${uuidv4()}`;
+  const path = req.file.path;
+  const uniqueFilename = `coupons/${uuidv4()}`;
 
-    await cloudinary.v2.uploader.upload(
-        path, { public_id: uniqueFilename, tags: `coupons` },
-    )
+  await cloudinary.v2.uploader.upload(path, { public_id: uniqueFilename, tags: `coupons` });
 
-    RemoveFilesTemp();
+  RemoveFilesTemp();
 
-    return uniqueFilename;
-}
+  return uniqueFilename;
+};
