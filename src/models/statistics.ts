@@ -1,9 +1,9 @@
 export interface StatisticUser {
-    total: number;
+  total: number;
 }
 
 export interface StatisticGrafico {
-    totalAmount: number;
-    comision: number;
-    fecha: string;
+  totalAmount: number;
+  comision: number;
+  fecha: string;
 }
