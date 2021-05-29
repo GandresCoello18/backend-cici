@@ -50,3 +50,23 @@ export const createCombo = async (req: Request, res: Response) => {
     return res.status(500).json();
   }
 };
+
+export const getCombosAll = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'combo', serviceHandler: 'getCombosAll' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const me = req.user;
+
+    if (!me.isAdmin || me.isBanner) {
+      const response = { status: 'No eres admin o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    return res.status(200).json({ combos: [] });
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
