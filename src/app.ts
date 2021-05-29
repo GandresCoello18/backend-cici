@@ -17,6 +17,7 @@ import Invite from './services/invite';
 import TimeMessage from './services/timeMessage';
 import Category from './services/category';
 import ProductHistory from './services/productHistory';
+import Combo from './services/combo';
 import { config } from './utils';
 import { CronMidnight } from './utils/cron';
 import { ConfigSocketIo } from './utils/socket';
@@ -78,6 +79,7 @@ app.use('/api', logger, [
   TimeMessage,
   Category,
   ProductHistory,
+  Combo,
 ]);
 
 const server = app.listen(app.get('port'), () => {

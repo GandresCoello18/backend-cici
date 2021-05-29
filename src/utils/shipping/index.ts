@@ -74,7 +74,7 @@ export const getShippingAndOrderDetailsUtil = async (idUser: string) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT shipping.idShipping, shipping.created_at as enviado_el, shipping.update_at as entregado_el, shipping.status, shipping.guide, shipping.method, cart.idCart, orden.created_at as ordenado_el, orden.shipping, orden.discount, orden.totalAmount, orden.qualified FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN cart ON cart.idCart = orden.idCart WHERE orden.idUser = '${idUser}' ORDER BY shipping.update_at DESC;`,
+        `SELECT shipping.idShipping, shipping.created_at as enviado_el, shipping.update_at as entregado_el, shipping.status, shipping.guide, shipping.method, cart.idCart, orden.created_at as ordenado_el, orden.shipping, orden.discount, orden.totalAmount, orden.qualified, orden.numberOfOrder FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN cart ON cart.idCart = orden.idCart WHERE orden.idUser = '${idUser}' ORDER BY shipping.update_at DESC;`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as DetailsOrdenAndShipping[];
