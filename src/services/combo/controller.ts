@@ -38,7 +38,7 @@ export const createCombo = async (req: Request, res: Response) => {
       price,
       created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
       discount: discount || 0,
-      active: active || false,
+      active: active === 'true' || false,
       sold: sold || 0,
     };
 
