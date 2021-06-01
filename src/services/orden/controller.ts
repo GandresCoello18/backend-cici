@@ -27,6 +27,8 @@ import {
   updateSubtractAvailabledProductUtil,
 } from '../../utils/products';
 import { getStatisticsOrderUtil } from '../../utils/statistics';
+import { SendEmail } from '../../utils/email/send';
+import { ConfirOrden } from '../../utils/email/template/confirOrden';
 
 export const newOrden = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -78,11 +80,25 @@ export const newOrden = async (req: Request, res: Response) => {
 
     const cartProducts = await getCartProductUtil(Orden.idCart);
     cartProducts.map(async item => await updateAddSoldProductUtil(item.quantity, item.idProduct));
+    const quantityProduct = cartProducts.reduce((a, b) => a + b.quantity, 0);
 
     if (Orden.status === 'Paid') {
       cartProducts.map(
         async item => await updateSubtractAvailabledProductUtil(item.quantity, item.idProduct),
       );
+
+      await SendEmail({
+        to: user.idUser,
+        subject: 'Orden confirmada | Cici beauty place',
+        text: '',
+        html: ConfirOrden(
+          quantityProduct,
+          Orden.numberOfOrder,
+          Orden.shipping,
+          Orden.id_user_coupons,
+          Orden.totalAmount,
+        ),
+      });
     }
 
     return res.status(200).json();
