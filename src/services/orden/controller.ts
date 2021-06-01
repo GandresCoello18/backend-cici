@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-case-declarations */
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import { Request, Response } from 'express';
+import Locale from 'date-fns/locale/es';
 import { v4 as uuidv4 } from 'uuid';
 import { Orden } from '../../models/orden';
 import {
@@ -29,6 +30,7 @@ import {
 import { getStatisticsOrderUtil } from '../../utils/statistics';
 import { SendEmail } from '../../utils/email/send';
 import { ConfirOrden } from '../../utils/email/template/confirOrden';
+import { getSelectMyAddressUtil } from '../../utils/addresses';
 
 export const newOrden = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -80,23 +82,36 @@ export const newOrden = async (req: Request, res: Response) => {
 
     const cartProducts = await getCartProductUtil(Orden.idCart);
     cartProducts.map(async item => await updateAddSoldProductUtil(item.quantity, item.idProduct));
-    const quantityProduct = cartProducts.reduce((a, b) => a + b.quantity, 0);
 
     if (Orden.status === 'Paid') {
       cartProducts.map(
         async item => await updateSubtractAvailabledProductUtil(item.quantity, item.idProduct),
       );
 
+      let DateDelivery: Date | string = addDays(new Date(Orden.created_at), 3);
+      DateDelivery = format(new Date(DateDelivery), 'PPPP', { locale: Locale });
+
+      const SelecrAddress = await getSelectMyAddressUtil(user.idUser);
+      let Address = '';
+
+      if (SelecrAddress.length) {
+        Address = `(${SelecrAddress[0].title}) - ${SelecrAddress[0].address}`;
+      } else {
+        Address = 'NO ESPECIFICADO';
+      }
+
       await SendEmail({
         to: user.idUser,
         subject: 'Orden confirmada | Cici beauty place',
         text: '',
         html: ConfirOrden(
-          quantityProduct,
+          Number(Orden.discount),
           Orden.numberOfOrder,
           Orden.shipping,
           Orden.id_user_coupons,
           Orden.totalAmount,
+          DateDelivery,
+          Address,
         ),
       });
     }

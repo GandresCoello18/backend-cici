@@ -42,6 +42,20 @@ export const getMyAddressUtil = async (idUser: string) => {
   }
 };
 
+export const getSelectMyAddressUtil = async (idUser: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT * FROM addresses WHERE idUser = '${idUser}' WHERE selected = ${1};`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as Addresses[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
 export const deleteMyAddressUtil = async (idUser: string, title: string) => {
   try {
     return await new Promise((resolve, reject) => {
