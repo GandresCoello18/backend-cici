@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { Combo } from '../../models/combo';
 import { v4 as uuidv4 } from 'uuid';
-import { GetComboExistUtil, NewComboUtil } from '../../utils/combo';
+import Locale from 'date-fns/locale/es';
+import { GetComboExistUtil, GetCombosUtil, NewComboUtil } from '../../utils/combo';
 import { format } from 'date-fns';
 
 export const createCombo = async (req: Request, res: Response) => {
@@ -64,7 +65,22 @@ export const getCombosAll = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    return res.status(200).json({ combos: [] });
+    const combosAll = await GetCombosUtil();
+
+    const combos = await Promise.all(
+      combosAll.map(combo => {
+        return {
+          ...combo,
+          products: [],
+        };
+      }),
+    );
+
+    combos.map(
+      combo => (combo.created_at = format(new Date(combo.created_at), 'PPPP', { locale: Locale })),
+    );
+
+    return res.status(200).json({ combos });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();

@@ -27,3 +27,16 @@ export const GetComboExistUtil = async (name: string) => {
     return [];
   }
 };
+
+export const GetCombosUtil = async () => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(`SELECT * FROM combo ORDER BY created_at DESC;`, (err, data) =>
+        err ? reject(err) : resolve(data),
+      );
+    })) as Combo[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
