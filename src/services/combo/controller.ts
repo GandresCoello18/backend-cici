@@ -1,8 +1,14 @@
 import { Request, Response } from 'express';
-import { Combo } from '../../models/combo';
+import { Combo, ComboProduct } from '../../models/combo';
 import { v4 as uuidv4 } from 'uuid';
 import Locale from 'date-fns/locale/es';
-import { GetComboExistUtil, GetCombosUtil, NewComboUtil } from '../../utils/combo';
+import {
+  AddComboProductUtil,
+  GetComboExistUtil,
+  GetComboProductExistUtil,
+  GetCombosUtil,
+  NewComboUtil,
+} from '../../utils/combo';
 import { format } from 'date-fns';
 
 export const createCombo = async (req: Request, res: Response) => {
@@ -81,6 +87,43 @@ export const getCombosAll = async (req: Request, res: Response) => {
     );
 
     return res.status(200).json({ combos });
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const addProductCombo = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'combo', serviceHandler: 'addProductCombo' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const me = req.user;
+    const { idProduct, idCombo } = req.body;
+
+    if (!me.isAdmin || me.isBanner) {
+      const response = { status: 'No eres admin o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const ExistProduct = await GetComboProductExistUtil(idCombo, idProduct);
+
+    if (ExistProduct.length) {
+      const response = { status: 'Este producto ya existe en este combo' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const data: ComboProduct = {
+      idComboProduct: uuidv4(),
+      idCombo,
+      idProduct,
+    };
+
+    await AddComboProductUtil(data);
+
+    return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();

@@ -7,3 +7,9 @@ export interface Combo {
   active: boolean | number;
   sold: number;
 }
+
+export interface ComboProduct {
+  idComboProduct: string;
+  idCombo: string;
+  idProduct: string;
+}

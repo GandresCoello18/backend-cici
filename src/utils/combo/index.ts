@@ -1,4 +1,4 @@
-import { Combo } from '../../models/combo';
+import { Combo, ComboProduct } from '../../models/combo';
 import { dataBase } from '../database';
 
 export const NewComboUtil = async (combo: Combo) => {
@@ -15,6 +15,20 @@ export const NewComboUtil = async (combo: Combo) => {
   }
 };
 
+export const AddComboProductUtil = async (comboProduct: ComboProduct) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `INSERT INTO combo_product (idComboProduct, idCombo, idProduct) VALUES ('${comboProduct.idComboProduct}', '${comboProduct.idCombo}', '${comboProduct.idProduct}');`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
 export const GetComboExistUtil = async (name: string) => {
   try {
     return (await new Promise((resolve, reject) => {
@@ -22,6 +36,20 @@ export const GetComboExistUtil = async (name: string) => {
         err ? reject(err) : resolve(data),
       );
     })) as Combo[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
+export const GetComboProductExistUtil = async (idCombo: string, idProduct: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT * FROM combo_product WHERE idCombo = '${idCombo}' AND idProduct = '${idProduct}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as ComboProduct[];
   } catch (error) {
     console.log(error.message);
     return [];

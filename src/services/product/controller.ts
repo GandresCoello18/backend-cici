@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from 'date-fns';
 import Locale from 'date-fns/locale/es';
 import { Request, Response } from 'express';
