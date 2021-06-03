@@ -4,9 +4,11 @@ import { v4 as uuidv4 } from 'uuid';
 import Locale from 'date-fns/locale/es';
 import {
   AddComboProductUtil,
+  DeleteComboUtil,
   GetComboExistUtil,
   GetComboProductExistUtil,
   GetCombosUtil,
+  GetProductByComboUtil,
   NewComboUtil,
 } from '../../utils/combo';
 import { format } from 'date-fns';
@@ -74,10 +76,16 @@ export const getCombosAll = async (req: Request, res: Response) => {
     const combosAll = await GetCombosUtil();
 
     const combos = await Promise.all(
-      combosAll.map(combo => {
+      combosAll.map(async combo => {
+        const products = await GetProductByComboUtil(combo.idCombo);
+
+        products.map(
+          product => (product.created_at = format(new Date(product.created_at), 'yyyy-MM-dd')),
+        );
+
         return {
           ...combo,
-          products: [],
+          products,
         };
       }),
     );
@@ -122,6 +130,35 @@ export const addProductCombo = async (req: Request, res: Response) => {
     };
 
     await AddComboProductUtil(data);
+
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const deleteCombo = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'combo', serviceHandler: 'deleteCombo' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const me = req.user;
+    const { idCombo } = req.params;
+
+    if (!me.isAdmin || me.isBanner) {
+      const response = { status: 'No eres admin o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    if (!idCombo) {
+      const response = { status: 'No id combo provider' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await DeleteComboUtil(idCombo);
 
     return res.status(200).json();
   } catch (error) {

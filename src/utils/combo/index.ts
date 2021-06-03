@@ -68,3 +68,30 @@ export const GetCombosUtil = async () => {
     return [];
   }
 };
+
+export const GetProductByComboUtil = async (idCombo: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT products.* FROM combo_product INNER JOIN products ON products.idProducts = combo_product.idProduct WHERE combo_product.idCombo = '${idCombo}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as Combo[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
+export const DeleteComboUtil = async (idCombo: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(`DELETE FROM combo WHERE idCombo = '${idCombo}';`, (err, data) =>
+        err ? reject(err) : resolve(data),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
