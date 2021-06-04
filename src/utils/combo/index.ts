@@ -83,6 +83,19 @@ export const GetProductByComboUtil = async (idCombo: string) => {
   }
 };
 
+export const DeleteProductComboUtil = async (idProduct: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(`DELETE FROM combo_product WHERE idProduct = '${idProduct}';`, (err, data) =>
+        err ? reject(err) : resolve(data),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
 export const DeleteComboUtil = async (idCombo: string) => {
   try {
     return await new Promise((resolve, reject) => {
