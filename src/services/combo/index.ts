@@ -4,6 +4,7 @@ import { auth } from '../../middlewares/auth';
 import {
   createCombo,
   getCombosAll,
+  getCombos,
   addProductCombo,
   deleteProductCombo,
   deleteCombo,
@@ -15,6 +16,7 @@ const baseURL = '/combo';
 router.post(`${baseURL}/addProduct`, auth, addProductCombo);
 router.post(`${baseURL}/`, auth, createCombo);
 router.get(`${baseURL}/all`, auth, getCombosAll);
+router.get(`${baseURL}/`, getCombos);
 router.delete(`${baseURL}/product/:idProduct`, auth, deleteProductCombo);
 router.delete(`${baseURL}/:idCombo`, auth, deleteCombo);
 

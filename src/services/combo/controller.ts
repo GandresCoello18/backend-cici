@@ -8,11 +8,12 @@ import {
   DeleteProductComboUtil,
   GetComboExistUtil,
   GetComboProductExistUtil,
+  GetCombosActiveUtil,
   GetCombosUtil,
-  GetProductByComboUtil,
   NewComboUtil,
 } from '../../utils/combo';
 import { format } from 'date-fns';
+import { SchemaCombo } from '../../helpers/Combo';
 
 export const createCombo = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'combo', serviceHandler: 'createCombo' });
@@ -76,20 +77,22 @@ export const getCombosAll = async (req: Request, res: Response) => {
 
     const combosAll = await GetCombosUtil();
 
-    const combos = await Promise.all(
-      combosAll.map(async combo => {
-        const products = await GetProductByComboUtil(combo.idCombo);
+    const combos = await SchemaCombo(combosAll);
 
-        products.map(
-          product => (product.created_at = format(new Date(product.created_at), 'yyyy-MM-dd')),
-        );
+    return res.status(200).json({ combos });
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
 
-        return {
-          ...combo,
-          products,
-        };
-      }),
-    );
+export const getCombos = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'combo', serviceHandler: 'getCombos' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const combosAll = await GetCombosActiveUtil(1);
+    const combos = await SchemaCombo(combosAll, true);
 
     combos.map(
       combo => (combo.created_at = format(new Date(combo.created_at), 'PPPP', { locale: Locale })),

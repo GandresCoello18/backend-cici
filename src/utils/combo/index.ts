@@ -1,4 +1,5 @@
 import { Combo, ComboProduct } from '../../models/combo';
+import { Product } from '../../models/products';
 import { dataBase } from '../database';
 
 export const NewComboUtil = async (combo: Combo) => {
@@ -59,8 +60,23 @@ export const GetComboProductExistUtil = async (idCombo: string, idProduct: strin
 export const GetCombosUtil = async () => {
   try {
     return (await new Promise((resolve, reject) => {
-      dataBase.query(`SELECT * FROM combo ORDER BY created_at DESC;`, (err, data) =>
-        err ? reject(err) : resolve(data),
+      dataBase.query(
+        `SELECT *, DATEDIFF(NOW(), created_at) <= 7 as isNew FROM combo ORDER BY created_at DESC;`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as Combo[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
+export const GetCombosActiveUtil = async (active: number) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT * FROM combo WHERE active = ${active} ORDER BY created_at DESC;`,
+        (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as Combo[];
   } catch (error) {
@@ -76,7 +92,7 @@ export const GetProductByComboUtil = async (idCombo: string) => {
         `SELECT products.* FROM combo_product INNER JOIN products ON products.idProducts = combo_product.idProduct WHERE combo_product.idCombo = '${idCombo}';`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
-    })) as Combo[];
+    })) as Product[];
   } catch (error) {
     console.log(error.message);
     return [];
