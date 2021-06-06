@@ -13,6 +13,7 @@ export interface Orden {
   paymentId: string | null;
   qualified: boolean;
   numberOfOrder: number;
+  subTotal: number;
 }
 
 export interface OrdenProduct {

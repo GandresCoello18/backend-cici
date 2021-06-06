@@ -43,6 +43,7 @@ export interface DetailsOrdenAndShipping {
   idCart: string;
   ordenado_el: string | Date;
   shipping: number;
+  subTotal: number;
   discount: number;
   totalAmount: number;
   products: Cart[];

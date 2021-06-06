@@ -5,7 +5,7 @@ export const createOrdenUtil = async (orden: Orden) => {
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `INSERT INTO orden (idOrder, idCart, idUser, created_at, update_at, status, paymentMethod, shipping, discount, totalAmount, id_user_coupons, paymentId, qualified, numberOfOrder) VALUES ('${
+        `INSERT INTO orden (idOrder, idCart, idUser, created_at, update_at, status, paymentMethod, shipping, discount, totalAmount, id_user_coupons, paymentId, qualified, numberOfOrder subTotal) VALUES ('${
           orden.idOrder
         }', '${orden.idCart}', '${orden.idUser}', '${orden.created_at}', '${orden.update_at}', '${
           orden.status
@@ -15,7 +15,7 @@ export const createOrdenUtil = async (orden: Orden) => {
           orden.id_user_coupons ? `'${orden.id_user_coupons}'` : null
         }, ${orden.paymentId ? `'${orden.paymentId}'` : null}, ${orden.qualified}, ${
           orden.numberOfOrder
-        });`,
+        }, ${orden.subTotal});`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });

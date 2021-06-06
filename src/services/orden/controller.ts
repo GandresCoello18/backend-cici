@@ -37,7 +37,15 @@ export const newOrden = async (req: Request, res: Response) => {
   req.logger.info({ status: 'start' });
 
   try {
-    const { paymentMethod, shipping, discount, totalAmount, id_user_coupons, paymentId } = req.body;
+    const {
+      paymentMethod,
+      subTotal,
+      shipping,
+      discount,
+      totalAmount,
+      id_user_coupons,
+      paymentId,
+    } = req.body;
     const user = req.user;
 
     if (shipping === undefined || discount === undefined || totalAmount === 0) {
@@ -68,6 +76,7 @@ export const newOrden = async (req: Request, res: Response) => {
       update_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
       status: paymentMethod === 'Bank' ? 'Pending' : 'Paid',
       paymentMethod: paymentMethod || null,
+      subTotal,
       shipping,
       discount,
       totalAmount,

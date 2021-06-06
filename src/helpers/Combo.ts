@@ -17,6 +17,7 @@ export const SchemaCombo = async (combos: Combo[], onlyPhotos?: boolean) => {
         return {
           ...combo,
           photos,
+          products,
         };
       }
 
