@@ -94,7 +94,7 @@ export const createProduct = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error.message);
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -138,7 +138,7 @@ export const MoreSourcesProduct = async (req: Request, res: Response) => {
     return res.status(400).json({ status: 'upload images faild' });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -193,7 +193,7 @@ export const getProducts = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error.message);
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -211,6 +211,10 @@ export const getProduct = async (req: Request, res: Response) => {
     }
 
     const Product = await getProductUtil(idProduct);
+
+    if (!Product.length) {
+      return res.status(200).json({ product: undefined });
+    }
 
     Product[0].categorys = await getCategoryByProductUtil(idProduct);
 
@@ -232,7 +236,7 @@ export const getProduct = async (req: Request, res: Response) => {
     return res.status(200).json({ product: Product[0] });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -242,14 +246,11 @@ export const getProductsOffers = async (req: Request, res: Response) => {
 
   try {
     const { limit } = req.params;
-    let sql: string;
     const QueryLimit = Number(limit);
 
-    if (QueryLimit) {
-      sql = `SELECT * FROM products WHERE status = 'Disponible' AND discount <> 0 LIMIT ${QueryLimit};`;
-    } else {
-      sql = `SELECT * FROM products WHERE status = 'Disponible' AND discount <> 0;`;
-    }
+    const sql = `SELECT * FROM products WHERE status = 'Disponible' AND discount <> 0 ${
+      QueryLimit ? `LIMIT ${QueryLimit}` : ''
+    };`;
 
     const Products: Product[] = await new Promise((resolve, reject) => {
       dataBase.query(sql, (err, data) => (err ? reject(err) : resolve(data)));
@@ -258,7 +259,7 @@ export const getProductsOffers = async (req: Request, res: Response) => {
     return res.status(200).json({ products: Products });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -285,7 +286,7 @@ export const getProductsBestRated = async (req: Request, res: Response) => {
     return res.status(200).json({ products: Products });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -307,7 +308,7 @@ export const getSearchProducts = async (req: Request, res: Response) => {
     return res.status(200).json({ products });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -392,7 +393,7 @@ export const getBestSellersByCategory = async (req: Request, res: Response) => {
     return res.status(200).json({ BestSellers });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -419,7 +420,7 @@ export const getReviewProduct = async (req: Request, res: Response) => {
     return res.status(200).json({ reviews });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -447,6 +448,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
     return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
