@@ -30,7 +30,7 @@ app.use(
       'http://localhost:3000',
       'http://localhost:8080',
       'https://cici.beauty',
-      'https://dashboard-cici.vercel.app',
+      'https://dashboard.cici.beauty',
     ],
   }),
 );

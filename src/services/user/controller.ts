@@ -211,7 +211,7 @@ export const login = async (req: Request, res: Response) => {
         return res.status(400).json({ status: 'Datos incorrectos, revise e intentelo de nuevo' });
       }
 
-      if (req.hostname === 'dashboard-cici.vercel.app' && !userExist[0].isAdmin) {
+      if (req.hostname === 'dashboard.cici.beauty' && !userExist[0].isAdmin) {
         return res
           .status(400)
           .json({ status: 'Panel de control solo disponible para admistradores' });
