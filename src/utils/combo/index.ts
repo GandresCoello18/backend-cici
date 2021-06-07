@@ -85,6 +85,20 @@ export const GetCombosActiveUtil = async (active: number) => {
   }
 };
 
+export const GetComboUtil = async (idCombo: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT * FROM combo WHERE idCombo = '${idCombo}' AND active = ${1};`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as Combo[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
 export const GetProductByComboUtil = async (idCombo: string) => {
   try {
     return (await new Promise((resolve, reject) => {

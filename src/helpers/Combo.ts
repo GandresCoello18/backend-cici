@@ -3,13 +3,13 @@ import { Combo } from '../models/combo';
 import { GetProductByComboUtil } from '../utils/combo';
 import { BASE_API_IMAGES_CLOUDINNARY } from './url';
 
-export const SchemaCombo = async (combos: Combo[], onlyPhotos?: boolean) => {
+export const SchemaCombo = async (combos: Combo[], addPhotos?: boolean) => {
   return await Promise.all(
     combos.map(async combo => {
       const products = await GetProductByComboUtil(combo.idCombo);
       const photos: { source: string }[] = [];
 
-      if (onlyPhotos) {
+      if (addPhotos) {
         products.map(product =>
           photos.push({ source: `${BASE_API_IMAGES_CLOUDINNARY}/${product.source}` }),
         );

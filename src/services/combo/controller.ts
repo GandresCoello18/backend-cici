@@ -10,6 +10,7 @@ import {
   GetComboProductExistUtil,
   GetCombosActiveUtil,
   GetCombosUtil,
+  GetComboUtil,
   NewComboUtil,
 } from '../../utils/combo';
 import { format } from 'date-fns';
@@ -80,6 +81,38 @@ export const getCombosAll = async (req: Request, res: Response) => {
     const combos = await SchemaCombo(combosAll);
 
     return res.status(200).json({ combos });
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const getCombo = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'combo', serviceHandler: 'getCombo' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { idCombo } = req.params;
+
+    if (!idCombo) {
+      const response = { status: 'No id Combo provider' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const combo = await GetComboUtil(idCombo);
+
+    if (!combo.length) {
+      return res.status(200).json(undefined);
+    }
+
+    const ThisCombo = await SchemaCombo(combo, true);
+
+    ThisCombo.map(
+      combo => (combo.created_at = format(new Date(combo.created_at), 'PPPP', { locale: Locale })),
+    );
+
+    return res.status(200).json({ ThisCombo: ThisCombo[0] });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();
