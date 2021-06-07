@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { format } from 'date-fns';
 import { Combo } from '../models/combo';
 import { GetProductByComboUtil } from '../utils/combo';
@@ -10,9 +11,22 @@ export const SchemaCombo = async (combos: Combo[], addPhotos?: boolean) => {
       const photos: { source: string }[] = [];
 
       if (addPhotos) {
-        products.map(product =>
-          photos.push({ source: `${BASE_API_IMAGES_CLOUDINNARY}/${product.source}` }),
-        );
+        let status = 'Completo';
+
+        for (let i = 0; i < products.length; i++) {
+          const item = products[i];
+
+          photos.push({ source: `${BASE_API_IMAGES_CLOUDINNARY}/${item.source}` });
+        }
+
+        const productSort = products.sort((a, b) => b.available - a.available);
+
+        if (products.some(product => product.available < 3)) {
+          status = 'Incompleto';
+        }
+
+        combo.available = productSort[productSort.length - 1].available;
+        combo.status = status;
 
         return {
           ...combo,

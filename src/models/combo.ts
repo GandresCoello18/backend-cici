@@ -6,6 +6,8 @@ export interface Combo {
   discount: number;
   active: boolean | number;
   sold: number;
+  available?: number;
+  status?: string;
 }
 
 export interface ComboProduct {

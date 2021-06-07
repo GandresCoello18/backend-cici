@@ -103,7 +103,7 @@ export const GetProductByComboUtil = async (idCombo: string) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT products.* FROM combo_product INNER JOIN products ON products.idProducts = combo_product.idProduct WHERE combo_product.idCombo = '${idCombo}';`,
+        `SELECT products.* FROM combo_product INNER JOIN products ON products.idProducts = combo_product.idProduct WHERE combo_product.idCombo = '${idCombo}' AND products.status = 'Disponible';`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as Product[];
