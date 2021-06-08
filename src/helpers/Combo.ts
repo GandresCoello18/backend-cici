@@ -21,8 +21,9 @@ export const SchemaCombo = async (combos: Combo[], addPhotos?: boolean) => {
 
         const productSort = products.sort((a, b) => b.available - a.available);
 
-        if (products.some(product => product.available < 3)) {
+        if (products.some(product => product.available < 4)) {
           status = 'Incompleto';
+          return null;
         }
 
         combo.available = productSort[productSort.length - 1].available;
