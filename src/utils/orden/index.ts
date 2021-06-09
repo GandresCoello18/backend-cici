@@ -99,7 +99,7 @@ export const geteOrdensUtil = async (idPago?: string, page?: number) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT idOrder, idCart, idUser, created_at, update_at, paymentMethod, paymentId, shipping, discount, status, totalAmount, id_user_coupons, numberOfOrder FROM orden ${
+        `SELECT idOrder, idCart, idUser, created_at, update_at, paymentMethod, paymentId, shipping, discount, status, totalAmount, id_user_coupons, numberOfOrder, idCombo FROM orden ${
           idPago ? `WHERE paymentId = '${idPago}'` : ''
         } ORDER BY created_at DESC LIMIT ${page}, 15;`,
         (err, data) => (err ? reject(err) : resolve(data)),

@@ -11,9 +11,17 @@ import { geteShippingByOrdenUtil } from '../utils/shipping';
 export const SchemaOrder = async (ordenes: Orden[]) => {
   const responseOrden = await Promise.all(
     ordenes.map(async orden => {
-      const product: productOrden[] = await getProductCartUtil(orden.idCart || '');
+      let product: productOrden[] = [];
       const user: User[] = await getUserUtil({ idUser: orden.idUser });
       const shipping: Shipping[] = await geteShippingByOrdenUtil(orden.idOrder);
+
+      if (orden.idCart) {
+        product = await getProductCartUtil(orden.idCart);
+      }
+
+      if (orden.idCombo) {
+        product = await getProductComboUtil(orden.idCombo);
+      }
 
       return {
         ...orden,
