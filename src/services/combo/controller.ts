@@ -12,6 +12,7 @@ import {
   GetCombosUtil,
   GetComboUtil,
   NewComboUtil,
+  UpdateComboUtil,
 } from '../../utils/combo';
 import { format } from 'date-fns';
 import { SchemaCombo } from '../../helpers/Combo';
@@ -195,6 +196,7 @@ export const updateCombo = async (req: Request, res: Response) => {
   try {
     const me = req.user;
     const { idCombo } = req.params;
+    const { name, price, discount, active } = req.body;
 
     if (!me.isAdmin || me.isBanner) {
       const response = { status: 'No eres admin o estas bloqueado' };
@@ -202,13 +204,13 @@ export const updateCombo = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    if (!idCombo) {
+    if (!idCombo || !name || !price || !discount || active === undefined) {
       const response = { status: 'No id Combo provider' };
       req.logger.warn(response);
       return res.status(400).json(response);
     }
 
-    await GetCombosActiveUtil(1);
+    await UpdateComboUtil(idCombo, name, price, discount, active);
 
     return res.status(200).json();
   } catch (error) {
