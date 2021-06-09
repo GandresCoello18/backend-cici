@@ -11,7 +11,7 @@ import { geteShippingByOrdenUtil } from '../utils/shipping';
 export const SchemaOrder = async (ordenes: Orden[]) => {
   const responseOrden = await Promise.all(
     ordenes.map(async orden => {
-      const product: productOrden[] = await getProductCartUtil(orden.idCart);
+      const product: productOrden[] = await getProductCartUtil(orden.idCart || '');
       const user: User[] = await getUserUtil({ idUser: orden.idUser });
       const shipping: Shipping[] = await geteShippingByOrdenUtil(orden.idOrder);
 
@@ -38,7 +38,7 @@ export const SchemaStatusOrder = async (idUser: string, status: string, page: nu
 
   return await Promise.all(
     ordenes.map(async orden => {
-      const product: productOrden[] = await getProductCartUtil(orden.idCart);
+      const product: productOrden[] = await getProductCartUtil(orden.idCart || '');
 
       return {
         ...orden,

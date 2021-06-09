@@ -1,6 +1,6 @@
 export interface Orden {
   idOrder: string;
-  idCart: string;
+  idCart: string | null;
   idUser: string;
   created_at: string | Date;
   update_at: string | Date;
@@ -14,6 +14,7 @@ export interface Orden {
   qualified: boolean;
   numberOfOrder: number;
   subTotal: number;
+  idCombo?: string;
 }
 
 export interface OrdenProduct {

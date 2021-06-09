@@ -45,8 +45,11 @@ export const newOrden = async (req: Request, res: Response) => {
       totalAmount,
       id_user_coupons,
       paymentId,
+      idCombo,
     } = req.body;
     const user = req.user;
+
+    console.log(req.body);
 
     if (shipping === undefined || discount === undefined || totalAmount === 0) {
       const response = { status: 'No data orden provided' };
@@ -56,7 +59,7 @@ export const newOrden = async (req: Request, res: Response) => {
 
     const cartPenndig = await getStatusCartUserUtil(user.idUser, 'Pending');
 
-    if (cartPenndig.length > 1) {
+    if (cartPenndig.length > 1 && !idCombo) {
       const response = { status: 'Error en escoger el carrito de compras' };
       req.logger.warn(response);
       return res.status(400).json(response);
@@ -70,7 +73,7 @@ export const newOrden = async (req: Request, res: Response) => {
 
     const Orden: Orden = {
       idOrder: uuidv4(),
-      idCart: cartPenndig[0].idCart,
+      idCart: idCombo ? null : cartPenndig[0].idCart,
       idUser: user.idUser,
       created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
       update_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
@@ -84,19 +87,24 @@ export const newOrden = async (req: Request, res: Response) => {
       paymentId: paymentId || null,
       qualified: false,
       numberOfOrder: lasOrden[0].lasNumberOfOrder + 1,
+      idCombo: idCombo || null,
     };
 
     await createOrdenUtil(Orden);
-    await UpdateStatusCart(Orden.idCart, 'Complete');
 
-    const cartProducts = await getCartProductUtil(Orden.idCart);
-    cartProducts.map(async item => await updateAddSoldProductUtil(item.quantity, item.idProduct));
+    if (Orden.idCart) {
+      await UpdateStatusCart(Orden.idCart, 'Complete');
+      const cartProducts = await getCartProductUtil(Orden.idCart);
+      cartProducts.map(async item => await updateAddSoldProductUtil(item.quantity, item.idProduct));
+
+      if (Orden.status === 'Paid') {
+        cartProducts.map(
+          async item => await updateSubtractAvailabledProductUtil(item.quantity, item.idProduct),
+        );
+      }
+    }
 
     if (Orden.status === 'Paid') {
-      cartProducts.map(
-        async item => await updateSubtractAvailabledProductUtil(item.quantity, item.idProduct),
-      );
-
       let DateDelivery: Date | string = addDays(new Date(Orden.created_at), 3);
       DateDelivery = format(new Date(DateDelivery), 'PPPP', { locale: Locale });
 
