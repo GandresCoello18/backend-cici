@@ -3,7 +3,7 @@ import { StatisticGrafico, StatisticUser } from '../../models/statistics';
 import { dataBase } from '../database';
 
 const DentroDelMes =
-  "created_at >= CONCAT(DATE_ADD(DATE_ADD(LAST_DAY(NOW()), INTERVAL 1 DAY),INTERVAL -1 MONTH), ' 00:00:00') AND created_at <= CONCAT(LAST_DAY(NOW()), ' 23:59:00')";
+  "created_at >= CONCAT(DATE_ADD(DATE_ADD(LAST_DAY(NOW()), INTERVAL 1 DAY),INTERVAL -1 MONTH), ' 00:00:00') AND created_at <= CONCAT(LAST_DAY(NOW()), ' 23:59:59')";
 
 export const getStatisticsUserMothUtil = async () => {
   try {
@@ -49,6 +49,33 @@ export const getStatisticsOrderUtil = async () => {
     return (await new Promise((resolve, reject) => {
       dataBase.query(`SELECT COUNT(*) as total FROM orden;`, (err, data) =>
         err ? reject(err) : resolve(data),
+      );
+    })) as StatisticUser[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
+export const getStatisticsOrderPaidUtil = async () => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(`SELECT COUNT(*) as total FROM orden WHERE status = 'Paid';`, (err, data) =>
+        err ? reject(err) : resolve(data),
+      );
+    })) as StatisticUser[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
+export const getStatisticsShippingUtil = async (countOrden: number) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT TRUNCATE(((COUNT(*) / ${countOrden}) * 100), 2) as total FROM shipping;`,
+        (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as StatisticUser[];
   } catch (error) {

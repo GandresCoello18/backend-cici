@@ -113,6 +113,26 @@ export const GetProductByComboUtil = async (idCombo: string) => {
   }
 };
 
+export const UpdateComboUtil = async (
+  idCombo: string,
+  name: string,
+  price: number,
+  discount: number,
+  active: number,
+) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `UPDATE combo SET name = '${name}', price = ${price}, discount = ${discount}, active = ${active} WHERE idCombo = '${idCombo}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
 export const DeleteProductComboUtil = async (idProduct: string) => {
   try {
     return await new Promise((resolve, reject) => {

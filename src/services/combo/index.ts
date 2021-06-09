@@ -7,6 +7,7 @@ import {
   getCombos,
   getCombo,
   addProductCombo,
+  updateCombo,
   deleteProductCombo,
   deleteCombo,
 } from './controller';
@@ -19,6 +20,7 @@ router.post(`${baseURL}/`, auth, createCombo);
 router.get(`${baseURL}/all`, auth, getCombosAll);
 router.get(`${baseURL}/:idCombo`, getCombo);
 router.get(`${baseURL}/`, getCombos);
+router.put(`${baseURL}/:idCombo`, auth, updateCombo);
 router.delete(`${baseURL}/product/:idProduct`, auth, deleteProductCombo);
 router.delete(`${baseURL}/:idCombo`, auth, deleteCombo);
 

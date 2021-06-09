@@ -80,6 +80,11 @@ export const getCombosAll = async (req: Request, res: Response) => {
 
     const combos = await SchemaCombo(combosAll);
 
+    combos.map(
+      combo =>
+        combo !== null && (combo.created_at = format(new Date(combo.created_at), 'yyyy-MM-dd')),
+    );
+
     return res.status(200).json({ combos });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
@@ -175,6 +180,35 @@ export const addProductCombo = async (req: Request, res: Response) => {
     };
 
     await AddComboProductUtil(data);
+
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const updateCombo = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'combo', serviceHandler: 'updateCombo' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const me = req.user;
+    const { idCombo } = req.params;
+
+    if (!me.isAdmin || me.isBanner) {
+      const response = { status: 'No eres admin o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    if (!idCombo) {
+      const response = { status: 'No id Combo provider' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await GetCombosActiveUtil(1);
 
     return res.status(200).json();
   } catch (error) {

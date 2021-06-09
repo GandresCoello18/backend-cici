@@ -3,9 +3,11 @@ import {
   getStatisticsOrdeAmountTotalUtil,
   getStatisticsOrdeAmountUtil,
   getStatisticsOrderMothUtil,
+  getStatisticsOrderPaidUtil,
   getStatisticsOrderUtil,
   getStatisticsReceivedProductUtil,
   getStatisticsRecomendationProductUtil,
+  getStatisticsShippingUtil,
   getStatisticsUserMothUtil,
   getStatisticsUserUtil,
 } from '../../utils/statistics';
@@ -31,6 +33,9 @@ export const getStatistics = async (req: Request, res: Response) => {
     const MothOrdens = await getStatisticsOrderMothUtil();
     const LasOrdens = await getStatisticsOrderMothUtil();
 
+    const OrdenPaid = await getStatisticsOrderPaidUtil();
+    const Progress = await getStatisticsShippingUtil(OrdenPaid[0].total);
+
     const grafico = await getStatisticsOrdeAmountUtil();
 
     const Amount = await getStatisticsOrdeAmountTotalUtil();
@@ -45,6 +50,9 @@ export const getStatistics = async (req: Request, res: Response) => {
         order: Orders[0].total || 0,
         totalOrders: MothOrdens[0].total || 0,
         totalLasOrders: LasOrdens[0].total || 0,
+      },
+      task: {
+        progress: Progress[0].total,
       },
       grafico: {
         fechas: grafico.map(item => item.fecha),
