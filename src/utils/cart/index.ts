@@ -89,6 +89,20 @@ export const getProductCartUtil = async (idCart: string) => {
   }
 };
 
+export const getProductComboUtil = async (idCombo: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT products.idProducts, products.source, products.title, products.price FROM combo_product INNER JOIN products ON products.idProducts = combo_product.idProduct WHERE combo_product.idCombo = '${idCombo}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as ProductCart[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
 export const ExistProductCart = async (idCart: string, idProduct: string) => {
   try {
     return (await new Promise((resolve, reject) => {

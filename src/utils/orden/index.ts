@@ -85,7 +85,7 @@ export const geteOrdenStatusUtil = async (idUser: string, status: string, page: 
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT idOrder, created_at, paymentMethod, paymentId, shipping, discount, totalAmount, idCart, numberOfOrder FROM orden WHERE idUser = '${idUser}' AND status = '${status}' ORDER BY created_at DESC LIMIT ${page}, 5;`,
+        `SELECT idOrder, created_at, paymentMethod, paymentId, shipping, discount, totalAmount, idCart, numberOfOrder, subTotal, idCombo FROM orden WHERE idUser = '${idUser}' AND status = '${status}' ORDER BY created_at DESC LIMIT ${page}, 5;`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as Orden[];

@@ -3,7 +3,7 @@ import { Orden, productOrden } from '../models/orden';
 import { Shipping } from '../models/shipping';
 import { User } from '../models/users';
 import { getUserUtil } from '../utils';
-import { getProductCartUtil } from '../utils/cart';
+import { getProductCartUtil, getProductComboUtil } from '../utils/cart';
 import Locale from 'date-fns/locale/es';
 import { geteOrdenStatusUtil } from '../utils/orden';
 import { geteShippingByOrdenUtil } from '../utils/shipping';
@@ -38,7 +38,15 @@ export const SchemaStatusOrder = async (idUser: string, status: string, page: nu
 
   return await Promise.all(
     ordenes.map(async orden => {
-      const product: productOrden[] = await getProductCartUtil(orden.idCart || '');
+      let product: productOrden[] = [];
+
+      if (orden.idCart) {
+        product = await getProductCartUtil(orden.idCart);
+      }
+
+      if (orden.idCombo) {
+        product = await getProductComboUtil(orden.idCombo);
+      }
 
       return {
         ...orden,
