@@ -2,6 +2,7 @@
 import { format } from 'date-fns';
 import { Combo } from '../models/combo';
 import { GetProductByComboUtil } from '../utils/combo';
+import { calculatePrice } from './CalculatePrice';
 import { BASE_API_IMAGES_CLOUDINNARY } from './url';
 
 export const SchemaCombo = async (combos: Combo[], addPhotos?: boolean) => {
@@ -9,6 +10,22 @@ export const SchemaCombo = async (combos: Combo[], addPhotos?: boolean) => {
     combos.map(async combo => {
       const products = await GetProductByComboUtil(combo.idCombo);
       const photos: { source: string }[] = [];
+      let priceCombo = 0;
+
+      if (!combo.price) {
+        for (let i = 0; i < products.length; i++) {
+          const item = products[i];
+
+          priceCombo =
+            priceCombo +
+            calculatePrice({
+              discount: item.discount,
+              price: item.price,
+            });
+        }
+
+        combo.price = priceCombo;
+      }
 
       if (addPhotos) {
         let status = 'Completo';

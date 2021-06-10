@@ -31,7 +31,7 @@ export const createCombo = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    if (!name || !price || active === undefined) {
+    if (!name || active === undefined) {
       const response = { status: 'No data combo provider' };
       req.logger.warn(response);
       return res.status(400).json(response);
@@ -48,7 +48,7 @@ export const createCombo = async (req: Request, res: Response) => {
     const data: Combo = {
       idCombo: uuidv4(),
       name,
-      price,
+      price: price || 0,
       created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
       discount: discount || 0,
       active: active === 'true' || false,
