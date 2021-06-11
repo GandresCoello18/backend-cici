@@ -2,14 +2,20 @@
 import { StatisticGrafico, StatisticUser } from '../../models/statistics';
 import { dataBase } from '../database';
 
-const DentroDelMes =
-  "created_at >= CONCAT(DATE_ADD(DATE_ADD(LAST_DAY(NOW()), INTERVAL 1 DAY),INTERVAL -1 MONTH), ' 00:00:00') AND created_at <= CONCAT(LAST_DAY(NOW()), ' 23:59:59')";
+const DentroDelMes = (date?: string) => {
+  return `created_at >= CONCAT(DATE_ADD(DATE_ADD(LAST_DAY(${
+    date ? `'${date}'` : 'NOW()'
+  }), INTERVAL 1 DAY),INTERVAL -1 MONTH), ' 00:00:00') AND created_at <= CONCAT(LAST_DAY(${
+    date ? `'${date}'` : 'NOW()'
+  }), ' 23:59:59')`;
+};
 
-export const getStatisticsUserMothUtil = async () => {
+export const getStatisticsUserMothUtil = async (date?: string) => {
   try {
     return (await new Promise((resolve, reject) => {
-      dataBase.query(`SELECT COUNT(*) as total FROM users WHERE ${DentroDelMes};`, (err, data) =>
-        err ? reject(err) : resolve(data),
+      dataBase.query(
+        `SELECT COUNT(*) as total FROM users WHERE ${DentroDelMes(date)};`,
+        (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as StatisticUser[];
   } catch (error) {
@@ -31,11 +37,12 @@ export const getStatisticsUserUtil = async () => {
   }
 };
 
-export const getStatisticsOrderMothUtil = async () => {
+export const getStatisticsOrderMothUtil = async (date?: string) => {
   try {
     return (await new Promise((resolve, reject) => {
-      dataBase.query(`SELECT COUNT(*) as total FROM orden WHERE ${DentroDelMes};`, (err, data) =>
-        err ? reject(err) : resolve(data),
+      dataBase.query(
+        `SELECT COUNT(*) as total FROM orden WHERE ${DentroDelMes(date)};`,
+        (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as StatisticUser[];
   } catch (error) {
@@ -84,11 +91,13 @@ export const getStatisticsShippingUtil = async (countOrden: number) => {
   }
 };
 
-export const getStatisticsOrdeAmountTotalUtil = async () => {
+export const getStatisticsOrdeAmountTotalUtil = async (date?: string) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT SUM(totalAmount) as total FROM orden WHERE ${DentroDelMes} AND status = 'Paid';`,
+        `SELECT SUM(totalAmount) as total FROM orden WHERE ${DentroDelMes(
+          date,
+        )} AND status = 'Paid';`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as StatisticUser[];
@@ -98,11 +107,13 @@ export const getStatisticsOrdeAmountTotalUtil = async () => {
   }
 };
 
-export const getStatisticsOrdeAmountUtil = async () => {
+export const getStatisticsOrdeAmountUtil = async (date?: string) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT totalAmount, TRUNCATE(((totalAmount * 12) / 100), 2) as comision, DATE_FORMAT(created_at, "%M %d %Y") as fecha FROM orden WHERE ${DentroDelMes} AND status = 'Paid' ORDER BY created_at ASC;`,
+        `SELECT totalAmount, TRUNCATE(((totalAmount * 12) / 100), 2) as comision, DATE_FORMAT(created_at, "%M %d %Y") as fecha FROM orden WHERE ${DentroDelMes(
+          date,
+        )} AND status = 'Paid' ORDER BY created_at ASC;`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as StatisticGrafico[];

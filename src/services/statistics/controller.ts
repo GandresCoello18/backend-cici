@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response } from 'express';
 import {
   getStatisticsOrdeAmountTotalUtil,
@@ -17,6 +18,12 @@ export const getStatistics = async (req: Request, res: Response) => {
   req.logger.info({ status: 'start' });
 
   try {
+    const { mesAno } = req.query;
+    let date;
+
+    if (mesAno) {
+      date = (mesAno + '-01') as string;
+    }
     const me = req.user;
 
     if (!me.isAdmin) {
@@ -26,19 +33,19 @@ export const getStatistics = async (req: Request, res: Response) => {
     }
 
     const Users = await getStatisticsUserUtil();
-    const MothUsers = await getStatisticsUserMothUtil();
-    const LasUsers = await getStatisticsUserMothUtil();
+    const MothUsers = await getStatisticsUserMothUtil(date);
+    const LasUsers = await getStatisticsUserMothUtil(date);
 
     const Orders = await getStatisticsOrderUtil();
-    const MothOrdens = await getStatisticsOrderMothUtil();
-    const LasOrdens = await getStatisticsOrderMothUtil();
+    const MothOrdens = await getStatisticsOrderMothUtil(date);
+    const LasOrdens = await getStatisticsOrderMothUtil(date);
 
     const OrdenPaid = await getStatisticsOrderPaidUtil();
     const Progress = await getStatisticsShippingUtil(OrdenPaid[0].total);
 
-    const grafico = await getStatisticsOrdeAmountUtil();
+    const grafico = await getStatisticsOrdeAmountUtil(date);
 
-    const Amount = await getStatisticsOrdeAmountTotalUtil();
+    const Amount = await getStatisticsOrdeAmountTotalUtil(date);
 
     const statistics = {
       user: {
