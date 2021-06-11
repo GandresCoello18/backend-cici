@@ -19,6 +19,7 @@ export interface ShippingCart {
   guide: string;
   method: string;
   idCart: string;
+  idCombo?: string;
 }
 
 export interface ShippingProduct {
@@ -41,6 +42,7 @@ export interface DetailsOrdenAndShipping {
   guide: string;
   method: string;
   idCart: string;
+  idCombo?: string;
   ordenado_el: string | Date;
   shipping: number;
   subTotal: number;

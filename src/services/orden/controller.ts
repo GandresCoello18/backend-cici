@@ -31,6 +31,7 @@ import { getStatisticsOrderUtil } from '../../utils/statistics';
 import { SendEmail } from '../../utils/email/send';
 import { ConfirOrden } from '../../utils/email/template/confirOrden';
 import { getSelectMyAddressUtil } from '../../utils/addresses';
+import { GetProductByComboUtil } from '../../utils/combo';
 
 export const newOrden = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -259,17 +260,26 @@ export const getOrdenDetails = async (req: Request, res: Response) => {
   req.logger.info({ status: 'start' });
 
   try {
+    const { idOrden } = req.params;
     const me = req.user;
 
-    const ShippingProduct = await getShippingAndOrderDetailsUtil(me.idUser);
+    const ShippingProduct = await getShippingAndOrderDetailsUtil(me.idUser, idOrden);
 
     const DetailOrden = await Promise.all(
       ShippingProduct.map(async orden => {
-        const cartProduct = await getProductCartUtil(orden.idCart);
+        let products;
+
+        if (orden.idCart) {
+          products = await getProductCartUtil(orden.idCart);
+        }
+
+        if (orden.idCombo) {
+          products = await GetProductByComboUtil(orden.idCombo);
+        }
 
         return {
           ...orden,
-          products: cartProduct,
+          products,
         };
       }),
     );

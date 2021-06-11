@@ -60,7 +60,7 @@ export const getShippingProductsUtil = async (idUser: string, page: number) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT shipping.*, cart.idCart, users.userName, users.avatar FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN cart ON cart.idCart = orden.idCart INNER JOIN users ON users.idUser = cart.idUser WHERE orden.idUser = '${idUser}' ORDER BY shipping.update_at DESC LIMIT ${page}, 5;`,
+        `SELECT shipping.*, orden.idCombo, orden.idCart, users.userName, users.avatar FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN users ON users.idUser = orden.idUser WHERE orden.idUser = '${idUser}' ORDER BY shipping.update_at DESC LIMIT ${page}, 5;`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as ShippingCart[];
@@ -70,11 +70,11 @@ export const getShippingProductsUtil = async (idUser: string, page: number) => {
   }
 };
 
-export const getShippingAndOrderDetailsUtil = async (idUser: string) => {
+export const getShippingAndOrderDetailsUtil = async (idUser: string, idOrden: string) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT shipping.idShipping, shipping.created_at as enviado_el, shipping.update_at as entregado_el, shipping.status, shipping.guide, shipping.method, cart.idCart, orden.created_at as ordenado_el, orden.shipping, orden.subTotal, orden.discount, orden.totalAmount, orden.qualified, orden.numberOfOrder FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder INNER JOIN cart ON cart.idCart = orden.idCart WHERE orden.idUser = '${idUser}' ORDER BY shipping.update_at DESC;`,
+        `SELECT shipping.idShipping, shipping.created_at as enviado_el, shipping.update_at as entregado_el, shipping.status, shipping.guide, shipping.method, orden.idCombo, orden.idCart, orden.created_at as ordenado_el, orden.shipping, orden.subTotal, orden.discount, orden.totalAmount, orden.qualified, orden.numberOfOrder FROM shipping INNER JOIN orden ON orden.idOrder = shipping.idOrder WHERE orden.idUser = '${idUser}' AND orden.idOrder = '${idOrden}' ORDER BY shipping.update_at DESC;`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as DetailsOrdenAndShipping[];

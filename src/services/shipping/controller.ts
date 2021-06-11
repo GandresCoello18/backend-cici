@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from 'date-fns';
 import { Request, Response } from 'express';
 // import Locale from 'date-fns/locale/es'
@@ -6,6 +7,7 @@ import { Shipping } from '../../models/shipping';
 import { getUserUtil } from '../../utils';
 import { getMyAddressUtil } from '../../utils/addresses';
 import { getProductCartUtil } from '../../utils/cart';
+import { GetProductByComboUtil } from '../../utils/combo';
 import { SendEmail } from '../../utils/email/send';
 import { PackageSent } from '../../utils/email/template/packageSent';
 import { QualifyOrder } from '../../utils/email/template/qualifyOrder';
@@ -103,7 +105,15 @@ export const getShipping = async (req: Request, res: Response) => {
 
       shipping = await Promise.all(
         ShippingProduct.map(async orden => {
-          const cart = await getProductCartUtil(orden.idCart);
+          let cart: any[] = [];
+
+          if (orden.idCart) {
+            cart = await getProductCartUtil(orden.idCart);
+          }
+
+          if (orden.idCombo) {
+            cart = await GetProductByComboUtil(orden.idCombo);
+          }
 
           return {
             ...orden,
