@@ -16,6 +16,7 @@ import {
   getCountOrdensByUserUtil,
   geteOrdensByUserUtil,
   geteOrdensUtil,
+  geteOrdenByIdUtil,
   getLasNmberOfOrdenUtil,
   UpdateStatusOrdenUtil,
   Update_atOrdenUtil,
@@ -119,7 +120,7 @@ export const newOrden = async (req: Request, res: Response) => {
       }
 
       await SendEmail({
-        to: user.idUser,
+        to: user.email,
         subject: 'Orden confirmada | Cici beauty place',
         text: '',
         html: ConfirOrden(
@@ -350,6 +351,37 @@ export const UpdateStatusOrder = async (req: Request, res: Response) => {
 
     await UpdateStatusOrdenUtil(idOrden, status);
     await Update_atOrdenUtil(idOrden, format(new Date(), 'yyyy-MM-dd HH:mm:ss'));
+
+    if (status === 'Paid') {
+      const Orden = await geteOrdenByIdUtil(idOrden);
+
+      let DateDelivery: Date | string = addDays(new Date(Orden[0].created_at), 3);
+      DateDelivery = format(new Date(DateDelivery), 'PPPP', { locale: Locale });
+
+      const SelecrAddress = await getSelectMyAddressUtil(me.idUser);
+      let Address = '';
+
+      if (SelecrAddress.length) {
+        Address = `(${SelecrAddress[0].title}) - ${SelecrAddress[0].address}`;
+      } else {
+        Address = 'NO ESPECIFICADO';
+      }
+
+      await SendEmail({
+        to: me.email,
+        subject: 'Orden confirmada | Cici beauty place',
+        text: '',
+        html: ConfirOrden(
+          Number(Orden[0].discount),
+          Orden[0].numberOfOrder,
+          Orden[0].shipping,
+          Orden[0].id_user_coupons,
+          Orden[0].totalAmount,
+          DateDelivery,
+          Address,
+        ),
+      });
+    }
 
     return res.status(200).json();
   } catch (error) {

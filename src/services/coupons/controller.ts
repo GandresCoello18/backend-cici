@@ -19,6 +19,9 @@ import {
   updateUserCouponsUtil,
 } from '../../utils/coupons';
 import { getUserUtil } from '../../utils';
+import { SendEmail } from '../../utils/email/send';
+import { DEFAULT_AVATAR } from '../../helpers/url';
+import { RewardCoupon } from '../../utils/email/template/rewardCoupon';
 import { UploadSourceCoupon } from '../../utils/cloudinary/coupon';
 
 export const getCoupons = async (req: Request, res: Response) => {
@@ -215,6 +218,24 @@ export const createRewardCoupons = async (req: Request, res: Response) => {
 
     await createUserCouponsUtil(userCoupon);
     await updateCouponsRewarUserUtil(me.idUser, idUser);
+
+    const benefitedUser = await getUserUtil({ idUser });
+
+    await SendEmail({
+      to: benefitedUser[0].email,
+      subject: 'Cupón de recompensa | Cici beauty place',
+      text: '',
+      html: RewardCoupon({
+        benefited: {
+          userName: benefitedUser[0].userName,
+          avatar: benefitedUser[0].avatar || DEFAULT_AVATAR,
+        },
+        submitted: {
+          userName: me.userName,
+          avatar: me.avatar || DEFAULT_AVATAR,
+        },
+      }),
+    });
 
     return res.status(200).json();
   } catch (error) {

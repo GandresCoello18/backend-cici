@@ -81,6 +81,19 @@ export const geteOrdenUtil = async (idOrder: string, status: string) => {
   }
 };
 
+export const geteOrdenByIdUtil = async (idOrder: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(`SELECT * FROM orden WHERE idOrder = '${idOrder}';`, (err, data) =>
+        err ? reject(err) : resolve(data),
+      );
+    })) as Orden[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
 export const geteOrdenStatusUtil = async (idUser: string, status: string, page: number) => {
   try {
     return (await new Promise((resolve, reject) => {
