@@ -33,6 +33,7 @@ import { SendEmail } from '../../utils/email/send';
 import { ConfirOrden } from '../../utils/email/template/confirOrden';
 import { getSelectMyAddressUtil } from '../../utils/addresses';
 import { GetProductByComboUtil } from '../../utils/combo';
+import { updateCiciRankUserUtil } from '../../utils';
 
 export const newOrden = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -50,8 +51,6 @@ export const newOrden = async (req: Request, res: Response) => {
       idCombo,
     } = req.body;
     const user = req.user;
-
-    console.log(req.body);
 
     if (shipping === undefined || discount === undefined || totalAmount === 0) {
       const response = { status: 'No data orden provided' };
@@ -93,6 +92,7 @@ export const newOrden = async (req: Request, res: Response) => {
     };
 
     await createOrdenUtil(Orden);
+    await updateCiciRankUserUtil(5, user.idUser);
 
     if (Orden.idCart) {
       await UpdateStatusCart(Orden.idCart, 'Complete');

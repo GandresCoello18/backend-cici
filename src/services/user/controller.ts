@@ -160,6 +160,7 @@ export const crerateUser = async (req: Request, res: Response) => {
       provider: provider || 'cici',
       phone: phone || null,
       isBanner: false,
+      ciciRank: 0,
     };
 
     await createUserUtil(user);
@@ -244,6 +245,7 @@ export const login = async (req: Request, res: Response) => {
           provider: provider || 'cici',
           phone: null,
           isBanner: false,
+          ciciRank: 0,
         };
 
         await createUserUtil(saveUser);

@@ -9,4 +9,5 @@ export interface User {
   provider: string;
   phone: number | null;
   isBanner: boolean;
+  ciciRank: number;
 }

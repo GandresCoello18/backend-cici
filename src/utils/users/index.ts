@@ -133,6 +133,20 @@ export const updatePasswordUserUtil = async (password: string, idUser: string) =
   }
 };
 
+export const updateCiciRankUserUtil = async (addPts: number, idUser: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `UPDATE users SET ciciRank = ciciRank + ${addPts} WHERE idUser = '${idUser}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
 export const updateAvatarUserUtil = async (avatar: string, idUser: string) => {
   try {
     return await new Promise((resolve, reject) => {
