@@ -15,6 +15,14 @@ export const UploasProduct = async (req: Request) => {
   return uniqueFilename;
 };
 
+export const DeleteProduct = async (req: Request) => {
+  const { public_id } = req.query;
+
+  await cloudinary.v2.uploader.destroy(public_id as string, (result) => console.log(result));
+
+  return true
+};
+
 export const UploadMoreSourcesProduct = async (req: Request | any) => {
   const result: string[] = [];
 

@@ -248,3 +248,16 @@ export const deleteProductUtil = async (idProducts: string) => {
     return false;
   }
 };
+
+export const deleteSourceProductUtil = async (idProduct: string, public_id: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(`DELETE FROM product_sources WHERE idProduct = '${idProduct}' AND source = '${public_id}';`, (err, data) =>
+        err ? reject(err) : resolve(data),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};

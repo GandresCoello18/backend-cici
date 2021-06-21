@@ -6,13 +6,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { Product, ProductReviews, SourcesProduct } from '../../models/products';
 import { dataBase } from '../../utils';
 import { getCategoryByProductUtil, getCategorysUtil } from '../../utils/category';
-import { UploadMoreSourcesProduct, UploasProduct } from '../../utils/cloudinary/product';
+import { DeleteProduct, UploadMoreSourcesProduct, UploasProduct } from '../../utils/cloudinary/product';
 import { UpdateQualifledOrdenUtil } from '../../utils/orden';
 import {
   createProductReviewUtil,
   createProductSourcesUtil,
   createProductUtil,
   deleteProductUtil,
+  deleteSourceProductUtil,
   getBestSellerProductByCategory,
   getProductByCategory,
   getProductExistUtil,
@@ -445,6 +446,37 @@ export const deleteProduct = async (req: Request, res: Response) => {
     }
 
     await deleteProductUtil(idProduct);
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const deleteImageProduct = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'product', serviceHandler: 'deleteImageProduct' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { idProduct } = req.params;
+    const { public_id } = req.query;
+    const me = req.user;
+
+    if (!me.isAdmin || me.isBanner) {
+      const response = { status: 'No eres admin o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    if (!idProduct) {
+      const response = { status: 'No product id provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await deleteSourceProductUtil(idProduct, public_id as string);
+    await DeleteProduct(req);
+
     return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });

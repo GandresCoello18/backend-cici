@@ -16,6 +16,7 @@ import {
   MoreSourcesProduct,
   createReviewProduct,
   deleteProduct,
+  deleteImageProduct,
 } from './controller';
 
 const router = express.Router();
@@ -37,6 +38,7 @@ router.post(
 );
 router.post(`${baseURL}/`, auth, multer({ storage }).single('source'), createProduct);
 router.post(`${baseURL}/review`, auth, createReviewProduct);
+router.delete(`${baseURL}/image/:idProduct`, auth, deleteImageProduct);
 router.delete(`${baseURL}/:idProduct`, auth, deleteProduct);
 
 export default router;
