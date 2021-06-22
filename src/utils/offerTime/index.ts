@@ -30,6 +30,20 @@ export const AddProductOfferTimeUtil = async (ProductOfferTime: OfferTimeProduct
     }
 };
 
+export const ExistProductOfferTimeUtil = async (idProduct: string, idOfferTime: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT * FROM offerTime_product WHERE idProduct = '${idProduct}' AND idOfferTime = '${idOfferTime}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as OfferTimeProducts[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
 export const getOfferTimeUtil = async () => {
     try {
       return (await new Promise((resolve, reject) => {
@@ -58,11 +72,39 @@ export const getProductsOfferTimeUtil = async (idOfferTime: string) => {
     }
 };
 
+export const editOfferTimeUtil = async (finish_at: string, description: string, idOfferTime: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `UPDATE offerTime SET finish_at = '${finish_at}', description = '${description}' WHERE idOfferTime = '${idOfferTime}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    }));
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
 export const deleteOfferTimeUtil = async (idOfferTime: string) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
         `DELETE FROM offerTime WHERE idOfferTime = '${idOfferTime}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    }));
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
+export const deleteProductOfferTimeUtil = async (idProduct: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `DELETE FROM offerTime_product WHERE idProduct = '${idProduct}';`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     }));

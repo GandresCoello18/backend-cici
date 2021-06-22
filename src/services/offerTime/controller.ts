@@ -3,7 +3,7 @@ import { OfferTime, OfferTimeProducts } from '../../models/offerTime';
 import { v4 as uuidv4 } from 'uuid';
 import Locale from 'date-fns/locale/es';
 import { format } from 'date-fns';
-import { AddProductOfferTimeUtil, deleteOfferTimeUtil, getOfferTimeUtil, getProductsOfferTimeUtil, NewOfferTimerUtil } from '../../utils/offerTime';
+import { AddProductOfferTimeUtil, deleteOfferTimeUtil, deleteProductOfferTimeUtil, editOfferTimeUtil, ExistProductOfferTimeUtil, getOfferTimeUtil, getProductsOfferTimeUtil, NewOfferTimerUtil } from '../../utils/offerTime';
 
 export const createOfferTime = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'offerTime', serviceHandler: 'createOfferTime' });
@@ -62,6 +62,14 @@ export const createOfferTime = async (req: Request, res: Response) => {
         return res.status(400).json(response);
       }
 
+      const existProduct = await ExistProductOfferTimeUtil(idProduct, idOfferTime);
+
+      if(existProduct.length){
+        const response = { status: 'Este producto ya pertenece al tiempo' };
+        req.logger.warn(response);
+        return res.status(400).json(response);
+      }
+
       const AddProductOffer: OfferTimeProducts = {
         id_offerTime_product: uuidv4(),
         idProduct,
@@ -100,6 +108,8 @@ export const getOfferTimes = async (req: Request, res: Response) => {
 
           const productos = await getProductsOfferTimeUtil(time.idOfferTime);
 
+          productos.map(product => product.created_at = format(new Date(product.created_at), 'yyyy-MM-dd'))
+
           return {
               ...time,
               productos,
@@ -108,6 +118,35 @@ export const getOfferTimes = async (req: Request, res: Response) => {
     )
 
     return res.status(200).json({ times });
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const editOfferTime = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'offerTime', serviceHandler: 'editOfferTime' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { finishAt, description, idTimeOffer } = req.body;
+    const me = req.user;
+
+    if (!me.isAdmin || me.isBanner) {
+      const response = { status: 'No eres admin o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    if (!finishAt || !description) {
+      const response = { status: 'No description or finish At provider' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await editOfferTimeUtil(finishAt, description, idTimeOffer);
+
+    return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();
@@ -135,6 +174,35 @@ export const deleteOfferTime = async (req: Request, res: Response) => {
     }
 
     await deleteOfferTimeUtil(idTimeOffer);
+
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const deleteProductOfferTime = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'offerTime', serviceHandler: 'deleteProductOfferTime' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { idProduct } = req.params;
+    const me = req.user;
+
+    if (!me.isAdmin || me.isBanner) {
+      const response = { status: 'No eres admin o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    if (!idProduct) {
+      const response = { status: 'No id Product provider' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await deleteProductOfferTimeUtil(idProduct);
 
     return res.status(200).json();
   } catch (error) {

@@ -253,11 +253,11 @@ export const getProductsOffers = async (req: Request, res: Response) => {
       QueryLimit ? `LIMIT ${QueryLimit}` : ''
     };`;
 
-    const Products: Product[] = await new Promise((resolve, reject) => {
+    const products: Product[] = await new Promise((resolve, reject) => {
       dataBase.query(sql, (err, data) => (err ? reject(err) : resolve(data)));
     });
 
-    return res.status(200).json({ products: Products });
+    return res.status(200).json({ products });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();
