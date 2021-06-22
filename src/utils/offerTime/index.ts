@@ -58,6 +58,20 @@ export const getOfferTimeUtil = async () => {
     }
 };
 
+export const getOfferTimeOnlyUtil = async (idOfferTime: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT * FROM offerTime WHERE idOfferTime = '${idOfferTime}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as OfferTime[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
 export const getProductsOfferTimeUtil = async (idOfferTime: string) => {
     try {
       return (await new Promise((resolve, reject) => {

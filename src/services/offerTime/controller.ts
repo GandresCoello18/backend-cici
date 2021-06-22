@@ -1,9 +1,9 @@
 import {Request, Response} from 'express'
 import { OfferTime, OfferTimeProducts } from '../../models/offerTime';
 import { v4 as uuidv4 } from 'uuid';
-import Locale from 'date-fns/locale/es';
 import { format } from 'date-fns';
-import { AddProductOfferTimeUtil, deleteOfferTimeUtil, deleteProductOfferTimeUtil, editOfferTimeUtil, ExistProductOfferTimeUtil, getOfferTimeUtil, getProductsOfferTimeUtil, NewOfferTimerUtil } from '../../utils/offerTime';
+import { AddProductOfferTimeUtil, deleteOfferTimeUtil, deleteProductOfferTimeUtil, editOfferTimeUtil, ExistProductOfferTimeUtil, getOfferTimeOnlyUtil, getOfferTimeUtil, NewOfferTimerUtil } from '../../utils/offerTime';
+import { SchemaTime } from '../../helpers/Time';
 
 export const createOfferTime = async (req: Request, res: Response) => {
     req.logger = req.logger.child({ service: 'offerTime', serviceHandler: 'createOfferTime' });
@@ -85,6 +85,29 @@ export const createOfferTime = async (req: Request, res: Response) => {
     }
   };
 
+  export const getOfferTime = async (req: Request, res: Response) => {
+    req.logger = req.logger.child({ service: 'offerTime', serviceHandler: 'getOfferTime' });
+    req.logger.info({ status: 'start' });
+  
+    try {
+      const { idTimeOffer } = req.params;
+
+      if (!idTimeOffer) {
+        const response = { status: 'No id OfferTiem provided' };
+        req.logger.warn(response);
+        return res.status(400).json(response);
+      }
+
+      const OfferTimes = await getOfferTimeOnlyUtil(idTimeOffer);
+      const times = await SchemaTime(OfferTimes);
+  
+      return res.status(200).json({ times: times[0] });
+    } catch (error) {
+      req.logger.error({ status: 'error', code: 500 });
+      return res.status(500).json();
+    }
+  };
+
 export const getOfferTimes = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'offerTime', serviceHandler: 'getOfferTimes' });
   req.logger.info({ status: 'start' });
@@ -99,23 +122,7 @@ export const getOfferTimes = async (req: Request, res: Response) => {
     }
 
     const OfferTimes = await getOfferTimeUtil();
-
-    const times = await Promise.all(
-        OfferTimes.map( async time => {
-
-          time.created_at = format(new Date(time.created_at), 'PPPP', { locale: Locale })
-          time.finish_at = format(new Date(time.finish_at), 'PPPP', { locale: Locale })
-
-          const productos = await getProductsOfferTimeUtil(time.idOfferTime);
-
-          productos.map(product => product.created_at = format(new Date(product.created_at), 'yyyy-MM-dd'))
-
-          return {
-              ...time,
-              productos,
-          }
-        })
-    )
+    const times = SchemaTime(OfferTimes, true);
 
     return res.status(200).json({ times });
   } catch (error) {
