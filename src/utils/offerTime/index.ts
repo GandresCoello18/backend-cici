@@ -6,7 +6,7 @@ export const NewOfferTimerUtil = async (OfferTime: OfferTime) => {
     try {
       return (await new Promise((resolve, reject) => {
         dataBase.query(
-          `INSERT INTO offerTime (idOfferTime, created_at, finish_at, descripcion, status_offer_time) VALUES ('${OfferTime.idOfferTime}', '${OfferTime.created_at}', '${OfferTime.finish_at}', '${OfferTime.description}', '${OfferTime.status_offer_time}');`,
+          `INSERT INTO offerTime (idOfferTime, created_at, finish_at, description, status_offer_time) VALUES ('${OfferTime.idOfferTime}', '${OfferTime.created_at}', '${OfferTime.finish_at}', '${OfferTime.description}', '${OfferTime.status_offer_time}');`,
           (err, data) => (err ? reject(err) : resolve(data)),
         );
       }));
@@ -56,4 +56,18 @@ export const getProductsOfferTimeUtil = async (idOfferTime: string) => {
       console.log(error.message);
       return [];
     }
+};
+
+export const deleteOfferTimeUtil = async (idOfferTime: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `DELETE FROM offerTime WHERE idOfferTime = '${idOfferTime}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    }));
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
 };
