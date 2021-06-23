@@ -62,7 +62,7 @@ export const getOfferTimeOnlyUtil = async (idOfferTime: string) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT * FROM offerTime WHERE idOfferTime = '${idOfferTime}';`,
+        `SELECT * FROM offerTime WHERE idOfferTime = '${idOfferTime}' AND status_offer_time = 'active';`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as OfferTime[];
@@ -119,6 +119,20 @@ export const deleteProductOfferTimeUtil = async (idProduct: string) => {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
         `DELETE FROM offerTime_product WHERE idProduct = '${idProduct}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    }));
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
+export const UpdateExpiredOfferTimeUtil = async () => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `UPDATE offerTime, offerTime_product, products SET offerTime.status_offer_time = 'disable', products.discount = 0, products.offer_expires_date = NULL WHERE NOW() >= offerTime.finish_at AND offerTime.status_offer_time = 'active' AND offerTime_product.idOfferTime = offerTime.idOfferTime AND products.idProducts = offerTime_product.idProduct;;`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     }));
