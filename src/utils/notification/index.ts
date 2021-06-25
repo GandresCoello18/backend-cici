@@ -15,6 +15,20 @@ export const NewNotificacionUtil = async (notificacion: Notification) => {
   }
 };
 
+export const getNotificationsUtil = async (idUser: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT * FROM user_notification WHERE idUser = '${idUser}' ORDER BY created_at DESC;`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
 export const UploadReadAllNotificationUtil = async (idUser: string) => {
   try {
     return await new Promise((resolve, reject) => {

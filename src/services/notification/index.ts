@@ -1,12 +1,13 @@
 import express from 'express';
 import { auth } from '../../middlewares/auth';
 
-import { addNotification, ReadAllNotification } from './controller';
+import { addNotification, getNotifications, ReadAllNotification } from './controller';
 
 const router = express.Router();
 const baseURL = '/notification';
 
 router.post(`${baseURL}`, auth, addNotification);
+router.get(`${baseURL}`, auth, getNotifications);
 router.put(`${baseURL}/readAll`, auth, ReadAllNotification);
 
 export default router;
