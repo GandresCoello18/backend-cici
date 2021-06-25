@@ -14,3 +14,17 @@ export const NewNotificacionUtil = async (notificacion: Notification) => {
     return false;
   }
 };
+
+export const UploadReadAllNotificationUtil = async (idUser: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `UPDATE user_notification SET isRead = 1 WHERE idUser = '${idUser}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
