@@ -13,7 +13,7 @@ export const addNotification = async (req: Request, res: Response) => {
   req.logger.info({ status: 'start' });
 
   try {
-    const { idUser, text, link } = req.body;
+    const { idUser, text, link, title } = req.body;
     const me = req.user;
 
     if (!me.isAdmin || me.isBanner) {
@@ -22,8 +22,8 @@ export const addNotification = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    if (!idUser || !text || !link) {
-      const response = { status: 'No id User or text provided' };
+    if (!idUser || !text || !link || !title) {
+      const response = { status: 'No id User or text or title provided' };
       req.logger.warn(response);
       return res.status(400).json(response);
     }
@@ -33,6 +33,7 @@ export const addNotification = async (req: Request, res: Response) => {
       created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
       idUser,
       text,
+      title,
       link,
       isRead: false,
     };

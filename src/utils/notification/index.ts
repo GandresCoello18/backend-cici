@@ -5,7 +5,7 @@ export const NewNotificacionUtil = async (notificacion: Notification) => {
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `INSERT INTO user_notification (idNotification, idUser, created_at, link, text, isRead) VALUES ('${notificacion.idNotification}', '${notificacion.idUser}', '${notificacion.created_at}', '${notificacion.link}', '${notificacion.text}', ${notificacion.isRead});`,
+        `INSERT INTO user_notification (idNotification, idUser, created_at, link, text, isRead, title) VALUES ('${notificacion.idNotification}', '${notificacion.idUser}', '${notificacion.created_at}', '${notificacion.link}', '${notificacion.text}', ${notificacion.isRead}, '${notificacion.title}');`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });

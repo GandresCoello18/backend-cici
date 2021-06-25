@@ -3,6 +3,7 @@ export interface Notification {
   idUser: string;
   created_at: string | Date;
   link: string;
+  title: string;
   text: string;
   isRead: boolean | number;
 }
