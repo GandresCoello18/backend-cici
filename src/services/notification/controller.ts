@@ -5,6 +5,7 @@ import { Notification } from '../../models/notification';
 import {
   getNotificationsUtil,
   NewNotificacionUtil,
+  UpdateReadNotificationUtil,
   UploadReadAllNotificationUtil,
 } from '../../utils/notification';
 
@@ -57,6 +58,28 @@ export const getNotifications = async (req: Request, res: Response) => {
     const notifications = await getNotificationsUtil(me.idUser);
 
     return res.status(200).json({ notifications });
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const ReadNotification = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'notificacion', serviceHandler: 'ReadNotification' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { idNotification } = req.params;
+
+    if (!idNotification) {
+      const response = { status: 'No id Notification provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await UpdateReadNotificationUtil(idNotification);
+
+    return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();
