@@ -11,6 +11,7 @@ import { GetProductByComboUtil } from '../../utils/combo';
 import { SendEmail } from '../../utils/email/send';
 import { PackageSent } from '../../utils/email/template/packageSent';
 import { QualifyOrder } from '../../utils/email/template/qualifyOrder';
+import { NewNotificacionUtil } from '../../utils/notification';
 import { geteOrdenUtil } from '../../utils/orden';
 import {
   createShippingUtil,
@@ -65,6 +66,16 @@ export const newShipping = async (req: Request, res: Response) => {
       subject: 'Tu paquete fue enviado | Cici beauty place',
       text: '',
       html: PackageSent(user[0].userName, shipping.guide, AddressSelect),
+    });
+
+    await NewNotificacionUtil({
+      idNotification: uuidv4(),
+      idUser: user[0].idUser,
+      created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+      isRead: false,
+      title: 'Tu paquete fue enviado',
+      text: `Tu orden esta en camino, revisa tu email o en la sección de mi pedidos (pendiente de entrega).`,
+      link: 'https://cici.beauty/mis-pedidos',
     });
 
     return res.status(200).json();
@@ -175,6 +186,16 @@ export const updateStatusShipping = async (req: Request, res: Response) => {
           subject: 'Tu orden acaba de llegar | Cici beauty place',
           text: '',
           html: QualifyOrder(user[0].userName, order[0].idOrder),
+        });
+
+        await NewNotificacionUtil({
+          idNotification: uuidv4(),
+          idUser: user[0].idUser,
+          created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+          isRead: false,
+          title: 'Tu orden acaba de llegar',
+          text: `Sabemos que ya tienes tu paquete y esperamos que lo disfrutes, puedes acceder a la sección de mis comprar y calificar el producto.`,
+          link: 'https://cici.beauty/mis-compras',
         });
       }
     }

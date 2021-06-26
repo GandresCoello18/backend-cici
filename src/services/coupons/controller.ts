@@ -23,6 +23,7 @@ import { SendEmail } from '../../utils/email/send';
 import { DEFAULT_AVATAR } from '../../helpers/url';
 import { RewardCoupon } from '../../utils/email/template/rewardCoupon';
 import { UploadSourceCoupon } from '../../utils/cloudinary/coupon';
+import { NewNotificacionUtil } from '../../utils/notification';
 
 export const getCoupons = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'Coupons', serviceHandler: 'getCoupons' });
@@ -118,6 +119,11 @@ export const getUserCoupons = async (req: Request, res: Response) => {
           cupo = await getCoupontUtil(cupon.idCoupon);
         }
 
+        cupon.created_at = format(new Date(cupon.created_at), 'PPPP', { locale: Locale });
+        cupon.expiration_date = format(new Date(cupon.expiration_date), 'PPPP', {
+          locale: Locale,
+        });
+
         return {
           id_user_coupons: cupon.id_user_coupons,
           expiration_date: cupon.expiration_date,
@@ -130,19 +136,6 @@ export const getUserCoupons = async (req: Request, res: Response) => {
         };
       }),
     );
-
-    if (returnMyCoupons.length) {
-      returnMyCoupons.map(
-        coupon =>
-          (coupon.created_at = format(new Date(coupon.created_at), 'PPPP', { locale: Locale })),
-      );
-      returnMyCoupons.map(
-        coupon =>
-          (coupon.expiration_date = format(new Date(coupon.expiration_date), 'PPPP', {
-            locale: Locale,
-          })),
-      );
-    }
 
     return res.status(200).json({ myCoupons: returnMyCoupons, pages });
   } catch (error) {
@@ -235,6 +228,16 @@ export const createRewardCoupons = async (req: Request, res: Response) => {
           avatar: me.avatar || DEFAULT_AVATAR,
         },
       }),
+    });
+
+    await NewNotificacionUtil({
+      idNotification: uuidv4(),
+      idUser: benefitedUser[0].idUser,
+      created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+      isRead: false,
+      title: 'Tienes una recompensa esperandote',
+      text: `${me.userName}, acaba de enviarte un cupón de recompensa.`,
+      link: 'https://cici.beauty/mis-cupones',
     });
 
     return res.status(200).json();

@@ -34,6 +34,7 @@ import { ConfirOrden } from '../../utils/email/template/confirOrden';
 import { getSelectMyAddressUtil } from '../../utils/addresses';
 import { GetProductByComboUtil } from '../../utils/combo';
 import { updateCiciRankUserUtil } from '../../utils';
+import { NewNotificacionUtil } from '../../utils/notification';
 
 export const newOrden = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'orden', serviceHandler: 'newOrden' });
@@ -132,6 +133,16 @@ export const newOrden = async (req: Request, res: Response) => {
           DateDelivery,
           Address,
         ),
+      });
+
+      await NewNotificacionUtil({
+        idNotification: uuidv4(),
+        idUser: user.idUser,
+        created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+        isRead: false,
+        title: 'Orden confirmada',
+        text: `Tu orden se realizo correctamente, sigue la orden en la seccion de mis pedidos.`,
+        link: 'https://cici.beauty/mis-pedidos',
       });
     }
 
@@ -278,21 +289,15 @@ export const getOrdenDetails = async (req: Request, res: Response) => {
           products = await GetProductByComboUtil(orden.idCombo);
         }
 
+        orden.entregado_el = format(new Date(orden.entregado_el), 'yyyy-MM-dd HH:mm');
+        orden.ordenado_el = format(new Date(orden.ordenado_el), 'yyyy-MM-dd HH:mm');
+        orden.enviado_el = format(new Date(orden.enviado_el), 'yyyy-MM-dd HH:mm');
+
         return {
           ...orden,
           products,
         };
       }),
-    );
-
-    DetailOrden.map(
-      envio => (envio.entregado_el = format(new Date(envio.entregado_el), 'yyyy-MM-dd HH:mm')),
-    );
-    DetailOrden.map(
-      envio => (envio.ordenado_el = format(new Date(envio.ordenado_el), 'yyyy-MM-dd HH:mm')),
-    );
-    DetailOrden.map(
-      envio => (envio.enviado_el = format(new Date(envio.enviado_el), 'yyyy-MM-dd HH:mm')),
     );
 
     return res.status(200).json({ DetailOrden: DetailOrden[0] });
@@ -380,6 +385,16 @@ export const UpdateStatusOrder = async (req: Request, res: Response) => {
           DateDelivery,
           Address,
         ),
+      });
+
+      await NewNotificacionUtil({
+        idNotification: uuidv4(),
+        idUser: me.idUser,
+        created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+        isRead: false,
+        title: 'Orden confirmada',
+        text: `Tu orden se realizo correctamente, sigue la orden en la seccion de mis pedidos.`,
+        link: 'https://cici.beauty/mis-pedidos',
       });
     }
 
