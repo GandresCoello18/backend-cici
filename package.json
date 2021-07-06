@@ -55,6 +55,7 @@
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "node-cron": "^3.0.0",
+    "node-instagram": "^4.3.0",
     "nodemailer": "^6.5.0",
     "pino": "^6.11.0",
     "socket.io": "^4.1.2",

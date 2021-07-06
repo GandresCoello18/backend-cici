@@ -20,6 +20,7 @@ import ProductHistory from './services/productHistory';
 import Combo from './services/combo';
 import TimeOffert from './services/offerTime';
 import Notification from './services/notification';
+import Instagram from './services/instagram';
 import { config } from './utils';
 import { CronMidnight } from './utils/cron';
 import { ConfigSocketIo } from './utils/socket';
@@ -84,6 +85,7 @@ app.use('/api', logger, [
   Combo,
   TimeOffert,
   Notification,
+  Instagram,
 ]);
 
 const server = app.listen(app.get('port'), () => {
