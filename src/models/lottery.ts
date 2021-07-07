@@ -3,5 +3,5 @@ export interface Lottery {
   idCart: string;
   created_at: string | Date;
   winnerUser: string | null;
-  status: string;
+  status: 'Pending' | 'Complete';
 }

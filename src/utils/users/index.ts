@@ -8,6 +8,7 @@ export const getUserUtil = async (option: {
   idUser?: string;
   email?: string;
   userName?: string;
+  isAdmin?: boolean;
   email_and_username?: {
     email: string;
     userName: string;
@@ -31,6 +32,10 @@ export const getUserUtil = async (option: {
 
     if (option.userName) {
       sql = `SELECT ${response_campo} FROM users WHERE userName = '${option.userName}';`;
+    }
+
+    if (option.isAdmin) {
+      sql = `SELECT ${response_campo} FROM users WHERE isAdmin = ${option.isAdmin};`;
     }
 
     if (option.email_and_username) {
