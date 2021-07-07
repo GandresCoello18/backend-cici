@@ -11,6 +11,19 @@ export const CreateLotteryUtil = async (sorteo: Lottery) => {
     });
   } catch (error) {
     console.log(error.message);
+    return false;
+  }
+};
+
+export const getLotterysUtil = async () => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(`SELECT * FROM lottery ORDER BY created_at DESC;`, (err, data) =>
+        err ? reject(err) : resolve(data),
+      );
+    })) as Lottery[];
+  } catch (error) {
+    console.log(error.message);
     return [];
   }
 };
