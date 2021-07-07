@@ -45,7 +45,21 @@ export const WinnerUserLotteryUtil = async (idUser: string, idLottery: string) =
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `UPDATE lottery SET winnerUser = '${idUser}' WHERE idLottery = '${idLottery}';`,
+        `UPDATE lottery SET winnerUser = '${idUser}', status = 'Complete' WHERE idLottery = '${idLottery}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
+export const ResetLoteryUtil = async (idLottery: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `UPDATE lottery SET winnerUser = NULL, status = 'Pending' WHERE idLottery = '${idLottery}';`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });
