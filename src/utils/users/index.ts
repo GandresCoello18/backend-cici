@@ -85,6 +85,20 @@ export const getUserProviderUtil = async (email: string, provider: string) => {
   }
 };
 
+export const getUserRandomUtil = async () => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT * FROM users WHERE isAdmin = 0 ORDER BY RAND() LIMIT 1;`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as User[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
 export const createUserUtil = async (user: User) => {
   try {
     return await new Promise((resolve, reject) => {

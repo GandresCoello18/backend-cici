@@ -8,6 +8,7 @@ import {
   getLotteryUtil,
   WinnerUserLotteryUtil,
 } from '../../utils/lottery';
+import { getUserRandomUtil } from '../../utils/users';
 
 export const newLottery = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'lottery', serviceHandler: 'newLottery' });
@@ -96,10 +97,16 @@ export const WinnerLotterys = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
+    if (lottery[0].winnerUser) {
+      const response = { status: 'Este sorteo ya tiene un ganador' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
     if (lottery[0].status === 'Pending' && !lottery[0].winnerUser) {
-      // const users = awai
-      await WinnerUserLotteryUtil('', idLoterry);
-      return res.status(200).json();
+      const user = await getUserRandomUtil();
+      await WinnerUserLotteryUtil(user[0].idUser, idLoterry);
+      return res.status(200).json({ winner: user[0] });
     }
 
     return res.status(200).json({ winner: undefined });
