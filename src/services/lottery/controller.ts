@@ -10,6 +10,7 @@ import {
   WinnerUserLotteryUtil,
 } from '../../utils/lottery';
 import { getUserRandomUtil } from '../../utils/users';
+import { getStatusCartUserUtil } from '../../utils/cart';
 
 export const newLottery = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'lottery', serviceHandler: 'newLottery' });
@@ -17,7 +18,7 @@ export const newLottery = async (req: Request, res: Response) => {
 
   try {
     const me = req.user;
-    const { idCart } = req.body;
+    const { finishAt } = req.body;
 
     if (!me.isAdmin || me.isBanner) {
       const response = { status: 'No eres administrador o estas bloqueado' };
@@ -25,17 +26,26 @@ export const newLottery = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    if (!idCart) {
-      const response = { status: 'No provider idCart' };
+    if (!finishAt) {
+      const response = { status: 'No provider finish At' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const existCart = await getStatusCartUserUtil(me.idUser, 'Pending');
+
+    if (!existCart.length) {
+      const response = { status: 'No hay productos en carrito' };
       req.logger.warn(response);
       return res.status(400).json(response);
     }
 
     const sorteo: Lottery = {
       idLottery: uuidv4(),
-      idCart,
+      idCart: existCart[0].idCart,
       winnerUser: null,
       created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+      finish_at: finishAt ? format(new Date(finishAt), 'yyyy-MM-dd HH:mm:ss') : null,
       status: 'Pending',
     };
 

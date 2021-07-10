@@ -5,7 +5,11 @@ export const CreateLotteryUtil = async (sorteo: Lottery) => {
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `INSERT INTO lottery (idLottery, idCart, created_at, winnerUser, status) VALUES ('${sorteo.idLottery}', '${sorteo.idCart}', '${sorteo.created_at}', NULL, '${sorteo.status}');`,
+        `INSERT INTO lottery (idLottery, idCart, created_at, winnerUser, status, finish_at) VALUES ('${
+          sorteo.idLottery
+        }', '${sorteo.idCart}', '${sorteo.created_at}', NULL, '${sorteo.status}', ${
+          sorteo.finish_at ? `'${sorteo.finish_at}'` : ''
+        });`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });
