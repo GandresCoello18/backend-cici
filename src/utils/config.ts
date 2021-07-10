@@ -19,8 +19,6 @@ export const config = envalid.cleanEnv(
     APP_PORT: num(),
     CORREO_NAMECHEAP: str(),
     CLAVE_NAMECHEAP: str(),
-    CLIENT_ID_INSTAGRAM: str(),
-    SECRET_ID_INSTAGRAM: str(),
   },
   { strict: true, dotEnvPath: path.resolve(__dirname, '../../.env') },
 );
