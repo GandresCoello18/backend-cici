@@ -149,6 +149,7 @@ export const WinnerLotterys = async (req: Request, res: Response) => {
     if (lottery[0].status === 'Pending' && !lottery[0].winnerUser) {
       const user = await getUserRandomUtil();
       await WinnerUserLotteryUtil(user[0].idUser, idLoterry);
+      user[0].password = '';
       return res.status(200).json({ winner: user[0] });
     }
 

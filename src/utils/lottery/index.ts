@@ -35,7 +35,7 @@ export const getLotterysUtil = async () => {
 export const getLotteryUtil = async (idLoterry: string) => {
   try {
     return (await new Promise((resolve, reject) => {
-      dataBase.query(`SELECT * FROM lottery WHERE idLoterry = '${idLoterry}';`, (err, data) =>
+      dataBase.query(`SELECT * FROM lottery WHERE idLottery = '${idLoterry}';`, (err, data) =>
         err ? reject(err) : resolve(data),
       );
     })) as Lottery[];

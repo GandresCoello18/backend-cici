@@ -9,6 +9,6 @@ const baseURL = '/lottery';
 router.post(`${baseURL}/`, auth, newLottery);
 router.get(`${baseURL}/winner/:idLoterry`, auth, WinnerLotterys);
 router.get(`${baseURL}/`, auth, getLotterys);
-router.delete(`${baseURL}/reset/:idLoterry`, auth, resetLotterys);
+router.put(`${baseURL}/reset/:idLoterry`, auth, resetLotterys);
 
 export default router;
