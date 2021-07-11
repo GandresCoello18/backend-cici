@@ -108,14 +108,14 @@ export const deleteProductCart = async (req: Request, res: Response) => {
 
     const ExistCart = await getStatusCartUserUtil(user.idUser, 'Pending');
 
-    if (ExistCart.length) {
-      await DeleteProductCart(ExistCart[0].idCart, idProduct);
-      return res.status(200).json();
-    } else {
+    if (!ExistCart.length) {
       const response = { status: 'Error delete product in cart' };
       req.logger.warn(response);
       return res.status(400).send(response);
     }
+
+    await DeleteProductCart(ExistCart[0].idCart, idProduct);
+    return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();
