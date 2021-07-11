@@ -9,8 +9,9 @@ import {
   ResetLoteryUtil,
   WinnerUserLotteryUtil,
 } from '../../utils/lottery';
-import { getUserRandomUtil } from '../../utils/users';
-import { getStatusCartUserUtil } from '../../utils/cart';
+import { getUserRandomUtil, getUserUtil } from '../../utils/users';
+import { getProductCartUtil, getStatusCartUserUtil, UpdateStatusCart } from '../../utils/cart';
+import { BASE_API_IMAGES_CLOUDINNARY_SCALE, DEFAULT_AVATAR } from '../../helpers/url';
 
 export const newLottery = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'lottery', serviceHandler: 'newLottery' });
@@ -50,6 +51,7 @@ export const newLottery = async (req: Request, res: Response) => {
     };
 
     await CreateLotteryUtil(sorteo);
+    await UpdateStatusCart(sorteo.idCart, 'Complete');
 
     return res.status(200).json();
   } catch (error) {
@@ -71,9 +73,39 @@ export const getLotterys = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    const lottery = await getLotterysUtil();
+    const sorteos = await getLotterysUtil();
 
-    return res.status(200).json({ lottery });
+    const lotterys = await Promise.all(
+      sorteos.map(async sorteo => {
+        let winner;
+
+        const products = await getProductCartUtil(sorteo.idCart);
+
+        sorteo.created_at = format(new Date(sorteo.created_at), 'yyyy-MM-dd HH:mm:ss');
+
+        if (sorteo.finish_at) {
+          sorteo.finish_at = format(new Date(sorteo.finish_at), 'yyyy-MM-dd HH:mm:ss');
+        }
+
+        if (sorteo.winnerUser) {
+          const user = await getUserUtil({ idUser: sorteo.winnerUser });
+
+          winner = {
+            userName: user[0].userName,
+            avatar: user[0].avatar || `${BASE_API_IMAGES_CLOUDINNARY_SCALE}/${DEFAULT_AVATAR}`,
+            email: user[0].email,
+          };
+        }
+
+        return {
+          ...sorteo,
+          products,
+          winner,
+        };
+      }),
+    );
+
+    return res.status(200).json({ lotterys });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(404).json();
