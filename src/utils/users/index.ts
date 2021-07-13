@@ -89,7 +89,7 @@ export const getUserRandomUtil = async () => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT * FROM users WHERE isAdmin = 0 AND isBanner = 0 AND idUser IN (SELECT idUser FROM orden WHERE YEAR(created_at) = ${new Date().getFullYear()}) ORDER BY RAND() LIMIT 1;`,
+        `SELECT * FROM users WHERE isAdmin = 0 AND isBanner = 0 AND idUser IN (SELECT idUser FROM orden WHERE YEAR(created_at) = ${new Date().getFullYear()} AND status = 'Paid') ORDER BY RAND() LIMIT 1;`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as User[];
