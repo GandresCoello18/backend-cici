@@ -5,11 +5,11 @@ export const CreateLotteryUtil = async (sorteo: Lottery) => {
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `INSERT INTO lottery (idLottery, idCart, created_at, winnerUser, status, finish_at) VALUES ('${
+        `INSERT INTO lottery (idLottery, idCart, created_at, winnerUser, status, finish_at, numberOfLottery) VALUES ('${
           sorteo.idLottery
         }', '${sorteo.idCart}', '${sorteo.created_at}', NULL, '${sorteo.status}', ${
           sorteo.finish_at ? `'${sorteo.finish_at}'` : ''
-        });`,
+        }, ${sorteo.numberOfLottery});`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });
@@ -39,6 +39,20 @@ export const getLotteryUtil = async (idLoterry: string) => {
         err ? reject(err) : resolve(data),
       );
     })) as Lottery[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
+export const getLasNumberOfLotteryUtil = async () => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT MAX(numberOfLottery) as lasNumberOfLottery  FROM lottery`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as { lasNumberOfLottery: number }[];
   } catch (error) {
     console.log(error.message);
     return [];

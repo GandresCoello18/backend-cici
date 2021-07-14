@@ -88,7 +88,7 @@ export const newOrden = async (req: Request, res: Response) => {
       id_user_coupons: id_user_coupons || null,
       paymentId: paymentId || null,
       qualified: false,
-      numberOfOrder: lasOrden[0].lasNumberOfOrder + 1,
+      numberOfOrder: lasOrden.length ? lasOrden[0].lasNumberOfOrder + 1 : 1,
       idCombo: idCombo || null,
     };
 

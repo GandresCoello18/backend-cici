@@ -5,4 +5,5 @@ export interface Lottery {
   finish_at?: string | null;
   winnerUser: string | null;
   status: 'Pending' | 'Complete';
+  numberOfLottery: number;
 }

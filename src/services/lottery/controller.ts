@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 import {
   CreateLotteryUtil,
+  getLasNumberOfLotteryUtil,
   getLotterysUtil,
   getLotteryUtil,
   ResetLoteryUtil,
@@ -41,6 +42,8 @@ export const newLottery = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
+    const lasNumberLottery = await getLasNumberOfLotteryUtil();
+
     const sorteo: Lottery = {
       idLottery: uuidv4(),
       idCart: existCart[0].idCart,
@@ -48,6 +51,7 @@ export const newLottery = async (req: Request, res: Response) => {
       created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
       finish_at: finishAt ? format(new Date(finishAt), 'yyyy-MM-dd HH:mm:ss') : null,
       status: 'Pending',
+      numberOfLottery: lasNumberLottery.length ? lasNumberLottery[0].lasNumberOfLottery + 1 : 1,
     };
 
     await CreateLotteryUtil(sorteo);
