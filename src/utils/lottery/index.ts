@@ -87,6 +87,20 @@ export const ResetLoteryUtil = async (idLottery: string) => {
   }
 };
 
+export const UpdateFinishLoteryUtil = async (finishAt: string, idLottery: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `UPDATE lottery SET finish_at = '${finishAt}' WHERE idLottery = '${idLottery}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
 export const DeleteLoteryUtil = async (idLottery: string) => {
   try {
     return await new Promise((resolve, reject) => {

@@ -9,6 +9,7 @@ import {
   getLotterysUtil,
   getLotteryUtil,
   ResetLoteryUtil,
+  UpdateFinishLoteryUtil,
   WinnerUserLotteryUtil,
 } from '../../utils/lottery';
 import { getUserRandomUtil, getUserUtil } from '../../utils/users';
@@ -186,6 +187,36 @@ export const resetLotterys = async (req: Request, res: Response) => {
     }
 
     await ResetLoteryUtil(idLoterry);
+
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
+};
+
+export const UpdateFinishLotterys = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'lottery', serviceHandler: 'UpdateFinishLotterys' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const me = req.user;
+    const { idLoterry } = req.params;
+    const { finishAt } = req.body;
+
+    if (!me.isAdmin || me.isBanner) {
+      const response = { status: 'No eres administrador o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(401).json(response);
+    }
+
+    if (!idLoterry || !finishAt) {
+      const response = { status: 'No provider id Loterry or finish At' };
+      req.logger.warn(response);
+      return res.status(500).json(response);
+    }
+
+    await UpdateFinishLoteryUtil(finishAt, idLoterry);
 
     return res.status(200).json();
   } catch (error) {
