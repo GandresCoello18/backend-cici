@@ -86,3 +86,16 @@ export const ResetLoteryUtil = async (idLottery: string) => {
     return false;
   }
 };
+
+export const DeleteLoteryUtil = async (idLottery: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(`DELETE FROM lottery WHERE idLottery = '${idLottery}';`, (err, data) =>
+        err ? reject(err) : resolve(data),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};

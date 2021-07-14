@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 import {
   CreateLotteryUtil,
+  DeleteLoteryUtil,
   getLasNumberOfLotteryUtil,
   getLotterysUtil,
   getLotteryUtil,
@@ -185,6 +186,35 @@ export const resetLotterys = async (req: Request, res: Response) => {
     }
 
     await ResetLoteryUtil(idLoterry);
+
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
+};
+
+export const deleteLottery = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'lottery', serviceHandler: 'deleteLottery' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const me = req.user;
+    const { idLoterry } = req.params;
+
+    if (!me.isAdmin || me.isBanner) {
+      const response = { status: 'No eres administrador o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(401).json(response);
+    }
+
+    if (!idLoterry) {
+      const response = { status: 'No provider id Loterry' };
+      req.logger.warn(response);
+      return res.status(500).json(response);
+    }
+
+    await DeleteLoteryUtil(idLoterry);
 
     return res.status(200).json();
   } catch (error) {
