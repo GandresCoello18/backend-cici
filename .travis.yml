@@ -1,13 +1,11 @@
 language: node_js
 os: osx
 
+node_js:
+  - '10'
+
 git:
   depth: 3
-
-branches:
-  except:
-  - legacy
-  - experimental
 
 branches:
   only:
@@ -17,8 +15,9 @@ install:
   - yarn install
 
 script:
-  - yarn test
+  - yarn clean
   - yarn dev
+  - yarn build
 
 after_script:
   - yarn clean
@@ -26,16 +25,20 @@ after_script:
 cache:
   directaries:
     - node_modules
+    - ~/.npm
 
 jobs:
   include:
     - stage: test
-      script: yarn test
       script: yarn format
     - stage: deploy
       script: yarn deploy
 
 deploy:
   provider: digital-ocean
+  skip-cleanup: true
+  keep-history: true
+  github-token: $GITHUB_TOKEN
+  local-dir: /
   on
     repo: gandres/backend-cici

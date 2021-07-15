@@ -109,9 +109,12 @@ export const getShipping = async (req: Request, res: Response) => {
       }
     }
 
-    console.log(req.hostname);
+    const client = req.get('origin');
 
-    if (me.isAdmin && (req.hostname === 'dashboard.cici.beauty' || req.hostname === 'localhost')) {
+    if (
+      me.isAdmin &&
+      (client === 'https://dashboard.cici.beauty' || client === 'http://localhost')
+    ) {
       shipping = await getShippingUtil(idPago || undefined, start);
     } else {
       const ShippingProduct = await getShippingProductsUtil(me.idUser, start);
