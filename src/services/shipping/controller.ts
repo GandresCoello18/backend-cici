@@ -109,6 +109,8 @@ export const getShipping = async (req: Request, res: Response) => {
       }
     }
 
+    console.log(req.hostname);
+
     if (me.isAdmin && (req.hostname === 'dashboard.cici.beauty' || req.hostname === 'localhost')) {
       shipping = await getShippingUtil(idPago || undefined, start);
     } else {
