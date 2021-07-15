@@ -1,0 +1,41 @@
+language: node_js
+os: osx
+
+git:
+  depth: 3
+
+branches:
+  except:
+  - legacy
+  - experimental
+
+branches:
+  only:
+  - master
+
+install:
+  - yarn install
+
+script:
+  - yarn test
+  - yarn dev
+
+after_script:
+  - yarn clean
+
+cache:
+  directaries:
+    - node_modules
+
+jobs:
+  include:
+    - stage: test
+      script: yarn test
+      script: yarn format
+    - stage: deploy
+      script: yarn deploy
+
+deploy:
+  provider: digital-ocean
+  on
+    repo: gandres/backend-cici

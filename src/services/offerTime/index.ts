@@ -1,7 +1,15 @@
 import express from 'express';
 import { auth } from '../../middlewares/auth';
 
-import { createOfferTime, AddProductOfferTime, editOfferTime, getOfferTime, getOfferTimes, deleteProductOfferTime, deleteOfferTime } from './controller';
+import {
+  createOfferTime,
+  AddProductOfferTime,
+  editOfferTime,
+  getOfferTime,
+  getOfferTimes,
+  deleteProductOfferTime,
+  deleteOfferTime,
+} from './controller';
 
 const router = express.Router();
 const baseURL = '/offerTime';

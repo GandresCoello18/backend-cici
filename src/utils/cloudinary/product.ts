@@ -18,9 +18,9 @@ export const UploasProduct = async (req: Request) => {
 export const DeleteProduct = async (req: Request) => {
   const { public_id } = req.query;
 
-  await cloudinary.v2.uploader.destroy(public_id as string, (result) => console.log(result));
+  await cloudinary.v2.uploader.destroy(public_id as string, result => console.log(result));
 
-  return true
+  return true;
 };
 
 export const UploadMoreSourcesProduct = async (req: Request | any) => {
