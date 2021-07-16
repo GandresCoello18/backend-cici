@@ -1,7 +1,15 @@
 import express from 'express';
 import { auth } from '../../middlewares/auth';
 
-import { getFavoriteProduct, getFavoriteByUser, getMyFavoritesProducts, getFavoriteProductCount, createFavorite, deleteFavorite, deleteAllMyFavorites } from './controller';
+import {
+  getFavoriteProduct,
+  getFavoriteByUser,
+  getMyFavoritesProducts,
+  getFavoriteProductCount,
+  createFavorite,
+  deleteFavorite,
+  deleteAllMyFavorites,
+} from './controller';
 
 const router = express.Router();
 const baseURL = '/favorite';

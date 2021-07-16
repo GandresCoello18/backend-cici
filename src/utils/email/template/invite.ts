@@ -1,5 +1,5 @@
 export const Invitacion = (userName: string, avatar: string) => {
-    return `
+  return `
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" style="width:100%;font-family:arial, 'helvetica neue', helvetica, sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;padding:0;Margin:0">
         <head> 
@@ -127,7 +127,10 @@ export const Invitacion = (userName: string, avatar: string) => {
                         <td align="left" style="padding:0;Margin:0;width:560px"> 
                         <table class="es-table-not-adapt" width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px"> 
                             <tr style="border-collapse:collapse"> 
-                            <td valign="top" align="right" style="padding:0;Margin:0;padding-right:10px;font-size:0"><img src="${avatar || 'https://rbagjc.stripocdn.email/content/guids/CABINET_61ea05f8cb9207f8c7a11690fbe51409/images/35171516269810463.jpg'}" alt width="66" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic"></td> 
+                            <td valign="top" align="right" style="padding:0;Margin:0;padding-right:10px;font-size:0"><img src="${
+                              avatar ||
+                              'https://rbagjc.stripocdn.email/content/guids/CABINET_61ea05f8cb9207f8c7a11690fbe51409/images/35171516269810463.jpg'
+                            }" alt width="66" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic"></td> 
                             <td align="left" style="padding:0;Margin:0"> 
                             <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px"> 
                                 <tr style="border-collapse:collapse"> 
@@ -244,4 +247,4 @@ export const Invitacion = (userName: string, avatar: string) => {
         </body>
         </html>
     `;
-}
+};

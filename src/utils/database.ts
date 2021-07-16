@@ -1,5 +1,6 @@
-import mysql from "mysql";
-import {config} from './config';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import mysql from 'mysql';
+import { config } from './config';
 
 const conectar = () => {
   const connection = mysql.createConnection({
@@ -12,9 +13,9 @@ const conectar = () => {
 
   try {
     connection.connect();
-    console.log("conectado con exito");
+    console.log('conectado con exito');
 
-    connection.on("err", (err: any) => {
+    connection.on('err', (err: any) => {
       if (err) console.log(err);
     });
 
@@ -23,6 +24,6 @@ const conectar = () => {
     connection.end();
     return connection;
   }
-}
+};
 
 export const dataBase = conectar();

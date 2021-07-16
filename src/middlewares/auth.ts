@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response, NextFunction } from 'express';
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 import { User } from '../models/users';
 import { config } from '../utils';
 import { getUserUtil } from '../utils/users';
@@ -25,20 +26,19 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     jwt.verify(token, config.JWT_SECRET, async (err: any, decoded: TokenInterface) => {
-        if(err){
-            res.status(401).send({ error: 'Please authenticate.' });
-        }else{
-            const user = await getUserUtil({idUser: decoded.idUser});
+      if (err) {
+        res.status(401).send({ error: 'Please authenticate.' });
+      } else {
+        const user = await getUserUtil({ idUser: decoded.idUser });
 
-            if(!user || user[0].isBanner){
-                throw new Error()
-            }
-
-            req.user = user[0];
-            next();
+        if (!user || user[0].isBanner) {
+          throw new Error();
         }
-    });
 
+        req.user = user[0];
+        next();
+      }
+    });
   } catch (error) {
     console.log('auth error', error.message);
     res.status(401).send({ error: 'Please authenticate.' });
