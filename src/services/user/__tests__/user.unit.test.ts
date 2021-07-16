@@ -1,19 +1,9 @@
-import seperTest from 'supertest';
-import { App } from '../../../app';
-import { dataBase } from '../../../utils';
+import { getUserUtil } from "../../../utils";
 
-const api = seperTest(App);
-const baseUrl = '/api/coupons';
+describe('TEST STORAGE USER', () => {
+  test('obtener usuarios', async () => {
+    const users = await getUserUtil({ email: 'goyeselcoca@gmail.com' });
 
-describe('GET /user', () => {
-    test('responds with json', async (done) => {
-      return await api
-        .get(baseUrl)
-        .expect(200, done)
-    });
-});
-
-afterAll(async () => {
-  console.log('test')
-  dataBase.destroy()
+    expect(users).toHaveLength(1)
+  })
 });
