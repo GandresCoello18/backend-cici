@@ -4,6 +4,9 @@ build/
 # Dependency directories
 node_modules/
 
+#test
+__tests__
+
 .env
 
 # Environment variables
