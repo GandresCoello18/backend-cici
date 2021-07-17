@@ -5,7 +5,7 @@ build/
 node_modules/
 
 #test
-__tests__/
+src/__tests__/
 
 .env
 
