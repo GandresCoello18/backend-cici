@@ -183,10 +183,10 @@ export const crerateUser = async (req: Request, res: Response) => {
     };
     await createUserCouponsUtil(userCoupon);
 
-    return res.status(200).json();
+    return res.status(201).json({});
   } catch (error) {
     req.logger.error({ status: 'error', code: 500, error: error.message });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 

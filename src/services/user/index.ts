@@ -24,7 +24,7 @@ router.get(`${baseURL}/me`, auth, getMe);
 router.get(`${baseURL}/invite/:username`, getUserName);
 router.get(`${baseURL}/:idUser`, auth, getUser);
 router.get(`${baseURL}/`, auth, getUsers);
-router.post(`${baseURL}/`, crerateUser);
+router.post(`${baseURL}`, crerateUser);
 router.post(`${baseURL}/login`, login);
 router.put(`${baseURL}/`, auth, updateMeUser);
 router.put(`${baseURL}/reset-password/:email`, updatePasswordEmail);

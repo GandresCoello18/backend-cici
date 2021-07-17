@@ -1,9 +1,9 @@
-import { getUserUtil } from "../../../utils";
+import { getUserUtil } from '../../../utils';
 
 describe('TEST STORAGE USER', () => {
-  test('obtener usuarios', async () => {
+  test('obtener usuario', async () => {
     const users = await getUserUtil({ email: 'goyeselcoca@gmail.com' });
 
-    expect(users).toHaveLength(1)
-  })
+    expect(users).toHaveLength(1);
+  });
 });

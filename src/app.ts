@@ -51,8 +51,8 @@ cloudinary.v2.config({
   api_secret: config.API_SECRET_CLOUDINARY,
 });
 
-  app.use("/static", express.static("public"));
-  app.set("port", config.APP_PORT);
+app.use('/static', express.static('public'));
+app.set('port', config.APP_PORT);
 
 CronMidnight();
 
@@ -60,8 +60,6 @@ CronMidnight();
 // Use JSON parser for all non-webhook routes
 
 export const App = app;
-export let serverListen: any;
-
 
 app.use('/static', express.static('public'));
 app.set('port', config.APP_PORT);
