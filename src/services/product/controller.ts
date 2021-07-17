@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from 'date-fns';
 import Locale from 'date-fns/locale/es';
@@ -19,9 +20,11 @@ import {
   deleteProductUtil,
   deleteSourceProductUtil,
   getBestSellerProductByCategory,
+  getCountProductsUtil,
   getProductByCategory,
   getProductExistUtil,
   getProductReviewUtil,
+  getProductsAdminUtil,
   getProductSearchUtil,
   getProductSourcesUtil,
   getProductsUtil,
@@ -153,10 +156,29 @@ export const getProducts = async (req: Request, res: Response) => {
 
   try {
     const lastIdProduct = req.query.lastIdProduct as string;
+    const page = req.query.page as string;
+    const findProduct = req.query.findProduct as string;
+    let pages = 0;
+    let start = 0;
+    const client = req.get('origin');
+
+    const { priceMin, priceMax, isPromo, order, orderPrice, orderStar } = req.query;
 
     let products: Product[] = [];
-    const { priceMin, priceMax, isPromo, order, orderPrice, orderStar } = req.query;
-    const findProduct = req.query.findProduct as string;
+
+    if (Number(page)) {
+      const totalProduct = await getCountProductsUtil();
+      pages = totalProduct[0].totalProducts;
+
+      if (Number(page) > 1) {
+        start = Math.trunc((Number(page) - 1) * 15);
+      }
+    }
+
+    if (client === 'https://dashboard.cici.beauty') {
+      products = await getProductsAdminUtil(start);
+      return res.status(200).json({ products });
+    }
 
     const valueQuery = (query: any): boolean => {
       if (query === 'false' || query === 'undefined' || query === '0' || query === undefined) {

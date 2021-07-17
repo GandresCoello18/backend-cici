@@ -160,6 +160,33 @@ export const getProductReviewUtil = async (idProduct: string) => {
   }
 };
 
+export const getCountProductsUtil = async () => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(`SELECT COUNT(*) / 15 as totalProducts FROM products;`, (err, data) =>
+        err ? reject(err) : resolve(data),
+      );
+    })) as { totalProducts: number }[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
+export const getProductsAdminUtil = async (page?: number) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT * FROM products ORDER BY created_at DESC LIMIT ${page}, 15;`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as Product[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
 export const createProductReviewUtil = async (productReview: ProductReviews) => {
   try {
     return await new Promise((resolve, reject) => {
