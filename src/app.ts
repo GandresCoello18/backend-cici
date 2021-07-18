@@ -59,10 +59,15 @@ CronMidnight();
 // app.use(express.json());
 // Use JSON parser for all non-webhook routes
 
-export const App = app;
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/webhooks/stripe' || req.originalUrl === '/api/v2/stripe/webhook') {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 
-app.use('/static', express.static('public'));
-app.set('port', config.APP_PORT);
+export const App = app;
 
 app.use('/api', logger, [
   User,
