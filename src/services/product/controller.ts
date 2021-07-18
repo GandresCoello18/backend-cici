@@ -177,6 +177,11 @@ export const getProducts = async (req: Request, res: Response) => {
 
     if (client === 'https://dashboard.cici.beauty') {
       products = await getProductsAdminUtil(start);
+
+      if (pages > 1.0) {
+        pages = pages + 1;
+      }
+
       return res.status(200).json({ products, pages });
     }
 
