@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import Locale from 'date-fns/locale/es';
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { truncarDecimal } from '../../helpers/truncar';
 import { Product, ProductReviews, SourcesProduct } from '../../models/products';
 import { dataBase } from '../../utils';
 import { getCategoryByProductUtil, getCategorysUtil } from '../../utils/category';
@@ -179,7 +180,7 @@ export const getProducts = async (req: Request, res: Response) => {
       products = await getProductsAdminUtil(start);
 
       if (pages > 1.0) {
-        pages = pages + 1;
+        pages = truncarDecimal(pages) + 1;
       }
 
       return res.status(200).json({ products, pages });
