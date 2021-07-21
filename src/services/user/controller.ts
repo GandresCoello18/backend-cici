@@ -212,7 +212,7 @@ export const login = async (req: Request, res: Response) => {
     const { email, password, provider, userName, avatar } = req.body;
 
     if (!email || !provider) {
-      const response = { status: 'No data user provided' };
+      const response = { status: 'No data email or provider user provided' };
       req.logger.warn(response);
       return res.status(400).json(response);
     }
@@ -226,7 +226,13 @@ export const login = async (req: Request, res: Response) => {
         return res.status(400).json({ status: 'Datos incorrectos, revise e intentelo de nuevo' });
       }
 
-      if (req.hostname === 'dashboard.cici.beauty' && !userExist[0].isAdmin) {
+      if (!userExist[0].validatedEmail) {
+        const response = { status: 'Confirma tu cuenta antes de iniciar sesión' };
+        req.logger.warn(response);
+        return res.status(400).json(response);
+      }
+
+      if (req.get('origin') === 'https://dashboard.cici.beauty' && !userExist[0].isAdmin) {
         return res
           .status(400)
           .json({ status: 'Panel de control solo disponible para admistradores' });
