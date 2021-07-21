@@ -13,6 +13,7 @@ import {
   updateAvatarUserUtil,
   updatePasswordUserUtil,
   updateUserUtil,
+  updateValidEmailUserUtil,
 } from '../../utils';
 import bcryptjs from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,6 +23,8 @@ import { UploadAvatarUser } from '../../utils/cloudinary/user';
 import { SendEmail } from '../../utils/email/send';
 import { WelcomeEmail } from '../../utils/email/template/welcome';
 import { getStatisticsUserUtil } from '../../utils/statistics';
+import { TimeMessage } from '../../models/time-message';
+import { newTimeMessageUtil } from '../../utils/time-message';
 
 export const getMe = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'users', serviceHandler: 'getMe' });
@@ -161,9 +164,20 @@ export const crerateUser = async (req: Request, res: Response) => {
       phone: phone || null,
       isBanner: false,
       ciciRank: 0,
+      validatedEmail: false,
     };
 
     await createUserUtil(user);
+
+    const message: TimeMessage = {
+      id_time_message: uuidv4(),
+      destination: email,
+      subject: 'Confirmar cuenta',
+      created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+      life_minutes: 0,
+    };
+
+    await newTimeMessageUtil(message);
 
     await SendEmail({
       to: email,
@@ -183,7 +197,7 @@ export const crerateUser = async (req: Request, res: Response) => {
     };
     await createUserCouponsUtil(userCoupon);
 
-    return res.status(201).json({});
+    return res.status(201).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500, error: error.message });
     return res.status(500).json();
@@ -246,6 +260,7 @@ export const login = async (req: Request, res: Response) => {
           phone: null,
           isBanner: false,
           ciciRank: 0,
+          validatedEmail: true,
         };
 
         await createUserUtil(saveUser);
@@ -383,6 +398,29 @@ export const updatePasswordUser = async (req: Request, res: Response) => {
     const response = { status: 'No user provided cici' };
     req.logger.warn(response);
     return res.status(400).json(response);
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
+};
+
+export const updateValidateEmailUser = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'updateValidateEmailUser' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { validate } = req.body;
+    const user = req.user;
+
+    if (validate !== undefined || validate !== null) {
+      const response = { status: 'No data validate email user provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await updateValidEmailUserUtil(validate, user.email);
+
+    return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(404).json();

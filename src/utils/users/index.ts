@@ -103,13 +103,13 @@ export const createUserUtil = async (user: User) => {
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `INSERT INTO users (idUser, userName, email, password, created_at, isAdmin, avatar, provider, phone, isBanner, ciciRank) VALUES ('${
+        `INSERT INTO users (idUser, userName, email, password, created_at, isAdmin, avatar, provider, phone, isBanner, ciciRank, validatedEmail) VALUES ('${
           user.idUser
         }', '${user.userName}', '${user.email}', ${user.password ? `'${user.password}'` : null}, '${
           user.created_at
         }', ${user.isAdmin}, ${user.avatar ? `'${user.avatar}'` : null}, '${user.provider}', ${
           user.phone ? `${user.phone}` : null
-        }, ${user.isBanner}, ${user.ciciRank});`,
+        }, ${user.isBanner}, ${user.ciciRank}, ${user.validatedEmail});`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });
@@ -143,6 +143,20 @@ export const updatePasswordUserUtil = async (password: string, idUser: string) =
     return await new Promise((resolve, reject) => {
       dataBase.query(
         `UPDATE users SET password = '${password}' WHERE idUser = '${idUser}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
+export const updateValidEmailUserUtil = async (validate: boolean, idUser: string) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `UPDATE users SET validatedEmail = ${validate} WHERE idUser = '${idUser}';`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });

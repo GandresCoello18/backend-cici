@@ -15,6 +15,7 @@ import {
   updatePasswordUser,
   updateAvatardUser,
   deleteUser,
+  updateValidateEmailUser,
 } from './controller';
 
 const router = express.Router();
@@ -29,6 +30,7 @@ router.post(`${baseURL}/login`, login);
 router.put(`${baseURL}/`, auth, updateMeUser);
 router.put(`${baseURL}/reset-password/:email`, updatePasswordEmail);
 router.put(`${baseURL}/password`, auth, updatePasswordUser);
+router.put(`${baseURL}/validatedEmail`, auth, updateValidateEmailUser);
 router.put(`${baseURL}/avatar`, auth, multer({ storage }).single('avatar'), updateAvatardUser);
 router.delete(`${baseURL}/:idUser`, auth, deleteUser);
 

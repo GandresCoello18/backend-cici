@@ -10,4 +10,5 @@ export interface User {
   phone: number | null;
   isBanner: boolean;
   ciciRank: number;
+  validatedEmail: boolean;
 }

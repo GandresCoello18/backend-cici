@@ -37,7 +37,6 @@ export const newTimeMessage = async (req: Request, res: Response) => {
     };
 
     await newTimeMessageUtil(message);
-    console.log(subject);
 
     await SendEmail({
       to: destination,
@@ -69,16 +68,18 @@ export const getTimeMessage = async (req: Request, res: Response) => {
     const message = await getTimeMessageUtil(id_time_message);
 
     if (message.length) {
-      const time = addMinutes(new Date(message[0].created_at), message[0].life_minutes);
+      if (message[0]?.life_minutes) {
+        const time = addMinutes(new Date(message[0].created_at), message[0].life_minutes);
+        const calculeTime = time.getTime() < new Date().getTime();
 
-      if (time.getTime() < new Date().getTime()) {
-        message[0].status = 'Expirado';
-      } else {
-        message[0].status = 'En progreso';
+        calculeTime ? (message[0].status = 'Expirado') : (message[0].status = 'En progreso');
+
+        return res.status(200).json({ message: message[0] || undefined });
       }
-    }
 
-    return res.status(200).json({ message: message[0] || undefined });
+      message[0].status = 'En progreso';
+      return res.status(200).json({ message: message[0] || undefined });
+    }
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(404).json();
