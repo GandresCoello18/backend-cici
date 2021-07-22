@@ -417,7 +417,7 @@ export const updateValidateEmailUser = async (req: Request, res: Response) => {
   try {
     const { validate, idTimeMessage } = req.body;
 
-    if (validate !== undefined || validate !== null || !idTimeMessage) {
+    if (validate === undefined || validate === null || !idTimeMessage) {
       const response = { status: 'No data validate email user provided' };
       req.logger.warn(response);
       return res.status(400).json(response);
@@ -440,7 +440,7 @@ export const updateValidateEmailUser = async (req: Request, res: Response) => {
     }
 
     if (validate && !user[0].validatedEmail) {
-      await updateValidEmailUserUtil(validate, time[0].destination);
+      await updateValidEmailUserUtil(validate, user[0].idUser);
       await SendEmail({
         to: time[0].destination,
         subject: 'Tenemos un regalo para ti',

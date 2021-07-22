@@ -2,7 +2,7 @@ import { User } from '../../models/users';
 import { dataBase } from '../database';
 
 const response_campo =
-  'idUser, userName, email, password, created_at, isAdmin, avatar, provider, phone, isBanner';
+  'idUser, userName, email, password, created_at, isAdmin, avatar, provider, phone, isBanner, ciciRank, validatedEmail';
 
 export const getUserUtil = async (option: {
   idUser?: string;
@@ -152,7 +152,7 @@ export const updatePasswordUserUtil = async (password: string, idUser: string) =
   }
 };
 
-export const updateValidEmailUserUtil = async (validate: boolean, idUser: string) => {
+export const updateValidEmailUserUtil = async (validate: number, idUser: string) => {
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
