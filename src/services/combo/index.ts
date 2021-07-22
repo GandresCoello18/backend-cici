@@ -4,6 +4,7 @@ import { auth } from '../../middlewares/auth';
 import {
   createCombo,
   getCombosAll,
+  getReviewCombo,
   getCombos,
   getCombo,
   addProductCombo,
@@ -18,6 +19,7 @@ const baseURL = '/combo';
 router.post(`${baseURL}/addProduct`, auth, addProductCombo);
 router.post(`${baseURL}/`, auth, createCombo);
 router.get(`${baseURL}/all`, auth, getCombosAll);
+router.get(`${baseURL}/review/:idCombo`, getReviewCombo);
 router.get(`${baseURL}/:idCombo`, getCombo);
 router.get(`${baseURL}/`, getCombos);
 router.put(`${baseURL}/:idCombo`, auth, updateCombo);

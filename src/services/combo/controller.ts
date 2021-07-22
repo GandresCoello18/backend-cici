@@ -11,11 +11,14 @@ import {
   GetCombosActiveUtil,
   GetCombosUtil,
   GetComboUtil,
+  GetProductByComboUtil,
   NewComboUtil,
   UpdateComboUtil,
 } from '../../utils/combo';
 import { format } from 'date-fns';
 import { SchemaCombo } from '../../helpers/Combo';
+import { getProductReviewUtil } from '../../utils/products';
+import { ProductReviewByUser } from '../../models/products';
 
 export const createCombo = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'combo', serviceHandler: 'createCombo' });
@@ -87,6 +90,44 @@ export const getCombosAll = async (req: Request, res: Response) => {
     );
 
     return res.status(200).json({ combos });
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const getReviewCombo = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'combo', serviceHandler: 'getReviewCombo' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { idCombo } = req.params;
+
+    if (!idCombo) {
+      const response = { status: 'No id combo provider' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const comboProducts = await GetProductByComboUtil(idCombo);
+    const data: ProductReviewByUser[] = [];
+
+    const reviews = await Promise.all(
+      comboProducts.map(async product => {
+        const reviewProduct = await getProductReviewUtil(product.idProducts);
+
+        reviewProduct.map(
+          review =>
+            (review.created_at = format(new Date(review.created_at), 'PPPP', { locale: Locale })),
+        );
+
+        return reviewProduct;
+      }),
+    );
+
+    reviews.map(review => review.map(item => data.push(item)));
+
+    return res.status(200).json({ reviews: data });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();
