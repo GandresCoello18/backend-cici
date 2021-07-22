@@ -122,7 +122,7 @@ export const newOrden = async (req: Request, res: Response) => {
 
       await SendEmail({
         to: user.email,
-        subject: 'Orden confirmada | Cici beauty place',
+        subject: 'Orden confirmada',
         text: '',
         html: ConfirOrden(
           Number(Orden.discount),
@@ -374,7 +374,7 @@ export const UpdateStatusOrder = async (req: Request, res: Response) => {
 
       await SendEmail({
         to: me.email,
-        subject: 'Orden confirmada | Cici beauty place',
+        subject: 'Orden confirmada',
         text: '',
         html: ConfirOrden(
           Number(Orden[0].discount),

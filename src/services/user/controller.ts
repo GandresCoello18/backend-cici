@@ -24,7 +24,7 @@ import { SendEmail } from '../../utils/email/send';
 import { WelcomeEmail } from '../../utils/email/template/welcome';
 import { getStatisticsUserUtil } from '../../utils/statistics';
 import { TimeMessage } from '../../models/time-message';
-import { newTimeMessageUtil } from '../../utils/time-message';
+import { getTimeMessageUtil, newTimeMessageUtil } from '../../utils/time-message';
 
 export const getMe = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'users', serviceHandler: 'getMe' });
@@ -174,17 +174,17 @@ export const crerateUser = async (req: Request, res: Response) => {
       destination: email,
       subject: 'Confirmar cuenta',
       created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
-      life_minutes: 0,
+      life_minutes: 30,
     };
 
     await newTimeMessageUtil(message);
 
-    await SendEmail({
+    /*await SendEmail({
       to: email,
-      subject: 'Tenemos un regalo para ti | Cici beauty place',
+      subject: 'Tenemos un regalo para ti',
       text: '',
       html: WelcomeEmail,
-    });
+    });*/
 
     const userCoupon: CouponsUser = {
       id_user_coupons: uuidv4(),
@@ -290,7 +290,7 @@ export const login = async (req: Request, res: Response) => {
       await createUserCouponsUtil(userCoupon);
       await SendEmail({
         to: email,
-        subject: 'Tenemos un regalo para ti | Cici beauty place',
+        subject: 'Tenemos un regalo para ti',
         text: '',
         html: WelcomeEmail,
       });
@@ -415,21 +415,44 @@ export const updateValidateEmailUser = async (req: Request, res: Response) => {
   req.logger.info({ status: 'start' });
 
   try {
-    const { validate } = req.body;
-    const user = req.user;
+    const { validate, idTimeMessage } = req.body;
 
-    if (validate !== undefined || validate !== null) {
+    if (validate !== undefined || validate !== null || !idTimeMessage) {
       const response = { status: 'No data validate email user provided' };
       req.logger.warn(response);
       return res.status(400).json(response);
     }
 
-    await updateValidEmailUserUtil(validate, user.email);
+    const time = await getTimeMessageUtil(idTimeMessage);
+
+    if (time.length === 0) {
+      const response = { status: 'No exist time database' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const user = await getUserUtil({ email: time[0].destination });
+
+    if (user.length === 0) {
+      const response = { status: 'No exist user database' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    if (validate && !user[0].validatedEmail) {
+      await updateValidEmailUserUtil(validate, time[0].destination);
+      await SendEmail({
+        to: time[0].destination,
+        subject: 'Tenemos un regalo para ti',
+        text: '',
+        html: WelcomeEmail,
+      });
+    }
 
     return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -446,7 +469,7 @@ export const updateAvatardUser = async (req: Request, res: Response) => {
     return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };
 
@@ -469,6 +492,6 @@ export const deleteUser = async (req: Request, res: Response) => {
     return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
-    return res.status(404).json();
+    return res.status(500).json();
   }
 };

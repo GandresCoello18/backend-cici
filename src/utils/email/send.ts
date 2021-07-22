@@ -25,7 +25,7 @@ export const SendEmail = async (option: {
     const info = await transporter.sendMail({
       from: `${config.CORREO_NAMECHEAP}`, // sender address
       to: `${option.to}`, // list of receivers
-      subject: `${option.subject}`, // Subject line
+      subject: `${option.subject} | Cici beauty place`, // Subject line
       text: `${option.text}`, // plain text body
       html: `${option.html}`,
     });

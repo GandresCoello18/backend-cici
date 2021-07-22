@@ -40,9 +40,68 @@ export const newTimeMessage = async (req: Request, res: Response) => {
 
     await SendEmail({
       to: destination,
-      subject: 'Recupera tu contraseña | Cici beauty place',
+      subject: 'Recupera tu contraseña',
       text: '',
       html: PasswordReset(message.id_time_message, message.life_minutes),
+    });
+
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(404).json();
+  }
+};
+
+export const resendTimeMessage = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'time-message', serviceHandler: 'resendTimeMessage' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { idTimeMessage } = req.body;
+
+    if (!idTimeMessage) {
+      const response = { status: 'No data id time message provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const time = await getTimeMessageUtil(idTimeMessage);
+
+    if (time.length === 0) {
+      const response = { status: 'No exist time database' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const message: TimeMessage = {
+      id_time_message: uuidv4(),
+      destination: time[0].destination,
+      subject: time[0].subject,
+      created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+      life_minutes: 30,
+    };
+
+    await newTimeMessageUtil(message);
+
+    let html = '';
+
+    if (message.subject === 'Recuperar contraseña') {
+      html = PasswordReset(message.id_time_message, message.life_minutes);
+    } else if (message.subject === '') {
+      console.log('va otro');
+    }
+
+    if (!html) {
+      const response = { status: 'No exist template email' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await SendEmail({
+      to: message.destination,
+      subject: message.subject,
+      text: '',
+      html,
     });
 
     return res.status(200).json();

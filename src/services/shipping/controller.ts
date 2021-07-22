@@ -63,7 +63,7 @@ export const newShipping = async (req: Request, res: Response) => {
 
     await SendEmail({
       to: user[0].email,
-      subject: 'Tu paquete fue enviado | Cici beauty place',
+      subject: 'Tu paquete fue enviado',
       text: '',
       html: PackageSent(user[0].userName, shipping.guide, AddressSelect),
     });
@@ -188,7 +188,7 @@ export const updateStatusShipping = async (req: Request, res: Response) => {
       if (status === 'Delivered') {
         await SendEmail({
           to: user[0].email,
-          subject: 'Tu orden acaba de llegar | Cici beauty place',
+          subject: 'Tu orden acaba de llegar',
           text: '',
           html: QualifyOrder(user[0].userName, order[0].idOrder),
         });

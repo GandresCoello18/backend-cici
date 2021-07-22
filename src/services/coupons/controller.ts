@@ -216,7 +216,7 @@ export const createRewardCoupons = async (req: Request, res: Response) => {
 
     await SendEmail({
       to: benefitedUser[0].email,
-      subject: 'Cupón de recompensa | Cici beauty place',
+      subject: 'Cupón de recompensa',
       text: '',
       html: RewardCoupon({
         benefited: {
