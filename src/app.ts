@@ -21,6 +21,7 @@ import Combo from './services/combo';
 import TimeOffert from './services/offerTime';
 import Notification from './services/notification';
 import Lottery from './services/lottery';
+import Province from './services/provinces';
 import { config } from './utils';
 import { CronMidnight } from './utils/cron';
 import { ConfigSocketIo } from './utils/socket';
@@ -88,6 +89,7 @@ app.use('/api', logger, [
   TimeOffert,
   Notification,
   Lottery,
+  Province,
 ]);
 
 const server = app.listen(app.get('port'), () => {

@@ -8,4 +8,5 @@ export interface Addresses {
   idUser: string | null;
   created_at: Date | string;
   selected: boolean;
+  province: string;
 }

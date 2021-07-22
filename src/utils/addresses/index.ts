@@ -5,7 +5,7 @@ export const createAddressUtil = async (Addresses: Addresses) => {
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `INSERT INTO addresses (idAddresses, title, phone, city, postalCode, address, idUser, created_at, selected) VALUES ('${Addresses.idAddresses}', '${Addresses.title}', ${Addresses.phone}, '${Addresses.city}', ${Addresses.postalCode}, '${Addresses.address}', '${Addresses.idUser}', '${Addresses.created_at}', ${Addresses.selected});`,
+        `INSERT INTO addresses (idAddresses, title, phone, city, postalCode, address, idUser, created_at, selected, province) VALUES ('${Addresses.idAddresses}', '${Addresses.title}', ${Addresses.phone}, '${Addresses.city}', ${Addresses.postalCode}, '${Addresses.address}', '${Addresses.idUser}', '${Addresses.created_at}', ${Addresses.selected}, '${Addresses.province}');`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });
@@ -32,8 +32,9 @@ export const ExistAddressUtil = async (title: string, idUser: string) => {
 export const getMyAddressUtil = async (idUser: string) => {
   try {
     return (await new Promise((resolve, reject) => {
-      dataBase.query(`SELECT * FROM addresses WHERE idUser = '${idUser}';`, (err, data) =>
-        err ? reject(err) : resolve(data),
+      dataBase.query(
+        `SELECT addresses.*, provinces.nombre as province FROM addresses INNER JOIN provinces ON provinces.codeProvince = addresses.province WHERE addresses.idUser = '${idUser}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as Addresses[];
   } catch (error) {

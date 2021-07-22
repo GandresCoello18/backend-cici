@@ -11,15 +11,16 @@ import {
   getSelectAddressUtil,
   updateSelectAddressUtil,
 } from '../../utils/addresses';
+import { getProvinceUtil } from '../../utils/provinces';
 
 export const newAddress = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'addresses', serviceHandler: 'newAddress' });
   req.logger.info({ status: 'start' });
 
   try {
-    const { title, phone, city, postalCode, address, idUser } = req.body;
+    const { title, phone, city, postalCode, address, idUser, province } = req.body;
 
-    if (!title || !phone || !city || !address) {
+    if (!title || !phone || !city || !address || !province) {
       const response = { status: 'No data provided for new Address' };
       req.logger.warn(response);
       return res.status(400).json(response);
@@ -43,6 +44,7 @@ export const newAddress = async (req: Request, res: Response) => {
       idUser: idUser || null,
       created_at: format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
       selected: false,
+      province,
     };
 
     const existAddress = await ExistAddressUtil(newAddress.title, idUser);
@@ -58,6 +60,11 @@ export const newAddress = async (req: Request, res: Response) => {
     }
 
     await createAddressUtil(newAddress);
+
+    const provinceName = await getProvinceUtil(newAddress.province);
+
+    newAddress.province = provinceName[0].nombre;
+
     return res.status(200).json({ address: newAddress });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
@@ -73,11 +80,9 @@ export const getMyAddress = async (req: Request, res: Response) => {
     const user = req.user;
     const address = await getMyAddressUtil(user.idUser);
 
-    if (address.length) {
-      address.map(
-        item => (item.created_at = format(new Date(item.created_at), 'PPPP', { locale: Locale })),
-      );
-    }
+    address.map(
+      item => (item.created_at = format(new Date(item.created_at), 'PPPP', { locale: Locale })),
+    );
 
     return res.status(200).json({ address });
   } catch (error) {
