@@ -10,6 +10,7 @@ import {
   getUserName,
   crerateUser,
   login,
+  updateCustomer,
   updateMeUser,
   updatePasswordEmail,
   updatePasswordUser,
@@ -28,6 +29,7 @@ router.get(`${baseURL}/`, auth, getUsers);
 router.post(`${baseURL}/`, crerateUser);
 router.post(`${baseURL}/login`, login);
 router.put(`${baseURL}/`, auth, updateMeUser);
+router.put(`${baseURL}/customer`, auth, updateCustomer);
 router.put(`${baseURL}/reset-password/:email`, updatePasswordEmail);
 router.put(`${baseURL}/password`, auth, updatePasswordUser);
 router.put(`${baseURL}/validatedEmail`, updateValidateEmailUser);

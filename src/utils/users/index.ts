@@ -138,6 +138,28 @@ export const updateUserUtil = async (
   }
 };
 
+export const updateCustomerUtil = async (
+  userName: string,
+  email: string,
+  phone: number,
+  isBanner: number,
+  isAdmin: number,
+  validatedEmail: number,
+  idUser: string,
+) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `UPDATE users SET userName = '${userName}', email = '${email}', phone = ${phone}, isAdmin = ${isAdmin}, isBanner = ${isBanner}, validatedEmail = ${validatedEmail} WHERE idUser = '${idUser}';`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
 export const updatePasswordUserUtil = async (password: string, idUser: string) => {
   try {
     return await new Promise((resolve, reject) => {

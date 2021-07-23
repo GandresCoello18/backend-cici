@@ -11,6 +11,7 @@ import {
   getUsersUtil,
   getUserUtil,
   updateAvatarUserUtil,
+  updateCustomerUtil,
   updatePasswordUserUtil,
   updateUserUtil,
   updateValidEmailUserUtil,
@@ -338,6 +339,57 @@ export const updateMeUser = async (req: Request, res: Response) => {
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(404).json();
+  }
+};
+
+export const updateCustomer = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({ service: 'users', serviceHandler: 'updateCustomer' });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { userName, email, phone, isBanner, isAdmin, validatedEmail } = req.body;
+    const me = req.user;
+
+    if (!me.isAdmin || me.isBanner) {
+      const response = { status: 'No eres administrador o estas bloqueado' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    if (
+      !email ||
+      !userName ||
+      isBanner === undefined ||
+      isAdmin === undefined ||
+      validatedEmail === undefined
+    ) {
+      const response = { status: 'No data user provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const user = await getUserUtil({ email });
+
+    if (!user.length) {
+      const response = { status: 'No exist user' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await updateCustomerUtil(
+      userName,
+      email,
+      phone,
+      isBanner,
+      isAdmin,
+      validatedEmail,
+      user[0].idUser,
+    );
+
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
   }
 };
 
