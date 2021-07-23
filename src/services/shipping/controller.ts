@@ -113,7 +113,7 @@ export const getShipping = async (req: Request, res: Response) => {
 
     if (
       me.isAdmin &&
-      (client === 'https://dashboard.cici.beauty' || client === 'http://localhost')
+      (client === 'https://dashboard.cici.beauty' || client === 'http://localhost:3000')
     ) {
       shipping = await getShippingUtil(idPago || undefined, start);
     } else {

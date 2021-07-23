@@ -131,7 +131,7 @@ export const getOfferTimes = async (req: Request, res: Response) => {
     }
 
     const OfferTimes = await getOfferTimeUtil();
-    const times = SchemaTime(OfferTimes, true);
+    const times = await SchemaTime(OfferTimes, true);
 
     return res.status(200).json({ times });
   } catch (error) {

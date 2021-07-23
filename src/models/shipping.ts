@@ -7,29 +7,15 @@ export interface Shipping {
   update_at: string | Date;
   status: string;
   guide: string;
-  method: string;
+  method: 'ServiEntrega' | 'Cici' | 'Tramaco' | 'Urbano';
 }
 
-export interface ShippingCart {
-  idShipping: string;
-  idOrder: string;
-  created_at: string | Date;
-  update_at: string | Date;
-  status: string;
-  guide: string;
-  method: string;
+export interface ShippingCart extends Shipping {
   idCart: string;
   idCombo?: string;
 }
 
-export interface ShippingProduct {
-  idShipping: string;
-  idOrder: string;
-  created_at: string | Date;
-  update_at: string | Date;
-  status: string;
-  guide: string;
-  method: string;
+export interface ShippingProduct extends Shipping {
   title: string;
   sources: string;
 }
