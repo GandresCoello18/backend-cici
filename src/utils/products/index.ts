@@ -90,11 +90,13 @@ export const getProductSearchUtil = async (key: string) => {
   }
 };
 
-export const getProductByCategory = async (TitleCategory: string) => {
+export const getProductByCategory = async (TitleCategory: string, limit: number) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT products.* FROM product_category INNER JOIN products ON products.idProducts = product_category.idProduct INNER JOIN category ON category.idCategory = product_category.idCategory  WHERE category.titleCategory = '${TitleCategory}';`,
+        `SELECT products.* FROM product_category INNER JOIN products ON products.idProducts = product_category.idProduct INNER JOIN category ON category.idCategory = product_category.idCategory WHERE category.titleCategory = '${TitleCategory}' ${
+          limit ? `LIMIT ${limit}` : ''
+        };`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as Product[];

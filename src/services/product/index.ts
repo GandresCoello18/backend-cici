@@ -24,7 +24,7 @@ const baseURL = '/products';
 
 router.get(`${baseURL}/`, getProducts);
 router.get(`${baseURL}/best-sellers-by-category`, getBestSellersByCategory);
-router.get(`${baseURL}/category/:idCategory`, getProductsCategory);
+router.get(`${baseURL}/category/:TitleCategory`, getProductsCategory);
 router.get(`${baseURL}/offers/:limit`, getProductsOffers);
 router.get(`${baseURL}/best-rated/:limit`, getProductsBestRated);
 router.get(`${baseURL}/search/:key`, getSearchProducts);

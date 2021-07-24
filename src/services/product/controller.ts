@@ -351,6 +351,7 @@ export const getProductsCategory = async (req: Request, res: Response) => {
 
   try {
     const { TitleCategory } = req.params;
+    const limit = req.query.limit as string;
 
     if (!TitleCategory) {
       const response = { status: 'No data Title Category provided' };
@@ -358,9 +359,9 @@ export const getProductsCategory = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    const Products = await getProductByCategory(TitleCategory);
+    const products = await getProductByCategory(TitleCategory, Number(limit));
 
-    return res.status(200).json({ products: Products });
+    return res.status(200).json({ products });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();
