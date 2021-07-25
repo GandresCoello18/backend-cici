@@ -112,7 +112,7 @@ export const MoreSourcesProduct = async (req: Request, res: Response) => {
   req.logger.info({ status: 'start' });
 
   try {
-    const { idProduct } = req.body;
+    const { idProduct, isDescription } = req.body;
     const me = req.user;
 
     if (!me.isAdmin || me.isBanner) {
@@ -121,8 +121,8 @@ export const MoreSourcesProduct = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    if (!idProduct) {
-      const response = { status: 'No product id provided' };
+    if (!idProduct || !isDescription) {
+      const response = { status: 'No product id or is Description provided' };
       req.logger.warn(response);
       return res.status(400).json(response);
     }
@@ -136,6 +136,7 @@ export const MoreSourcesProduct = async (req: Request, res: Response) => {
           source: item,
           kind: 'IMAGEN',
           idProduct,
+          isDescription: Number(isDescription),
         };
 
         await createProductSourcesUtil(sourcesProduct);
@@ -176,7 +177,7 @@ export const getProducts = async (req: Request, res: Response) => {
       }
     }
 
-    if (client === 'https://dashboard.cici.beauty') {
+    if (client === 'https://dashboard.cici.beauty' || client === 'http://localhost:3000') {
       products = await getProductsAdminUtil(start);
 
       if (pages > 1.0) {
@@ -257,6 +258,7 @@ export const getProduct = async (req: Request, res: Response) => {
       source: Product[0].source,
       kind: 'IMAGEN',
       idProduct: Product[0].idProducts,
+      isDescription: 0,
     });
 
     Product.map(

@@ -28,6 +28,7 @@ export interface SourcesProduct {
   source: string;
   kind: string;
   idProduct: string;
+  isDescription: number;
 }
 
 export interface ProductReviews {

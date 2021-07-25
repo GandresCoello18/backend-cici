@@ -124,7 +124,7 @@ export const createProductSourcesUtil = async (sourceProduct: SourcesProduct) =>
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `INSERT INTO product_sources (idSourceProduct, source, kind, idProduct) VALUES ('${sourceProduct.idSourceProduct}', '${sourceProduct.source}', '${sourceProduct.kind}', '${sourceProduct.idProduct}');`,
+        `INSERT INTO product_sources (idSourceProduct, source, kind, idProduct, isDescription) VALUES ('${sourceProduct.idSourceProduct}', '${sourceProduct.source}', '${sourceProduct.kind}', '${sourceProduct.idProduct}', ${sourceProduct.isDescription});`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });
