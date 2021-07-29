@@ -363,7 +363,7 @@ export const getProductsCategory = async (req: Request, res: Response) => {
 
     const products = await getProductByCategory(TitleCategory, Number(limit));
 
-    return res.status(200).json({ products });
+    return res.status(200).json({ products: products.reverse() });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();

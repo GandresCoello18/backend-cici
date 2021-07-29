@@ -93,7 +93,6 @@ export const newOrden = async (req: Request, res: Response) => {
     };
 
     await createOrdenUtil(Orden);
-    await updateCiciRankUserUtil(5, user.idUser);
 
     if (Orden.idCart) {
       await UpdateStatusCart(Orden.idCart, 'Complete');
@@ -101,6 +100,9 @@ export const newOrden = async (req: Request, res: Response) => {
       cartProducts.map(async item => await updateAddSoldProductUtil(item.quantity, item.idProduct));
 
       if (Orden.status === 'Paid') {
+        const pts = Number((5 + Orden.totalAmount).toFixed(0));
+        await updateCiciRankUserUtil(pts, user.idUser);
+
         cartProducts.map(
           async item => await updateSubtractAvailabledProductUtil(item.quantity, item.idProduct),
         );
