@@ -59,6 +59,20 @@ export const getLasNumberOfLotteryUtil = async () => {
   }
 };
 
+export const getDateFinishUserLotteryUtil = async (finish: string) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(
+        `SELECT users.*, lottery.* FROM lottery INNER JOIN users ON users.idUser = lottery.winnerUser WHERE DATE(lottery.finish_at) = '${finish}'`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    })) as { numberOfLottery: number; email: string; userName: string }[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
 export const WinnerUserLotteryUtil = async (idUser: string, idLottery: string) => {
   try {
     return await new Promise((resolve, reject) => {

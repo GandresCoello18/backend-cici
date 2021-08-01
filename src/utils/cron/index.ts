@@ -1,13 +1,17 @@
+import { format } from 'date-fns';
 import cron from 'node-cron';
+import Locale from 'date-fns/locale/es';
 import { CartAbandonado, getProductCartUtil } from '../cart';
 import { updateExpireCouponsUtil } from '../coupons';
 import { SendEmail } from '../email/send';
 import { TemplateAbandonedCart } from '../email/template/abandonedCart';
+import { WinnerLottery } from '../email/template/winner-lottery';
+import { getDateFinishUserLotteryUtil } from '../lottery';
 import { UpdateExpiredOfferTimeUtil } from '../offerTime';
 import { ExpiredProductHistoryUtil } from '../productHistory';
 import { updateOfferExpiresProductUtil } from '../products';
 
-export const CronMidnight = () => {
+export const CronNode = () => {
   cron.schedule('0 0 0 * * *', async () => {
     await updateExpireCouponsUtil();
     await updateOfferExpiresProductUtil();
@@ -22,6 +26,12 @@ export const CronMidnight = () => {
       'Expired product history',
       'Expired time offert products',
     );
+  });
+
+  cron.schedule('0 0 23 * * *', async () => {
+    await SendWinnerLottery();
+
+    console.group('Envio de email a winner lottery');
   });
 };
 
@@ -41,5 +51,20 @@ const AbandonedCart = async () => {
         });
       }),
     );
+  }
+};
+
+const SendWinnerLottery = async () => {
+  const finish = format(new Date(), 'yyyy-MM-dd');
+  const user = await getDateFinishUserLotteryUtil(finish);
+  const date = format(new Date(finish), 'PPPP', { locale: Locale });
+
+  if (user.length) {
+    await SendEmail({
+      to: user[0].email,
+      subject: `Felicidades ${user[0].userName}`,
+      text: '',
+      html: WinnerLottery(user[0].numberOfLottery, date),
+    });
   }
 };

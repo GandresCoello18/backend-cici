@@ -23,7 +23,7 @@ import Notification from './services/notification';
 import Lottery from './services/lottery';
 import Province from './services/provinces';
 import { config } from './utils';
-import { CronMidnight } from './utils/cron';
+import { CronNode } from './utils/cron';
 import { ConfigSocketIo } from './utils/socket';
 
 const app = express();
@@ -55,7 +55,7 @@ cloudinary.v2.config({
 app.use('/static', express.static('public'));
 app.set('port', config.APP_PORT);
 
-CronMidnight();
+CronNode();
 
 // app.use(express.json());
 // Use JSON parser for all non-webhook routes
