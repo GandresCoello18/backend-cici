@@ -26,6 +26,7 @@ import { WelcomeEmail } from '../../utils/email/template/welcome';
 import { getStatisticsUserUtil } from '../../utils/statistics';
 import { TimeMessage } from '../../models/time-message';
 import { getTimeMessageUtil, newTimeMessageUtil } from '../../utils/time-message';
+import { ConfirAcount } from '../../utils/email/template/confir-acount';
 
 export const getMe = async (req: Request, res: Response) => {
   req.logger = req.logger.child({ service: 'users', serviceHandler: 'getMe' });
@@ -186,12 +187,12 @@ export const crerateUser = async (req: Request, res: Response) => {
 
     await newTimeMessageUtil(message);
 
-    /*await SendEmail({
+    await SendEmail({
       to: email,
-      subject: 'Tenemos un regalo para ti',
+      subject: 'Confirma tu cuenta',
       text: '',
-      html: WelcomeEmail,
-    });*/
+      html: ConfirAcount(userName, message.id_time_message),
+    });
 
     const userCoupon: CouponsUser = {
       id_user_coupons: uuidv4(),
