@@ -61,11 +61,27 @@ export const newShipping = async (req: Request, res: Response) => {
 
     const AddressSelect = AddressUser.find(item => item.selected);
 
+    let LinkLogistica;
+
+    switch (shipping.method) {
+      case 'ServiEntrega':
+        LinkLogistica = `https://www.servientrega.com.ec/rastreo/guia/${guide}`;
+        break;
+      case 'Tramaco':
+        LinkLogistica = 'https://www.tramaco.com.ec/rastrear-envio/';
+        break;
+      case 'Urbano':
+        LinkLogistica = 'https://www.urbano.com.ec/';
+        break;
+      default:
+        LinkLogistica = 'https://cici.beauty/mis-compras';
+    }
+
     await SendEmail({
       to: user[0].email,
       subject: 'Tu paquete fue enviado',
       text: '',
-      html: PackageSent(user[0].userName, shipping.guide, AddressSelect),
+      html: PackageSent(user[0].userName, shipping.guide, LinkLogistica, AddressSelect),
     });
 
     await NewNotificacionUtil({

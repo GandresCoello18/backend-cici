@@ -139,6 +139,12 @@ export const crerateUser = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
+    if (String(email).indexOf('@') === -1) {
+      const response = { status: 'Email invalid user provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
     const userExist = await getUserUtil({ email_and_username: { userName, email } });
 
     if (userExist.length) {
