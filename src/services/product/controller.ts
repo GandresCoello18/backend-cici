@@ -23,6 +23,7 @@ import {
   deleteSourceProductUtil,
   getBestSellerProductByCategory,
   getCountProductsUtil,
+  getCountResenaProductUtil,
   getProductByCategory,
   getProductExistUtil,
   getProductReviewUtil,
@@ -478,8 +479,21 @@ export const getReviewProduct = async (req: Request, res: Response) => {
 
   try {
     const { idProduct } = req.params;
+    const page = req.query.page as string;
     const client = req.get('origin');
     let WhereApproved = true;
+    let pages = 0;
+    let start = 0;
+    const dataByPage = 15;
+
+    if (Number(page)) {
+      const totalResena = await getCountResenaProductUtil(dataByPage);
+      pages = Math.trunc(totalResena[0].total || 0);
+
+      if (Number(page) > 1) {
+        start = Math.trunc((Number(page) - 1) * dataByPage);
+      }
+    }
 
     if (client === 'https://dashboard.cici.beauty' || client === 'http://localhost:3000') {
       WhereApproved = false;
@@ -491,14 +505,14 @@ export const getReviewProduct = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    const reviews = await getProductReviewUtil(idProduct, WhereApproved);
+    const reviews = await getProductReviewUtil(idProduct, start, WhereApproved);
 
     reviews.map(
       review =>
         (review.created_at = format(new Date(review.created_at), 'PPPP', { locale: Locale })),
     );
 
-    return res.status(200).json({ reviews });
+    return res.status(200).json({ reviews, pages });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();

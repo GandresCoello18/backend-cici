@@ -148,13 +148,17 @@ export const getProductSourcesUtil = async (idProduct: string) => {
   }
 };
 
-export const getProductReviewUtil = async (idProduct: string, WhereApproved?: boolean) => {
+export const getProductReviewUtil = async (
+  idProduct: string,
+  start: number,
+  WhereApproved?: boolean,
+) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
         `SELECT users.userName, users.avatar, productReviews.idProductReviews, productReviews.commentary, productReviews.stars, productReviews.created_at, productReviews.approved, productReviews.source FROM productReviews INNER JOIN users ON users.idUser = productReviews.idUser WHERE productReviews.idProduct = '${idProduct}' ${
           WhereApproved ? 'AND productReviews.approved = 1' : ''
-        } ORDER BY productReviews.created_at DESC LIMIT 5;`,
+        } ORDER BY productReviews.created_at DESC LIMIT ${start}, 15;`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as ProductReviewByUser[];
@@ -171,6 +175,19 @@ export const getCountProductsUtil = async () => {
         err ? reject(err) : resolve(data),
       );
     })) as { totalProducts: number }[];
+  } catch (error) {
+    console.log(error.message);
+    return [];
+  }
+};
+
+export const getCountResenaProductUtil = async (dataByPage: number) => {
+  try {
+    return (await new Promise((resolve, reject) => {
+      dataBase.query(`SELECT COUNT(*) / ${dataByPage} as total FROM productReviews;`, (err, data) =>
+        err ? reject(err) : resolve(data),
+      );
+    })) as { total: number }[];
   } catch (error) {
     console.log(error.message);
     return [];

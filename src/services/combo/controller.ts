@@ -17,7 +17,7 @@ import {
 } from '../../utils/combo';
 import { format } from 'date-fns';
 import { SchemaCombo } from '../../helpers/Combo';
-import { getProductReviewUtil } from '../../utils/products';
+import { getCountResenaProductUtil, getProductReviewUtil } from '../../utils/products';
 import { ProductReviewByUser } from '../../models/products';
 
 export const createCombo = async (req: Request, res: Response) => {
@@ -102,6 +102,25 @@ export const getReviewCombo = async (req: Request, res: Response) => {
 
   try {
     const { idCombo } = req.params;
+    const page = req.query.page as string;
+    const client = req.get('origin');
+    let WhereApproved = true;
+    let pages = 0;
+    let start = 0;
+    const dataByPage = 15;
+
+    if (Number(page)) {
+      const totalResena = await getCountResenaProductUtil(dataByPage);
+      pages = Math.trunc(totalResena[0].total || 0);
+
+      if (Number(page) > 1) {
+        start = Math.trunc((Number(page) - 1) * dataByPage);
+      }
+    }
+
+    if (client === 'https://dashboard.cici.beauty' || client === 'http://localhost:3000') {
+      WhereApproved = false;
+    }
 
     if (!idCombo) {
       const response = { status: 'No id combo provider' };
@@ -114,7 +133,7 @@ export const getReviewCombo = async (req: Request, res: Response) => {
 
     const reviews = await Promise.all(
       comboProducts.map(async product => {
-        const reviewProduct = await getProductReviewUtil(product.idProducts);
+        const reviewProduct = await getProductReviewUtil(product.idProducts, start, WhereApproved);
 
         reviewProduct.map(
           review =>
@@ -127,7 +146,7 @@ export const getReviewCombo = async (req: Request, res: Response) => {
 
     reviews.map(review => review.map(item => data.push(item)));
 
-    return res.status(200).json({ reviews: data });
+    return res.status(200).json({ reviews: data, pages });
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
     return res.status(500).json();
