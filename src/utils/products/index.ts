@@ -148,11 +148,13 @@ export const getProductSourcesUtil = async (idProduct: string) => {
   }
 };
 
-export const getProductReviewUtil = async (idProduct: string) => {
+export const getProductReviewUtil = async (idProduct: string, WhereApproved?: boolean) => {
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT users.userName, users.avatar, productReviews.idProductReviews, productReviews.commentary, productReviews.stars, productReviews.created_at FROM productReviews INNER JOIN users ON users.idUser = productReviews.idUser WHERE productReviews.idProduct = '${idProduct}' ORDER BY productReviews.created_at DESC LIMIT 5;`,
+        `SELECT users.userName, users.avatar, productReviews.idProductReviews, productReviews.commentary, productReviews.stars, productReviews.created_at, productReviews.approved FROM productReviews INNER JOIN users ON users.idUser = productReviews.idUser WHERE productReviews.idProduct = '${idProduct}' ${
+          WhereApproved ? 'AND productReviews.approved = 1' : ''
+        } ORDER BY productReviews.created_at DESC LIMIT 5;`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     })) as ProductReviewByUser[];
@@ -193,13 +195,29 @@ export const createProductReviewUtil = async (productReview: ProductReviews) => 
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `INSERT INTO productReviews (idProductReviews, commentary, stars, created_at, idUser, idProduct, received, recommendation) VALUES ('${
+        `INSERT INTO productReviews (idProductReviews, commentary, stars, created_at, idUser, idProduct, received, recommendation, approved) VALUES ('${
           productReview.idProductReviews
         }', '${productReview.commentary}', ${
           productReview.stars ? `${productReview.stars}` : null
         }, '${productReview.created_at}', '${productReview.idUser}', '${
           productReview.idProduct
-        }', '${productReview.received}', '${productReview.recommendation}');`,
+        }', ${productReview.received}, ${productReview.recommendation}, ${
+          productReview.approved
+        });`,
+        (err, data) => (err ? reject(err) : resolve(data)),
+      );
+    });
+  } catch (error) {
+    console.log(error.message);
+    return false;
+  }
+};
+
+export const updateApprovedReviewUtil = async (idProductReviews: string, approved: number) => {
+  try {
+    return await new Promise((resolve, reject) => {
+      dataBase.query(
+        `UPDATE productReviews SET approved = ${approved} WHERE idProductReviews = '${idProductReviews}';`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });

@@ -30,6 +30,7 @@ import {
   getProductSourcesUtil,
   getProductsUtil,
   getProductUtil,
+  updateApprovedReviewUtil,
   updateProductStartPeopleUtil,
 } from '../../utils/products';
 
@@ -378,7 +379,7 @@ export const createReviewProduct = async (req: Request, res: Response) => {
     const { idOrden, idProduct, commentary, stars, received, recommendation } = req.body;
     const user = req.user;
 
-    if (!idOrden || !idProduct || !commentary || !stars || !recommendation || !received) {
+    if (!idOrden || !idProduct || !commentary || !stars || !received || !recommendation) {
       const response = { status: 'No data product review provided' };
       req.logger.warn(response);
       return res.status(400).json(response);
@@ -393,12 +394,38 @@ export const createReviewProduct = async (req: Request, res: Response) => {
       commentary,
       received,
       recommendation,
+      approved: 0,
     };
 
     await createProductReviewUtil(productReview);
     await UpdateQualifledOrdenUtil(idOrden, true);
     await updateProductStartPeopleUtil(idProduct, stars);
 
+    return res.status(200).json();
+  } catch (error) {
+    req.logger.error({ status: 'error', code: 500 });
+    return res.status(500).json();
+  }
+};
+
+export const UpdateApprovedReviewProduct = async (req: Request, res: Response) => {
+  req.logger = req.logger.child({
+    service: 'product',
+    serviceHandler: 'UpdateApprovedReviewProduct',
+  });
+  req.logger.info({ status: 'start' });
+
+  try {
+    const { idProductReviews } = req.params;
+    const { approved } = req.body;
+
+    if (!idProductReviews || approved === undefined || approved === null) {
+      const response = { status: 'No id product or approved review provided' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    await updateApprovedReviewUtil(idProductReviews, Number(approved));
     return res.status(200).json();
   } catch (error) {
     req.logger.error({ status: 'error', code: 500 });
@@ -439,6 +466,12 @@ export const getReviewProduct = async (req: Request, res: Response) => {
 
   try {
     const { idProduct } = req.params;
+    const client = req.get('origin');
+    let WhereApproved = true;
+
+    if (client === 'https://dashboard.cici.beauty' || client === 'http://localhost:3000') {
+      WhereApproved = false;
+    }
 
     if (!idProduct) {
       const response = { status: 'No product id provided' };
@@ -446,7 +479,7 @@ export const getReviewProduct = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    const reviews = await getProductReviewUtil(idProduct);
+    const reviews = await getProductReviewUtil(idProduct, WhereApproved);
 
     reviews.map(
       review =>
