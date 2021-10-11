@@ -11,9 +11,10 @@ import { getCategoryByProductUtil, getCategorysUtil } from '../../utils/category
 import {
   DeleteProduct,
   UploadMoreSourcesProduct,
+  UploadResenaProduct,
   UploasProduct,
 } from '../../utils/cloudinary/product';
-import { UpdateQualifledOrdenUtil } from '../../utils/orden';
+import { geteOrdenByIdUtil, UpdateQualifledOrdenUtil } from '../../utils/orden';
 import {
   createProductReviewUtil,
   createProductSourcesUtil,
@@ -385,6 +386,16 @@ export const createReviewProduct = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
+    const getOrden = await geteOrdenByIdUtil(idOrden);
+
+    if (getOrden[0].qualified) {
+      const response = { status: 'Esta orden ya fue calificada' };
+      req.logger.warn(response);
+      return res.status(400).json(response);
+    }
+
+    const source = await UploadResenaProduct(req);
+
     const productReview: ProductReviews = {
       idProductReviews: uuidv4(),
       idProduct,
@@ -395,6 +406,7 @@ export const createReviewProduct = async (req: Request, res: Response) => {
       received,
       recommendation,
       approved: 0,
+      source,
     };
 
     await createProductReviewUtil(productReview);
@@ -403,7 +415,7 @@ export const createReviewProduct = async (req: Request, res: Response) => {
 
     return res.status(200).json();
   } catch (error) {
-    req.logger.error({ status: 'error', code: 500 });
+    req.logger.error({ error: error.message, status: 'error', code: 500 });
     return res.status(500).json();
   }
 };

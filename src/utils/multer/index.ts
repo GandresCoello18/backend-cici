@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import multer from 'multer';
-import path from 'path';
+// import path from 'path';
 
 export const storage = multer.diskStorage({
-  destination: function (
+  /*destination: function (
     _req: Express.Request,
     _file: Express.Multer.File,
     callback: (error: Error | null, destination: string) => void,
@@ -13,5 +13,5 @@ export const storage = multer.diskStorage({
   },
   filename: function (_req: Express.Request, file: any, callback: any) {
     callback(null, file.originalname);
-  },
+  },*/
 });

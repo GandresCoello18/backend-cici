@@ -24,7 +24,6 @@ import Lottery from './services/lottery';
 import Province from './services/provinces';
 import { config } from './utils';
 import { CronNode } from './utils/cron';
-import { ConfigSocketIo } from './utils/socket';
 
 const app = express();
 
@@ -68,8 +67,6 @@ app.use((req, res, next) => {
   }
 });
 
-export const App = app;
-
 app.use('/api', logger, [
   User,
   Product,
@@ -92,8 +89,6 @@ app.use('/api', logger, [
   Province,
 ]);
 
-const server = app.listen(app.get('port'), () => {
+app.listen(app.get('port'), () => {
   console.log(`🚀 Server ready at http://localhost:${app.get('port')}`);
 });
-
-ConfigSocketIo(server);

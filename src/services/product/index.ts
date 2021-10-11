@@ -38,7 +38,12 @@ router.post(
   MoreSourcesProduct,
 );
 router.post(`${baseURL}/`, auth, multer({ storage }).single('source'), createProduct);
-router.post(`${baseURL}/review`, auth, createReviewProduct);
+router.post(
+  `${baseURL}/review`,
+  auth,
+  multer({ storage }).single('source_resena'),
+  createReviewProduct,
+);
 router.put(`${baseURL}/review/:idProductReviews`, auth, UpdateApprovedReviewProduct);
 router.delete(`${baseURL}/image/:idProduct`, auth, deleteImageProduct);
 router.delete(`${baseURL}/:idProduct`, auth, deleteProduct);

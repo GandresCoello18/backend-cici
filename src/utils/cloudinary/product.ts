@@ -15,6 +15,19 @@ export const UploasProduct = async (req: Request) => {
   return uniqueFilename;
 };
 
+export const UploadResenaProduct = async (req: Request) => {
+  const path = req.file && req.file.path;
+  const uniqueFilename = `resena/${uuidv4()}`;
+
+  if (path) {
+    await cloudinary.v2.uploader.upload(path, { public_id: uniqueFilename, tags: `resena` });
+
+    return uniqueFilename;
+  }
+
+  return null;
+};
+
 export const DeleteProduct = async (req: Request) => {
   const { public_id } = req.query;
 

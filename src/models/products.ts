@@ -41,6 +41,7 @@ export interface ProductReviews {
   received: number;
   recommendation: number;
   approved: number;
+  source: string | null;
 }
 
 export interface ProductReviewByUser {

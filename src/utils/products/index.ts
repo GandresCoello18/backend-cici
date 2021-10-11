@@ -152,7 +152,7 @@ export const getProductReviewUtil = async (idProduct: string, WhereApproved?: bo
   try {
     return (await new Promise((resolve, reject) => {
       dataBase.query(
-        `SELECT users.userName, users.avatar, productReviews.idProductReviews, productReviews.commentary, productReviews.stars, productReviews.created_at, productReviews.approved FROM productReviews INNER JOIN users ON users.idUser = productReviews.idUser WHERE productReviews.idProduct = '${idProduct}' ${
+        `SELECT users.userName, users.avatar, productReviews.idProductReviews, productReviews.commentary, productReviews.stars, productReviews.created_at, productReviews.approved, productReviews.source FROM productReviews INNER JOIN users ON users.idUser = productReviews.idUser WHERE productReviews.idProduct = '${idProduct}' ${
           WhereApproved ? 'AND productReviews.approved = 1' : ''
         } ORDER BY productReviews.created_at DESC LIMIT 5;`,
         (err, data) => (err ? reject(err) : resolve(data)),
@@ -195,15 +195,15 @@ export const createProductReviewUtil = async (productReview: ProductReviews) => 
   try {
     return await new Promise((resolve, reject) => {
       dataBase.query(
-        `INSERT INTO productReviews (idProductReviews, commentary, stars, created_at, idUser, idProduct, received, recommendation, approved) VALUES ('${
+        `INSERT INTO productReviews (idProductReviews, commentary, stars, created_at, idUser, idProduct, received, recommendation, approved, source) VALUES ('${
           productReview.idProductReviews
         }', '${productReview.commentary}', ${
           productReview.stars ? `${productReview.stars}` : null
         }, '${productReview.created_at}', '${productReview.idUser}', '${
           productReview.idProduct
-        }', ${productReview.received}, ${productReview.recommendation}, ${
+        }', '${productReview.received}', '${productReview.recommendation}', ${
           productReview.approved
-        });`,
+        }, ${productReview.source ? `'${productReview.source}'` : null});`,
         (err, data) => (err ? reject(err) : resolve(data)),
       );
     });
